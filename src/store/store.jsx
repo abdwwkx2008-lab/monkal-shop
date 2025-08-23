@@ -4,6 +4,12 @@ import axios from 'axios';
 
 export const CustomContext = createContext();
 
+
+const API_BASE_URL = "https://modeline-api.onrender.com";
+
+
+const FRONTEND_URL = "https://modeline.vercel.app";
+
 function Context({ children }) {
     const [products, setProducts]       = useState([]);
     const [product, setProduct]         = useState({});
@@ -56,13 +62,13 @@ function Context({ children }) {
     };
 
     const getProducts = () => {
-        axios("http://localhost:8080/products")
+        axios(`${API_BASE_URL}/products`)
             .then((res) => setProducts(res.data))
             .catch((err) => console.error("Ошибка при получении продуктов:", err));
     };
 
     const getProduct = (id) => {
-        axios(`http://localhost:8080/products/${id}`)
+        axios(`${API_BASE_URL}/products/${id}`)
             .then((res) => setProduct(res.data))
             .catch((err) => {
                 console.error("Ошибка при получении продукта:", err);
@@ -73,15 +79,11 @@ function Context({ children }) {
     const sendTelegramNotification = (order) => {
         const TELEGRAM_BOT_TOKEN = '7413471080:AAEMyug52DKFSWwVcFSn7PfanTFP_QOcpA8';
         const TELEGRAM_CHAT_ID = '1722434856';
-        const NGROK_BASE_URL = "https://56e5dd2da219.ngrok-free.app";
 
-        if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) {
-            console.error("Telegram Token или Chat ID не настроены.");
-            return;
-        }
+        if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) return;
 
         let addressText = 'Адрес не указан';
-        if (order.userInfo && order.userInfo.address && order.userInfo.address.city && order.userInfo.address.street) {
+        if (order.userInfo?.address) {
             addressText = `${order.userInfo.address.city}, ${order.userInfo.address.street}`;
         }
 
@@ -96,34 +98,36 @@ function Context({ children }) {
         });
         caption += `\n*Итого:* ${order.totalPrice.toLocaleString()} ₽`;
 
-        let photoUrl = order.items[0]?.image;
+        const mediaGroup = order.items.map((item, index) => {
+            let photoUrl = item.image;
+            if (photoUrl && !photoUrl.startsWith('http')) {
+                const path = photoUrl.startsWith('/') ? photoUrl : `/${photoUrl}`;
+                photoUrl = FRONTEND_URL + path;
+            }
+            const mediaItem = { type: 'photo', media: photoUrl };
+            if (index === 0) {
+                mediaItem.caption = caption;
+                mediaItem.parse_mode = 'Markdown';
+            }
+            return mediaItem;
+        });
 
-        // УЛУЧШЕННАЯ ЛОГИКА СОЗДАНИЯ ССЫЛКИ
-        if (photoUrl && !photoUrl.startsWith('http')) {
-            const path = photoUrl.startsWith('/') ? photoUrl : `/${photoUrl}`;
-            photoUrl = NGROK_BASE_URL + path;
-        }
-
-        const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendPhoto`;
-
-        axios.post(url, {
-            chat_id: TELEGRAM_CHAT_ID,
-            photo: photoUrl,
-            caption: caption,
-            parse_mode: 'Markdown',
-        })
-            .catch((err) => {
-                console.error("Не удалось отправить фото, отправляем текст. Ошибка:", err.response?.data);
+        if (mediaGroup.length > 0) {
+            axios.post(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMediaGroup`, {
+                chat_id: TELEGRAM_CHAT_ID,
+                media: mediaGroup.slice(0, 10)
+            }).catch(() => {
                 axios.post(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
                     chat_id: TELEGRAM_CHAT_ID,
                     text: caption,
                     parse_mode: 'Markdown'
                 });
             });
+        }
     };
 
     const registerUser = (data, navigate) => {
-        axios.post('http://localhost:8080/register', data)
+        axios.post(`${API_BASE_URL}/register`, data)
             .then(() => {
                 toast.success("Регистрация завершена! Теперь вы можете войти.");
                 navigate('/login');
@@ -134,7 +138,7 @@ function Context({ children }) {
     };
 
     const loginUser = (login, password, navigate) => {
-        axios.post('http://localhost:8080/login', {
+        axios.post(`${API_BASE_URL}/login`, {
             email: login,
             password: password
         })
@@ -155,7 +159,7 @@ function Context({ children }) {
             toast.error("Ошибка: пользователь не найден.");
             return Promise.reject("User not found");
         }
-        return axios.patch(`http://localhost:8080/users/${user.id}`, updatedData)
+        return axios.patch(`${API_BASE_URL}/users/${user.id}`, updatedData)
             .then((res) => {
                 setUser(res.data);
                 localStorage.setItem('currentUser', JSON.stringify(res.data));

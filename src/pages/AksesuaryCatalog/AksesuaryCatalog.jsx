@@ -3,7 +3,7 @@ import { useLocation } from 'react-router-dom';
 import { CustomContext } from '../../store/store';
 import useProductFilter from '../../hooks/useProductFilter';
 import ProductCard from '../../components/ProductCards.jsx';
-import FilterSidebar from '../../components/FilterSidebar/FilterSidebar.jsx';
+import FilterSidebar from '../../components/FilterSideBar/FilterSideBar.jsx';
 import './AksesuaryCatalog.css';
 
 function useQuery() {
