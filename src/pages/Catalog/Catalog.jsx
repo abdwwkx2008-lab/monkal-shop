@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { CustomContext } from '../../store/store';
 import useMainCatalogFilter from '../../hooks/useMainCatalogFilter';
 import ProductCard from '../../components/ProductCards.jsx';
-import FilterSidebar from '../../components/FilterSideBar/FilterSideBar.jsx';
+import FilterSidebar from '../../components/Filtersidebar/Filtersidebar.jsx';
 import './Catalog.css';
 
 function Catalog() {

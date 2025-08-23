@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Range } from 'react-range';
-import './FilterSidebar.css';
+import './Filtersidebar.css';
 
 function FilterSidebar({
                            options,
