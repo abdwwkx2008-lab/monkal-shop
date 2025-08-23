@@ -6,13 +6,13 @@ import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import { Navigation, Pagination, Autoplay } from "swiper";
-import SwiperIMG1 from '../../../../../myShop/public/assets/erke banner 1.jpg';
-import SwiperIMG5 from '../../../../../myShop/public/assets/erke banner 2.jpg';
-import SwiperIMG6 from '../../../../../myShop/public/assets/xtep banner.webp';
-import SwiperIMG7 from '../../../../../myShop/public/assets/xtep banner 2.webp';
-import SwiperIMG78 from '../../../../../myShop/public/assets/xtep banner 3.webp';
-import SwiperIMG2 from '../../../../../myShop/public/assets/swiperimg2.png';
-import SwiperIMG3 from '../../../../../myShop/public/assets/swiperimg3.jpg';
+import SwiperIMG1 from '/assets/erke banner 1.jpg';
+import SwiperIMG5 from '/assets/erke banner 2.jpg';
+import SwiperIMG6 from '/assets/xtep banner.webp';
+import SwiperIMG7 from '/assets/xtep banner 2.webp';
+import SwiperIMG78 from '/assets/xtep banner 3.webp';
+import SwiperIMG2 from '/assets/swiperimg2.png';
+import SwiperIMG3 from '/assets/swiperimg3.jpg';
 
 function MySwiper() {
 

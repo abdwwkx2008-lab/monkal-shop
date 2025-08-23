@@ -1,8 +1,8 @@
 import React from 'react';
 import './AboutBrand.css';
-import delivery from '../../../../../myShop/public/assets/delivery.icon.svg';
-import Chel from '../../../../../myShop/public/assets/chel.icon.png';
-import Galochka from '../../../../../myShop/public/assets/galochka.icon.svg';
+import delivery from '/assets/delivery.icon.svg';
+import Chel from '/assets/chel.icon.png';
+import Galochka from '/assets/galochka.icon.svg';
 
 function AboutBrand() {
     return (
