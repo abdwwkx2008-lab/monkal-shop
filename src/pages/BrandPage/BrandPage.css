@@ -1,0 +1,45 @@
+.brand-page-title {
+    font-size: 28px;
+    font-weight: 600;
+    margin-top: 2rem;
+    margin-bottom: 40px;
+    text-align: center;
+    text-transform: capitalize;
+}
+
+.brand-highlight {
+    color: grey;
+}
+
+.brand-page-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 30px;
+}
+
+@media (max-width: 992px) {
+    .brand-page-grid {
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 25px;
+    }
+}
+
+@media (max-width: 768px) {
+    .brand-page-title {
+        font-size: 24px;
+        margin-bottom: 30px;
+    }
+    .brand-page-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .brand-page-title {
+        font-size: 22px;
+    }
+    .brand-page-grid {
+        gap: 15px;
+    }
+}

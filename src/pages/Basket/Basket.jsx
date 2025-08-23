@@ -1,0 +1,246 @@
+import React, { useContext, useState, useEffect } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { CustomContext } from "../../store/store.jsx";
+import axios from 'axios';
+import { toast } from 'react-toastify';
+import './Basket.css';
+
+const Basket = () => {
+    const { cart, setCart, user, sendTelegramNotification } = useContext(CustomContext);
+    const navigate = useNavigate();
+    const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false);
+    const [userAddresses, setUserAddresses] = useState([]);
+    const [selectedAddressId, setSelectedAddressId] = useState('');
+
+    useEffect(() => {
+        if (isCheckoutModalOpen && user && user.id) {
+            axios(`http://localhost:8080/addresses?userId=${user.id}`)
+                .then(res => {
+                    setUserAddresses(res.data);
+                    if (res.data.length > 0) {
+                        setSelectedAddressId(res.data[0].id);
+                    }
+                })
+                .catch(() => {
+                    toast.error("Не удалось загрузить адреса.");
+                });
+        }
+    }, [isCheckoutModalOpen, user]);
+
+
+    function getUniqueCartId(item) {
+        return `${item.id}-${item.size}`;
+    }
+
+    const incrementCount = (cartId) => {
+        setCart(prevCart => prevCart.map(item =>
+            getUniqueCartId(item) === cartId ? { ...item, count: item.count + 1 } : item
+        ));
+    };
+
+    const decrementCount = (cartId) => {
+        setCart(prevCart => prevCart.map(item =>
+            getUniqueCartId(item) === cartId && item.count > 1 ? { ...item, count: item.count - 1 } : item
+        ));
+    };
+
+    const removeCartItem = (cartId) => {
+        setCart(prevCart => prevCart.filter(item => getUniqueCartId(item) !== cartId));
+    };
+
+    const clearCart = () => {
+        setCart([]);
+    };
+
+    const totalPrice = cart.reduce((acc, item) => acc + (item.price * item.count), 0);
+    const totalItems = cart.reduce((acc, item) => acc + item.count, 0);
+
+    function getItemWord(count) {
+        if (count % 10 === 1 && count % 100 !== 11) {
+            return 'товар';
+        } else if ([2, 3, 4].includes(count % 10) && ![12, 13, 14].includes(count % 100)) {
+            return 'товара';
+        }
+        return 'товаров';
+    }
+
+    const handleCheckout = () => {
+        const currentUser = user || JSON.parse(localStorage.getItem('currentUser'));
+        if (!currentUser) {
+            toast.info("Пожалуйста, войдите в аккаунт, чтобы оформить заказ.");
+            navigate('/login');
+            return;
+        }
+        setIsCheckoutModalOpen(true);
+    };
+
+    const confirmOrder = () => {
+        const currentUser = user || JSON.parse(localStorage.getItem('currentUser'));
+
+        if (!currentUser) {
+            toast.error("Произошла ошибка авторизации. Пожалуйста, войдите снова.");
+            setIsCheckoutModalOpen(false);
+            navigate('/login');
+            return;
+        }
+
+        if (userAddresses.length > 0 && !selectedAddressId) {
+            toast.warn("Пожалуйста, выберите адрес доставки.");
+            return;
+        }
+
+        const selectedAddressObject = userAddresses.find(addr => addr.id === Number(selectedAddressId)) || null;
+
+        if (userAddresses.length > 0 && !selectedAddressObject) {
+            toast.error("Выбранный адрес не найден. Пожалуйста, попробуйте еще раз.");
+            return;
+        }
+
+        const newOrder = {
+            id: String(Date.now()),
+            userId: currentUser.id,
+            userInfo: {
+                ...currentUser,
+                address: selectedAddressObject
+            },
+            items: cart,
+            totalPrice: totalPrice,
+            status: 'В обработке',
+            createdAt: new Date().toISOString()
+        };
+
+        axios.post('http://localhost:8080/orders', newOrder)
+            .then(() => {
+                if (sendTelegramNotification) {
+                    sendTelegramNotification(newOrder);
+                }
+                setCart([]);
+                setIsCheckoutModalOpen(false);
+                toast.success("Заказ успешно оформлен! Мы свяжемся с вами в течение 30 минут.");
+                navigate('/profile/orders');
+            })
+            .catch(err => {
+                console.error("Ошибка при оформлении заказа:", err);
+                toast.error("Не удалось оформить заказ. Попробуйте снова.");
+            });
+    };
+
+    if (cart.length === 0) {
+        return (
+            <div className="empty-basket-container">
+                <div className="empty-basket-content">
+                    <svg className="empty-basket-icon" viewBox="0 0 24 24"><path d="M19.5,8H17.21l-3.3-6.6a.75.75,0,0,0-1.34.66l3,6h-7.14l3-6A.75.75,0,0,0,10.13,1.4L6.79,8H4.5a.75.75,0,0,0,0,1.5h.34l.89,7.12A4,4,0,0,0,9.66,20H14.3a4,4,0,0,0,3.93-3.38L19.16,9.5h.34a.75.75,0,0,0,0-1.5Zm-4.34,9.62A2.5,2.5,0,0,1,12.72,18.5H11.24a2.5,2.5,0,0,1-2.43-2.12L8,9.5h8Z"/></svg>
+                    <h2 className="empty-basket-title">Ваша корзина пуста</h2>
+                    <p className="empty-basket-text">Добавьте что-нибудь, чтобы сделать её счастливой!</p>
+                    <button className="empty-basket-button" onClick={() => navigate('/catalog')}>
+                        Перейти в каталог
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <>
+            <section className="basket-section">
+                <div className="basket-container">
+                    <div className="basket-header">
+                        <h1 className="basket-title">Корзина</h1>
+                        <button onClick={clearCart} className="clear-basket-button">Очистить корзину</button>
+                    </div>
+                    <div className="basket-layout">
+                        <div className="basket-items-list">
+                            {cart.map((item) => {
+                                const uniqueId = getUniqueCartId(item);
+                                return (
+                                    <div key={uniqueId} className="basket-item-card">
+                                        <Link to={`/product/${item.id}`} className="item-image-link">
+                                            <img src={item.image} alt={item.name} className="item-image" />
+                                        </Link>
+                                        <div className="item-details">
+                                            <Link to={`/product/${item.id}`} className="item-title-link">
+                                                <p className="item-brand">{item.brand}</p>
+                                                <h3 className="item-title">{item.name}</h3>
+                                            </Link>
+                                            <p className="item-size">Размер: {item.size}</p>
+                                            <div className="item-quantity-stepper">
+                                                <button onClick={() => decrementCount(uniqueId)}>-</button>
+                                                <span>{item.count}</span>
+                                                <button onClick={() => incrementCount(uniqueId)}>+</button>
+                                            </div>
+                                        </div>
+                                        <div className="item-price-and-remove">
+                                            <p className="item-price">{(item.price * item.count).toLocaleString()} ₽</p>
+                                            <button onClick={() => removeCartItem(uniqueId)} className="item-remove-button">Удалить</button>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                        <div className="order-summary-card">
+                            <h2 className="summary-title">Итог заказа</h2>
+                            <div className="summary-row">
+                                <p>{totalItems} {getItemWord(totalItems)}</p>
+                                <p>{totalPrice.toLocaleString()} ₽</p>
+                            </div>
+                            <div className="summary-row">
+                                <p>Доставка по городу <br/>
+                                    Жалал-Абад</p>
+                                <p className="delivery-free">Бесплатно </p>
+                            </div>
+                            <div className="summary-total-row">
+                                <p>К оплате</p>
+                                <p>{totalPrice.toLocaleString()} С</p>
+                            </div>
+                            <button onClick={handleCheckout} className="checkout-main-button">Перейти к оформлению</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {isCheckoutModalOpen && (
+                <div className="logout-modal-overlay">
+                    <div className="logout-modal-content">
+                        <h2>Подтверждение заказа</h2>
+                        <p>Ваш заказ на сумму {totalPrice.toLocaleString()} ₽</p>
+                        <div className="checkout-address-block">
+                            <label htmlFor="address-select">Выберите адрес доставки:</label>
+                            {userAddresses.length > 0 ? (
+                                <select
+                                    id="address-select"
+                                    className="checkout-address-select"
+                                    value={selectedAddressId}
+                                    onChange={(e) => setSelectedAddressId(e.target.value)}
+                                >
+                                    {userAddresses.map(addr => (
+                                        <option key={addr.id} value={addr.id}>
+                                            {addr.city}, {addr.street}
+                                        </option>
+                                    ))}
+                                </select>
+                            ) : (
+                                <div className="checkout-no-address">
+                                    <p>У вас нет сохраненных адресов.</p>
+                                    <Link to="/profile" onClick={() => setIsCheckoutModalOpen(false)}>Добавить адрес</Link>
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="logout-modal-actions">
+                            <button onClick={() => setIsCheckoutModalOpen(false)} className="modal-btn-cancel">Отмена</button>
+                            <button
+                                onClick={confirmOrder}
+                                className="modal-btn-confirm"
+                                disabled={userAddresses.length === 0}
+                            >
+                                Подтвердить
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </>
+    );
+};
+
+export default Basket;

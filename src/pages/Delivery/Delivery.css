@@ -1,0 +1,211 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
+
+.delivery-section {
+    background-color: #fff;
+    min-height: 90vh;
+    padding: 4rem 0;
+    font-family: 'Manrope', sans-serif;
+    color: #18181B;
+}
+
+.delivery-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    animation: content-slide-up 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.delivery-hero {
+    text-align: left;
+    margin-bottom: 4rem;
+}
+
+.delivery-title {
+    font-size: 3.5rem;
+    font-weight: 800;
+    margin: 0 0 1rem 0;
+}
+
+.delivery-subtitle {
+    font-size: 1.1rem;
+    color: #555;
+    line-height: 1.7;
+    max-width: 650px;
+    margin: 0;
+}
+
+.delivery-methods-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+}
+
+.info-card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    gap: 2rem;
+    background-color: #f9f9f9;
+    padding: 2.5rem;
+    border-radius: 24px;
+    animation: item-pop-in 0.6s ease-out backwards;
+}
+
+.delivery-methods-container .info-card:nth-child(2) {
+    animation-delay: 0.1s;
+}
+
+@keyframes item-pop-in {
+    from { opacity: 0; transform: scale(0.98) translateY(10px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.info-card-icon {
+    width: 60px;
+    height: 60px;
+    flex-shrink: 0;
+    border-radius: 16px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.info-card-icon.yandex-go {
+    background-color: #FCDE00;
+}
+.info-card-icon.self-pickup {
+    background-color: #EBF1FF;
+}
+
+.info-card-icon svg {
+    width: 32px;
+    height: 32px;
+}
+.info-card-icon.yandex-go svg {
+    fill: #000;
+}
+.info-card-icon.self-pickup svg {
+    fill: #4C82F7;
+}
+
+.info-card-content {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.info-card-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0 0 1rem 0;
+}
+
+.info-card-text {
+    color: #555;
+    line-height: 1.6;
+    margin: 0 0 2rem 0;
+    flex-grow: 1;
+}
+
+.price-details {
+    padding-top: 1.5rem;
+    border-top: 1px solid #e5e5e5;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: auto;
+}
+
+.price-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.price-label {
+    font-size: 1rem;
+    color: #555;
+    font-weight: 500;
+}
+
+.price-value {
+    font-size: 1rem;
+    font-weight: 700;
+}
+.price-value.free {
+    color: #28a745;
+}
+.yandex-logo{
+    width: 60px;
+    height: 60px;
+    flex-shrink: 0;
+    border-radius: 16px;
+}
+
+@media (max-width: 992px) {
+    .delivery-methods-container {
+        grid-template-columns: 1fr;
+    }
+    .delivery-title {
+        font-size: 3rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .delivery-section {
+        padding: 3rem 0;
+    }
+    .delivery-container {
+        padding: 0 1.5rem;
+    }
+    .delivery-hero {
+        margin-bottom: 3rem;
+    }
+    .delivery-title {
+        font-size: 2.5rem;
+    }
+    .delivery-subtitle {
+        font-size: 1rem;
+    }
+    .info-card {
+        padding: 2rem;
+        gap: 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .delivery-container {
+        padding: 0 1rem;
+    }
+    .delivery-title {
+        font-size: 2.1rem;
+    }
+    .info-card {
+        padding: 1.5rem;
+        border-radius: 20px;
+    }
+    .info-card-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 14px;
+    }
+    .yandex-logo {
+        width: 50px;
+        height: 50px;
+        border-radius: 14px;
+    }
+    .info-card-icon svg {
+        width: 28px;
+        height: 28px;
+    }
+    .info-card-title {
+        font-size: 1.25rem;
+    }
+    .info-card-text {
+        font-size: 0.95rem;
+        margin-bottom: 1.5rem;
+    }
+    .price-label,
+    .price-value {
+        font-size: 0.9rem;
+    }
+}
