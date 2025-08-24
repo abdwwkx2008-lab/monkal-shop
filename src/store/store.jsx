@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 export const CustomContext = createContext();
 
 const API_BASE_URL = "https://modeline-api.onrender.com";
-const FRONTEND_URL = "https://monkal.vercel.app";
+const FRONTEND_URL = "https://monkal-shop-3vo2.vercel.app";
 
 function Context({ children }) {
     const [products, setProducts] = useState([]);

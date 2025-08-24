@@ -12,23 +12,33 @@ app.use(cors());
 app.use(express.json());
 
 const JWT_SECRET = 'your-very-secret-key-for-jwt-change-it';
-const FRONTEND_URL = "https://monkal.vercel.app";
+// ПРОВЕРЬТЕ, ЧТО ВЫ ДОБАВИЛИ ЭТУ ПЕРЕМЕННУЮ В НАСТРОЙКАХ RENDER
+const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:3000";
 
+// --- НАЧАЛО ИСПРАВЛЕННОГО БЛОКА ---
 const adapter = new JSONFile('db.json');
-const db = new Low(adapter);
+
+// Данные по умолчанию для новой, пустой базы данных
+const defaultData = { products: [], users: [], orders: [], addresses: [] };
+
+// Передаем defaultData вторым аргументом.
+// Lowdb автоматически создаст db.json с этой структурой, если файл не существует.
+const db = new Low(adapter, defaultData);
+
+// Этот асинхронный блок теперь просто читает и записывает данные.
 (async () => {
     await db.read();
-    db.data = db.data || { products: [], users: [], orders: [], addresses: [] };
     await db.write();
 })();
+// --- КОНЕЦ ИСПРАВЛЕННОГО БЛОКА ---
+
 
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-        // --- ВСТАВЬ СВОИ ДАННЫЕ СЮДА ---
-        user: 'abdwwkx2008@gmail.com',       // например: 'abdwwkx2008@gmail.com'
-        pass: 'nynfgwuajamhjyik' // например: 'abcdabcdabcdabcd'
-        // ------------------------------------
+        // РЕКОМЕНДУЮ ВЫНЕСТИ ЭТИ ДАННЫЕ В ПЕРЕМЕННЫЕ СРЕДЫ НА RENDER
+        user: 'abdwwkx2008@gmail.com',
+        pass: 'nynfgwuajamhjyik'
     }
 });
 
@@ -45,14 +55,16 @@ app.post('/register/start', (req, res) => {
     const hashedPassword = bcrypt.hashSync(password, 10);
     tempUsers[email] = { fullname, password: hashedPassword, code: verificationCode, timestamp: Date.now() };
     const mailOptions = {
-        // --- И СЮДА ТОЖЕ ВСТАВЬ СВОЙ GMAIL ---
-        from: 'abdwwkx2008@gmail.com', // например: 'abdwwkx2008@gmail.com'
+        from: 'abdwwkx2008@gmail.com',
         to: email,
         subject: 'Код подтверждения для Monkal',
         html: `<h1>Добро пожаловать в Monkal!</h1><p>Ваш код для подтверждения регистрации:</p><h2>${verificationCode}</h2>`
     };
     transporter.sendMail(mailOptions, (error) => {
-        if (error) return res.status(500).json({ message: "Не удалось отправить письмо" });
+        if (error) {
+            console.error("Ошибка отправки письма:", error);
+            return res.status(500).json({ message: "Не удалось отправить письмо" });
+        }
         res.status(200).json({ message: "Код подтверждения отправлен на вашу почту" });
     });
 });
@@ -100,8 +112,7 @@ app.post('/forgot-password', async (req, res) => {
 
     const resetLink = `${FRONTEND_URL}/reset-password/${token}`;
     const mailOptions = {
-        // --- И СЮДА ТОЖЕ ВСТАВЬ СВОЙ GMAIL ---
-        from: 'abdwwkx2008@gmail.com', // например: 'abdwwkx2008@gmail.com'
+        from: 'abdwwkx2008@gmail.com',
         to: email,
         subject: 'Сброс пароля для Monkal',
         html: `<p>Вы запросили сброс пароля. Перейдите по этой ссылке, чтобы установить новый пароль:</p><a href="${resetLink}">${resetLink}</a>`
