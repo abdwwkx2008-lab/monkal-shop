@@ -1,20 +1,19 @@
 import React, { createContext, useState, useEffect } from "react";
 import { toast } from 'react-toastify';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 export const CustomContext = createContext();
 
-// Наши постоянные адреса
 const API_BASE_URL = "https://modeline-api.onrender.com";
-const FRONTEND_URL = "https://monkal.vercel.app"; // Убедись, что это твоя правильная ссылка
+const FRONTEND_URL = "https://monkal.vercel.app";
 
 function Context({ children }) {
     const [products, setProducts] = useState([]);
-    const [product, setProduct] = useState({});
-    const [cart, setCart] = useState(() => JSON.parse(localStorage.getItem('cart')) || []);
-    const [favorites, setFavorites] = useState(() => JSON.parse(localStorage.getItem('favorites')) || []);
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [cart, setCart] = useState(() => JSON.parse(localStorage.getItem('cart')) || []);
+    const [favorites, setFavorites] = useState(() => JSON.parse(localStorage.getItem('favorites')) || []);
 
     useEffect(() => {
         const potentialUser = localStorage.getItem('currentUser');
@@ -27,71 +26,49 @@ function Context({ children }) {
     useEffect(() => { localStorage.setItem('cart', JSON.stringify(cart)); }, [cart]);
     useEffect(() => { localStorage.setItem('favorites', JSON.stringify(favorites)); }, [favorites]);
 
-    const addCart = (item, count) => { /* ... твой код добавления в корзину ... */ };
-    const toggleFavorite = (id) => { /* ... твой код избранного ... */ };
-
     const getProducts = () => {
-        axios(`${API_BASE_URL}/products`)
-            .then((res) => setProducts(res.data))
-            .catch((err) => console.error("Ошибка при получении продуктов:", err));
+        axios.get(`${API_BASE_URL}/products`)
+            .then(res => setProducts(res.data))
+            .catch(err => console.error("Ошибка при получении продуктов:", err));
     };
 
-    const getProduct = (id) => {
-        axios(`${API_BASE_URL}/products/${id}`)
-            .then((res) => setProduct(res.data))
-            .catch((err) => console.error("Ошибка при получении продукта:", err));
+    const startRegistration = (data) => {
+        return axios.post(`${API_BASE_URL}/register/start`, data);
     };
 
-    // --- НОВАЯ, ЧИСТАЯ ЛОГИКА РЕГИСТРАЦИИ ---
-    const registerUser = (data, navigate) => {
-        axios.post(`${API_BASE_URL}/register`, data)
-            .then(() => {
-                toast.success("Вы успешно зарегистрировались!");
-                navigate('/login');
-            })
-            .catch((err) => {
-                // json-server-auth возвращает ошибку в err.response.data
-                const errorMessage = err.response?.data || "Неизвестная ошибка";
-                if (errorMessage.toLowerCase().includes("email already exists")) {
-                    toast.error("Этот e-mail уже занят.");
-                } else {
-                    toast.error("Ошибка при регистрации.");
-                }
-            });
+    const verifyRegistration = (data) => {
+        return axios.post(`${API_BASE_URL}/register/verify`, data);
     };
 
-    // --- НОВАЯ, ЧИСТАЯ ЛОГИКА ВХОДА ---
-    const loginUser = (data, navigate) => {
-        axios.post(`${API_BASE_URL}/login`, data)
+    const loginUser = (data) => {
+        return axios.post(`${API_BASE_URL}/login`, data)
             .then((res) => {
                 const loggedInUser = res.data.user;
                 localStorage.setItem('currentUser', JSON.stringify(loggedInUser));
                 setUser(loggedInUser);
                 toast.success(`Добро пожаловать, ${loggedInUser.fullname}!`);
-                navigate('/profile');
-            })
-            .catch(() => {
-                toast.error("Неверный логин или пароль.");
+                return loggedInUser;
             });
     };
 
-    const logOutUser = (navigate) => {
+    const logOutUser = () => {
         localStorage.removeItem('currentUser');
         setUser(null);
-        navigate('/login');
     };
 
-    const sendTelegramNotification = (order) => { /* ... твой код отправки в телеграм ... */ };
+    const forgotPassword = (data) => {
+        return axios.post(`${API_BASE_URL}/forgot-password`, data);
+    };
+
+    const resetPassword = (data) => {
+        return axios.post(`${API_BASE_URL}/reset-password/${data.token}`, { password: data.password });
+    };
 
     useEffect(() => { getProducts(); }, []);
 
     const value = {
-        products, product, getProduct,
-        cart, setCart, addCart,
-        favorites, setFavorites, toggleFavorite,
-        user, setUser, registerUser, loginUser, logOutUser,
-        loading,
-        sendTelegramNotification
+        products, user, setUser, cart, setCart, favorites, setFavorites, loading,
+        startRegistration, verifyRegistration, loginUser, logOutUser, forgotPassword, resetPassword
     };
 
     return (
