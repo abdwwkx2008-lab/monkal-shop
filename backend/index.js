@@ -20,7 +20,6 @@ const db = new Low(adapter, defaultData);
 
 (async () => {
     await db.read();
-
     if (!db.data.products || db.data.products.length === 0) {
         try {
             console.log('База продуктов пуста, засеиваем начальные данные...');
@@ -31,7 +30,6 @@ const db = new Low(adapter, defaultData);
             console.error('Ошибка при загрузке db-seed.json:', error);
         }
     }
-
     await db.write();
 })();
 
@@ -45,9 +43,7 @@ const transporter = nodemailer.createTransport({
 
 const tempUsers = {};
 
-app.get('/products', (req, res) => {
-    res.json(db.data.products);
-});
+app.get('/products', (req, res) => res.json(db.data.products));
 
 app.get('/products/:id', (req, res) => {
     const product = db.data.products.find(p => p.id === parseInt(req.params.id));
@@ -84,14 +80,18 @@ app.post('/register/start', (req, res) => {
 app.post('/register/verify', async (req, res) => {
     const { email, code } = req.body;
     const tempUser = tempUsers[email];
-    if (!tempUser || tempUser.code !== code) return res.status(400).json({ message: "Неверный код подтверждения" });
+    if (!tempUser || tempUser.code !== code) {
+        return res.status(400).json({ message: "Неверный код подтверждения" });
+    }
     if (Date.now() - tempUser.timestamp > 600000) {
         delete tempUsers[email];
         return res.status(400).json({ message: "Время действия кода истекло" });
     }
     const newUser = {
         id: (db.data.users.length > 0 ? Math.max(...db.data.users.map(u => u.id)) : 0) + 1,
-        email, fullname: tempUser.fullname, password: tempUser.password
+        email,
+        fullname: tempUser.fullname,
+        password: tempUser.password
     };
     db.data.users.push(newUser);
     await db.write();
@@ -113,7 +113,9 @@ app.post('/login', (req, res) => {
 app.post('/forgot-password', async (req, res) => {
     const { email } = req.body;
     const user = db.data.users.find(u => u.email === email);
-    if (!user) return res.status(200).json({ message: "Если такой пользователь существует, мы отправили инструкцию на почту." });
+    if (!user) {
+        return res.status(200).json({ message: "Если такой пользователь существует, мы отправили инструкцию на почту." });
+    }
     const token = crypto.randomBytes(32).toString('hex');
     user.resetPasswordToken = token;
     user.resetPasswordExpires = Date.now() + 3600000;
@@ -133,7 +135,9 @@ app.post('/reset-password/:token', async (req, res) => {
     const { token } = req.params;
     const { password } = req.body;
     const user = db.data.users.find(u => u.resetPasswordToken === token && u.resetPasswordExpires > Date.now());
-    if (!user) return res.status(400).json({ message: "Токен недействителен или срок его действия истек" });
+    if (!user) {
+        return res.status(400).json({ message: "Токен недействителен или срок его действия истек" });
+    }
     user.password = bcrypt.hashSync(password, 10);
     user.resetPasswordToken = undefined;
     user.resetPasswordExpires = undefined;
@@ -180,6 +184,17 @@ app.get('/orders', (req, res) => {
     if (isNaN(userId)) return res.status(400).json({ message: "Неверный userId" });
     const userOrders = db.data.orders.filter(o => o.userId === userId);
     res.json(userOrders);
+});
+
+app.post('/orders', async (req, res) => {
+    const newOrder = {
+        id: (db.data.orders.length > 0 ? Math.max(...db.data.orders.map(o => o.id)) : 0) + 1,
+        ...req.body,
+        createdAt: new Date().toISOString()
+    };
+    db.data.orders.push(newOrder);
+    await db.write();
+    res.status(201).json(newOrder);
 });
 
 app.patch('/users/:id', async (req, res) => {

@@ -3,7 +3,6 @@ import { toast } from 'react-toastify';
 import axios from 'axios';
 
 export const CustomContext = createContext();
-
 export const API_BASE_URL = "https://monkal-shop.onrender.com";
 
 function Context({ children }) {
@@ -73,9 +72,7 @@ function Context({ children }) {
     };
 
     const startRegistration = (data) => axios.post(`${API_BASE_URL}/register/start`, data);
-
     const verifyRegistration = (data) => axios.post(`${API_BASE_URL}/register/verify`, data);
-
     const loginUser = (data) => {
         return axios.post(`${API_BASE_URL}/login`, data)
             .then((res) => {
@@ -97,7 +94,6 @@ function Context({ children }) {
     };
 
     const forgotPassword = (data) => axios.post(`${API_BASE_URL}/forgot-password`, data);
-
     const resetPassword = (data) => axios.post(`${API_BASE_URL}/reset-password/${data.token}`, { password: data.password });
 
     const updateUser = (dataToUpdate) => {
@@ -120,27 +116,39 @@ function Context({ children }) {
             });
     };
 
+    const sendTelegramNotification = (order) => {
+        const botToken = "ВАШ_ТОКЕН_БОТА";
+        const chatId = "ВАШ_CHAT_ID";
+
+        const itemsText = order.items.map(item =>
+            `${item.name} (Размер: ${item.size}) - ${item.count} шт.`
+        ).join('\n');
+
+        const message = `
+            🎉 *Новый заказ!* №${order.id}\n\n
+            *Клиент:*\n
+            Имя: ${order.userInfo.fullname}\n
+            Email: ${order.userInfo.email}\n
+            Телефон: ${order.userInfo.phone || 'Не указан'}\n\n
+            *Адрес доставки:*\n
+            ${order.userInfo.address.city}, ${order.userInfo.address.street}\n\n
+            *Состав заказа:*\n
+            ${itemsText}\n\n
+            *Итого: ${order.totalPrice.toLocaleString()} ₽*
+        `;
+
+        axios.post(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+            chat_id: chatId,
+            text: message,
+            parse_mode: 'Markdown'
+        }).catch(err => console.error("Ошибка отправки в Telegram:", err));
+    };
+
     const value = {
-        products,
-        product,
-        user,
-        loading,
-        cart,
-        favorites,
-        setUser,
-        setCart,
-        setFavorites,
-        getProducts,
-        getProduct,
-        addCart,
-        toggleFavorite,
-        startRegistration,
-        verifyRegistration,
-        loginUser,
-        logOutUser,
-        forgotPassword,
-        resetPassword,
-        updateUser
+        products, product, user, loading, cart, favorites,
+        setUser, setCart, setFavorites, getProducts, getProduct, addCart, toggleFavorite,
+        startRegistration, verifyRegistration, loginUser, logOutUser, forgotPassword, resetPassword,
+        updateUser, sendTelegramNotification
     };
 
     return (
