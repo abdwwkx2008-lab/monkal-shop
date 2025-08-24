@@ -16,9 +16,12 @@ const Basket = () => {
         if (isCheckoutModalOpen && user && user.id) {
             axios(`${API_BASE_URL}/addresses?userId=${user.id}`)
                 .then(res => {
-                    setUserAddresses(res.data);
-                    if (res.data.length > 0) {
-                        setSelectedAddressId(res.data[0].id.toString());
+                    const addresses = res.data;
+                    setUserAddresses(addresses);
+                    if (addresses.length > 0) {
+                        const lastSelected = localStorage.getItem('lastSelectedAddressId');
+                        const defaultId = lastSelected && addresses.some(a => a.id.toString() === lastSelected) ? lastSelected : addresses[0].id.toString();
+                        setSelectedAddressId(defaultId);
                     }
                 })
                 .catch(() => {
@@ -27,30 +30,17 @@ const Basket = () => {
         }
     }, [isCheckoutModalOpen, user]);
 
-    function getUniqueCartId(item) {
-        return `${item.id}-${item.size}`;
-    }
-
-    const incrementCount = (cartId) => {
-        setCart(prevCart => prevCart.map(item =>
-            getUniqueCartId(item) === cartId ? { ...item, count: item.count + 1 } : item
-        ));
+    const handleAddressChange = (e) => {
+        const newAddressId = e.target.value;
+        setSelectedAddressId(newAddressId);
+        localStorage.setItem('lastSelectedAddressId', newAddressId);
     };
 
-    const decrementCount = (cartId) => {
-        setCart(prevCart => prevCart.map(item =>
-            getUniqueCartId(item) === cartId && item.count > 1 ? { ...item, count: item.count - 1 } : item
-        ));
-    };
-
-    const removeCartItem = (cartId) => {
-        setCart(prevCart => prevCart.filter(item => getUniqueCartId(item) !== cartId));
-    };
-
-    const clearCart = () => {
-        setCart([]);
-    };
-
+    function getUniqueCartId(item) { return `${item.id}-${item.size}`; }
+    const incrementCount = (cartId) => { setCart(prevCart => prevCart.map(item => getUniqueCartId(item) === cartId ? { ...item, count: item.count + 1 } : item )); };
+    const decrementCount = (cartId) => { setCart(prevCart => prevCart.map(item => getUniqueCartId(item) === cartId && item.count > 1 ? { ...item, count: item.count - 1 } : item )); };
+    const removeCartItem = (cartId) => { setCart(prevCart => prevCart.filter(item => getUniqueCartId(item) !== cartId)); };
+    const clearCart = () => setCart([]);
     const totalPrice = cart.reduce((acc, item) => acc + (item.price * item.count), 0);
     const totalItems = cart.reduce((acc, item) => acc + item.count, 0);
 
@@ -71,57 +61,36 @@ const Basket = () => {
 
     const confirmOrder = () => {
         if (!user) {
-            toast.error("Произошла ошибка авторизации. Пожалуйста, войдите снова.");
+            toast.error("Произошла ошибка авторизации.");
             setIsCheckoutModalOpen(false);
             navigate('/login');
             return;
         }
-
-        if (userAddresses.length > 0 && !selectedAddressId) {
+        if (userAddresses.length === 0) {
+            toast.error("Пожалуйста, добавьте адрес в личном кабинете.");
+            return;
+        }
+        if (!selectedAddressId) {
             toast.warn("Пожалуйста, выберите адрес доставки.");
             return;
         }
-
-        if (userAddresses.length === 0) {
-            toast.error("Пожалуйста, добавьте адрес в личном кабинете, чтобы оформить заказ.");
-            return;
-        }
-
         const selectedAddressObject = userAddresses.find(addr => addr.id.toString() === selectedAddressId);
-
         if (!selectedAddressObject) {
-            toast.error("Выбранный адрес не найден. Пожалуйста, попробуйте еще раз.");
+            toast.error("Выбранный адрес не найден.");
             return;
         }
-
-        const newOrder = {
-            userId: user.id,
-            userInfo: {
-                fullname: user.fullname,
-                email: user.email,
-                phone: user.phone || 'Не указан',
-                address: selectedAddressObject
-            },
-            items: cart,
-            totalPrice: totalPrice,
-            status: 'В обработке',
-            createdAt: new Date().toISOString()
-        };
-
+        const newOrder = { userId: user.id, userInfo: { fullname: user.fullname, email: user.email, phone: user.phone || 'Не указан', address: selectedAddressObject }, items: cart, totalPrice: totalPrice, status: 'В обработке' };
         axios.post(`${API_BASE_URL}/orders`, newOrder)
             .then((res) => {
-                const createdOrder = res.data;
-                if (sendTelegramNotification) {
-                    sendTelegramNotification(createdOrder);
-                }
+                if (sendTelegramNotification) sendTelegramNotification(res.data);
                 setCart([]);
                 setIsCheckoutModalOpen(false);
-                toast.success("Заказ успешно оформлен! Мы свяжемся с вами в течение 30 минут.");
+                toast.success("Заказ успешно оформлен!");
                 navigate('/profile/orders');
             })
             .catch(err => {
                 console.error("Ошибка при оформлении заказа:", err);
-                toast.error("Не удалось оформить заказ. Попробуйте снова.");
+                toast.error("Не удалось оформить заказ.");
             });
     };
 
@@ -137,70 +106,10 @@ const Basket = () => {
             </div>
         );
     }
-
     return (
         <>
-            <section className="basket-section">
-                <div className="basket-container">
-                    <div className="basket-header">
-                        <h1 className="basket-title">Корзина</h1>
-                        <button onClick={clearCart} className="clear-basket-button">Очистить корзину</button>
-                    </div>
-                    <div className="basket-layout">
-                        <div className="basket-items-list">
-                            {cart.map((item) => {
-                                const uniqueId = getUniqueCartId(item);
-                                return (
-                                    <div key={uniqueId} className="basket-item-card">
-                                        <Link to={`/product/${item.id}`} className="item-image-link"><img src={item.image} alt={item.name} className="item-image" /></Link>
-                                        <div className="item-details">
-                                            <Link to={`/product/${item.id}`} className="item-title-link"><p className="item-brand">{item.brand}</p><h3 className="item-title">{item.name}</h3></Link>
-                                            <p className="item-size">Размер: {item.size}</p>
-                                            <div className="item-quantity-stepper"><button onClick={() => decrementCount(uniqueId)}>-</button><span>{item.count}</span><button onClick={() => incrementCount(uniqueId)}>+</button></div>
-                                        </div>
-                                        <div className="item-price-and-remove"><p className="item-price">{(item.price * item.count).toLocaleString()} ₽</p><button onClick={() => removeCartItem(uniqueId)} className="item-remove-button">Удалить</button></div>
-                                    </div>
-                                );
-                            })}
-                        </div>
-                        <div className="order-summary-card">
-                            <h2 className="summary-title">Итог заказа</h2>
-                            <div className="summary-row"><p>{totalItems} {getItemWord(totalItems)}</p><p>{totalPrice.toLocaleString()} ₽</p></div>
-                            <div className="summary-row"><p>Доставка по городу <br/>Жалал-Абад</p><p className="delivery-free">Бесплатно </p></div>
-                            <div className="summary-total-row"><p>К оплате</p><p>{totalPrice.toLocaleString()} С</p></div>
-                            <button onClick={handleCheckout} className="checkout-main-button">Перейти к оформлению</button>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            {isCheckoutModalOpen && (
-                <div className="logout-modal-overlay">
-                    <div className="logout-modal-content">
-                        <h2>Подтверждение заказа</h2>
-                        <p>Ваш заказ на сумму {totalPrice.toLocaleString()} ₽</p>
-                        <div className="checkout-address-block">
-                            <label htmlFor="address-select">Выберите адрес доставки:</label>
-                            {userAddresses.length > 0 ? (
-                                <select id="address-select" className="checkout-address-select" value={selectedAddressId} onChange={(e) => setSelectedAddressId(e.target.value)}>
-                                    {userAddresses.map(addr => (
-                                        <option key={addr.id} value={addr.id}>{addr.city}, {addr.street}</option>
-                                    ))}
-                                </select>
-                            ) : (
-                                <div className="checkout-no-address">
-                                    <p>У вас нет сохраненных адресов.</p>
-                                    <Link to="/profile/address" onClick={() => setIsCheckoutModalOpen(false)}>Добавить адрес</Link>
-                                </div>
-                            )}
-                        </div>
-                        <div className="logout-modal-actions">
-                            <button onClick={() => setIsCheckoutModalOpen(false)} className="modal-btn-cancel">Отмена</button>
-                            <button onClick={confirmOrder} className="modal-btn-confirm" disabled={userAddresses.length === 0}>Подтвердить</button>
-                        </div>
-                    </div>
-                </div>
-            )}
+            <section className="basket-section"><div className="basket-container"><div className="basket-header"><h1 className="basket-title">Корзина</h1><button onClick={clearCart} className="clear-basket-button">Очистить корзину</button></div><div className="basket-layout"><div className="basket-items-list">{cart.map((item) => { const uniqueId = getUniqueCartId(item); return (<div key={uniqueId} className="basket-item-card"><Link to={`/product/${item.id}`} className="item-image-link"><img src={item.image} alt={item.name} className="item-image" /></Link><div className="item-details"><Link to={`/product/${item.id}`} className="item-title-link"><p className="item-brand">{item.brand}</p><h3 className="item-title">{item.name}</h3></Link><p className="item-size">Размер: {item.size}</p><div className="item-quantity-stepper"><button onClick={() => decrementCount(uniqueId)}>-</button><span>{item.count}</span><button onClick={() => incrementCount(uniqueId)}>+</button></div></div><div className="item-price-and-remove"><p className="item-price">{(item.price * item.count).toLocaleString()} ₽</p><button onClick={() => removeCartItem(uniqueId)} className="item-remove-button">Удалить</button></div></div>); })}</div><div className="order-summary-card"><h2 className="summary-title">Итог заказа</h2><div className="summary-row"><p>{totalItems} {getItemWord(totalItems)}</p><p>{totalPrice.toLocaleString()} ₽</p></div><div className="summary-row"><p>Доставка по городу <br/>Жалал-Абад</p><p className="delivery-free">Бесплатно </p></div><div className="summary-total-row"><p>К оплате</p><p>{totalPrice.toLocaleString()} С</p></div><button onClick={handleCheckout} className="checkout-main-button">Перейти к оформлению</button></div></div></div></section>
+            {isCheckoutModalOpen && (<div className="logout-modal-overlay"><div className="logout-modal-content"><h2>Подтверждение заказа</h2><p>Ваш заказ на сумму {totalPrice.toLocaleString()} ₽</p><div className="checkout-address-block"><label htmlFor="address-select">Выберите адрес доставки:</label>{userAddresses.length > 0 ? (<select id="address-select" className="checkout-address-select" value={selectedAddressId} onChange={handleAddressChange}>{userAddresses.map(addr => (<option key={addr.id} value={addr.id}>{addr.city}, {addr.street}</option>))}</select>) : (<div className="checkout-no-address"><p>У вас нет сохраненных адресов.</p><Link to="/profile/address" onClick={() => setIsCheckoutModalOpen(false)}>Добавить адрес</Link></div>)}</div><div className="logout-modal-actions"><button onClick={() => setIsCheckoutModalOpen(false)} className="modal-btn-cancel">Отмена</button><button onClick={confirmOrder} className="modal-btn-confirm" disabled={userAddresses.length === 0}>Подтвердить</button></div></div></div>)}
         </>
     );
 };

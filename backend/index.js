@@ -51,7 +51,6 @@ app.get('/products/:id', (req, res) => {
 
 app.post('/register', async (req, res) => {
     const { email, fullname, password, phone } = req.body;
-
     if (!email || !fullname || !password || !phone) {
         return res.status(400).json({ message: "Пожалуйста, заполните все поля" });
     }
@@ -61,16 +60,8 @@ app.post('/register', async (req, res) => {
     if (db.data.users.find(u => u.phone === phone)) {
         return res.status(400).json({ message: "Этот номер телефона уже занят" });
     }
-
     const hashedPassword = bcrypt.hashSync(password, 10);
-    const newUser = {
-        id: (db.data.users.length > 0 ? Math.max(...db.data.users.map(u => u.id)) : 0) + 1,
-        email,
-        fullname,
-        password: hashedPassword,
-        phone
-    };
-
+    const newUser = { id: (db.data.users.length > 0 ? Math.max(...db.data.users.map(u => u.id)) : 0) + 1, email, fullname, password: hashedPassword, phone };
     db.data.users.push(newUser);
     await db.write();
     res.status(201).json({ message: "Регистрация успешно завершена!" });

@@ -20,16 +20,9 @@ function Context({ children }) {
             setUser(JSON.parse(potentialUser));
         }
         axios.get(`${API_BASE_URL}/products`)
-            .then(res => {
-                setProducts(res.data);
-            })
-            .catch(err => {
-                console.error("Ошибка при получении продуктов:", err);
-                setProducts([]);
-            })
-            .finally(() => {
-                setLoading(false);
-            });
+            .then(res => { setProducts(res.data); })
+            .catch(err => { console.error("Ошибка при получении продуктов:", err); setProducts([]); })
+            .finally(() => { setLoading(false); });
     }, []);
 
     useEffect(() => { localStorage.setItem('cart', JSON.stringify(cart)); }, [cart]);
@@ -50,10 +43,7 @@ function Context({ children }) {
         } else {
             axios.get(`${API_BASE_URL}/products/${id}`)
                 .then(res => setProduct(res.data))
-                .catch(err => {
-                    console.error("Товар не найден:", err)
-                    setProduct({});
-                });
+                .catch(err => { console.error("Товар не найден:", err); setProduct({}); });
         }
     };
 
@@ -63,9 +53,7 @@ function Context({ children }) {
             if (existingItem) {
                 return prevCart.map(cartItem =>
                     cartItem.id === item.id && cartItem.size === item.size
-                        ? { ...cartItem, count: cartItem.count + count }
-                        : cartItem
-                );
+                        ? { ...cartItem, count: cartItem.count + count } : cartItem );
             } else {
                 return [...prevCart, { ...item, count }];
             }
@@ -133,44 +121,23 @@ function Context({ children }) {
         const botToken = "7815642060:AAGny8UWvjM3FcuN6NZ6agQ28ZoUJRgxucQ";
         const chatId = "1722434856";
         const frontendUrl = "https://monkal-shop-3vo2.vercel.app";
-
-        const captionText = `
-🎉 *Новый заказ!* №${order.id}
-*Клиент:*
-Имя: ${order.userInfo.fullname}
-Email: ${order.userInfo.email}
-Телефон: ${order.userInfo.phone || 'Не указан'}
-*Адрес доставки:*
-${order.userInfo.address.city}, ${order.userInfo.address.street}
-*Итого: ${order.totalPrice.toLocaleString()} ₽*
-        `;
-
-        const media = order.items.map((item, index) => ({
-            type: 'photo',
-            media: `${frontendUrl}${item.image}`,
-            caption: index === 0 ? captionText : `${item.name} (${item.size}) - ${item.count} шт.`,
-            parse_mode: 'Markdown'
-        }));
-
-        if (media.length === 1) {
-            axios.post(`https://api.telegram.org/bot${botToken}/sendPhoto`, {
-                chat_id: chatId,
-                photo: media[0].media,
-                caption: media[0].caption,
-                parse_mode: 'Markdown'
-            }).catch(err => console.error("Ошибка отправки фото в Telegram:", err.response?.data));
-        } else if (media.length > 1) {
-            axios.post(`https://api.telegram.org/bot${botToken}/sendMediaGroup`, {
-                chat_id: chatId,
-                media: media.slice(0, 10)
-            }).then(() => {
-                axios.post(`https://api.telegram.org/bot${botToken}/sendMessage`, {
-                    chat_id: chatId,
-                    text: captionText,
-                    parse_mode: 'Markdown'
-                });
-            }).catch(err => console.error("Ошибка отправки фото в Telegram:", err.response?.data));
-        }
+        const messageText = `🎉 *Новый заказ!* №${order.id}\n\n*Клиент:*\nИмя: ${order.userInfo.fullname}\nEmail: ${order.userInfo.email}\nТелефон: ${order.userInfo.phone || 'Не указан'}\n\n*Адрес доставки:*\n${order.userInfo.address.city}, ${order.userInfo.address.street}\n\n*Состав заказа:*\n${order.items.map(item => `- ${item.name} (Размер: ${item.size}) - ${item.count} шт.`).join('\n')}\n\n*Итого: ${order.totalPrice.toLocaleString()} ₽*`;
+        const media = order.items.map(item => ({ type: 'photo', media: `${frontendUrl}${item.image}` }));
+        const sendPhotos = () => {
+            if (media.length === 0) return Promise.resolve();
+            if (media.length === 1) {
+                return axios.post(`https://api.telegram.org/bot${botToken}/sendPhoto`, { chat_id: chatId, photo: media[0].media });
+            }
+            return axios.post(`https://api.telegram.org/bot${botToken}/sendMediaGroup`, { chat_id: chatId, media: media.slice(0, 10) });
+        };
+        sendPhotos()
+            .then(() => {
+                axios.post(`https://api.telegram.org/bot${botToken}/sendMessage`, { chat_id: chatId, text: messageText, parse_mode: 'Markdown' });
+            })
+            .catch(err => {
+                console.error("Ошибка отправки в Telegram:", err.response?.data);
+                axios.post(`https://api.telegram.org/bot${botToken}/sendMessage`, { chat_id: chatId, text: "Не удалось загрузить фото заказа. \n\n" + messageText, parse_mode: 'Markdown' });
+            });
     };
 
     const value = {
