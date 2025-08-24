@@ -4,7 +4,7 @@ import React, { useContext } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { CustomContext } from '../../store/store'; // Проверь правильность пути
-import '../Login/Login.css'; // Не забудь создать этот файл стилей
+import './Register.css'; // Не забудь создать этот файл стилей
 
 const Register = () => {
     const { registerUser } = useContext(CustomContext);
