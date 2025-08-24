@@ -1,3 +1,5 @@
+// Твой исправленный Login.jsx
+
 import React, { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { CustomContext } from '../../store/store';
@@ -8,24 +10,19 @@ import eyeClosed from '/assets/eyeClosed.png';
 const Login = () => {
     const navigate = useNavigate();
     const { loginUser } = useContext(CustomContext);
-    const [formData, setFormData] = useState({
-        login: '',
-        password: '',
-    });
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
-
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
-    };
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        if (!formData.login || !formData.password) {
+        if (!email || !password) {
             toast.error('Пожалуйста, заполните все поля');
             return;
         }
-        loginUser(formData.login, formData.password, navigate);
+        // --- ГЛАВНОЕ ИЗМЕНЕНИЕ ЗДЕСЬ ---
+        // Отправляем объект {email, password}, как ожидает наша новая функция
+        loginUser({ email, password }, navigate);
     };
 
     return (
@@ -35,14 +32,14 @@ const Login = () => {
                 <p className="auth-form-subtitle">Введите данные для входа в аккаунт</p>
 
                 <div className="auth-form-group">
-                    <label className="auth-form-label">Email или номер телефона</label>
+                    <label className="auth-form-label">Email</label>
                     <input
-                        name="login"
-                        value={formData.login}
-                        onChange={handleChange}
+                        name="email" // <-- Важно, чтобы name был 'email'
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
                         className="auth-form-input"
-                        type="text"
-                        placeholder="example@mail.com или +996..."
+                        type="email"
+                        placeholder="example@mail.com"
                     />
                 </div>
 
@@ -51,8 +48,8 @@ const Login = () => {
                     <div className="password-input-wrapper">
                         <input
                             name="password"
-                            value={formData.password}
-                            onChange={handleChange}
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
                             className="auth-form-input"
                             type={showPassword ? 'text' : 'password'}
                             placeholder="••••••••"
