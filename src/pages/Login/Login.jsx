@@ -1,13 +1,12 @@
-// Твой исправленный Login.jsx
-
 import React, { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { CustomContext } from '../../store/store';
+import { CustomContext } from '../../store/store'; // Убедитесь, что путь к store.jsx правильный
 import { toast } from 'react-toastify';
 import eyeOpen from '/assets/eyeOpen.png';
 import eyeClosed from '/assets/eyeClosed.png';
 
 const Login = () => {
+    // 1. Получаем инструмент для навигации `navigate` внутри компонента. Это ПРАВИЛЬНО.
     const navigate = useNavigate();
     const { loginUser } = useContext(CustomContext);
     const [email, setEmail] = useState('');
@@ -20,9 +19,19 @@ const Login = () => {
             toast.error('Пожалуйста, заполните все поля');
             return;
         }
-        // --- ГЛАВНОЕ ИЗМЕНЕНИЕ ЗДЕСЬ ---
-        // Отправляем объект {email, password}, как ожидает наша новая функция
-        loginUser({ email, password }, navigate);
+
+        // 2. Вызываем функцию `loginUser` из store и ЖДЁМ ответа
+        loginUser({ email, password })
+            .then(() => {
+                // 3. Этот код выполнится ТОЛЬКО ЕСЛИ логин был успешным.
+                // Здесь мы используем наш инструмент `navigate` для перехода на главную страницу.
+                navigate('/');
+            })
+            .catch((err) => {
+                // Если `loginUser` вернул ошибку, этот блок сработает,
+                // а `navigate('/')` не вызовется. Перехода не будет.
+                console.error("Ошибка входа:", err);
+            });
     };
 
     return (
@@ -34,7 +43,7 @@ const Login = () => {
                 <div className="auth-form-group">
                     <label className="auth-form-label">Email</label>
                     <input
-                        name="email" // <-- Важно, чтобы name был 'email'
+                        name="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         className="auth-form-input"
