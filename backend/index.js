@@ -11,7 +11,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-very-secret-key-for-jwt-change-it';
+const JWT_SECRET = process.env.JWT_SECRET || 'MonkalShopSecretKeyForTokens_2025!@#$';
 const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:3000";
 
 const adapter = new JSONFile('db.json');
@@ -41,61 +41,38 @@ const transporter = nodemailer.createTransport({
     }
 });
 
-const tempUsers = {};
-
 app.get('/products', (req, res) => res.json(db.data.products));
 
 app.get('/products/:id', (req, res) => {
     const product = db.data.products.find(p => p.id === parseInt(req.params.id));
-    if (product) {
-        res.json(product);
-    } else {
-        res.status(404).json({ message: "Товар не найден" });
-    }
+    if (product) res.json(product);
+    else res.status(404).json({ message: "Товар не найден" });
 });
 
-app.post('/register/start', (req, res) => {
-    const { email, fullname, password } = req.body;
+app.post('/register', async (req, res) => {
+    const { email, fullname, password, phone } = req.body;
+
+    if (!email || !fullname || !password || !phone) {
+        return res.status(400).json({ message: "Пожалуйста, заполните все поля" });
+    }
     if (db.data.users.find(u => u.email === email)) {
         return res.status(400).json({ message: "Этот e-mail уже занят" });
     }
-    const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
-    const hashedPassword = bcrypt.hashSync(password, 10);
-    tempUsers[email] = { fullname, password: hashedPassword, code: verificationCode, timestamp: Date.now() };
-    const mailOptions = {
-        from: process.env.GMAIL_USER || 'abdwwkx2008@gmail.com',
-        to: email,
-        subject: 'Код подтверждения для Monkal',
-        html: `<h1>Добро пожаловать в Monkal!</h1><p>Ваш код для подтверждения регистрации:</p><h2>${verificationCode}</h2>`
-    };
-    transporter.sendMail(mailOptions, (error) => {
-        if (error) {
-            console.error("Ошибка отправки письма:", error);
-            return res.status(500).json({ message: "Не удалось отправить письмо" });
-        }
-        res.status(200).json({ message: "Код подтверждения отправлен на вашу почту" });
-    });
-});
+    if (db.data.users.find(u => u.phone === phone)) {
+        return res.status(400).json({ message: "Этот номер телефона уже занят" });
+    }
 
-app.post('/register/verify', async (req, res) => {
-    const { email, code } = req.body;
-    const tempUser = tempUsers[email];
-    if (!tempUser || tempUser.code !== code) {
-        return res.status(400).json({ message: "Неверный код подтверждения" });
-    }
-    if (Date.now() - tempUser.timestamp > 600000) {
-        delete tempUsers[email];
-        return res.status(400).json({ message: "Время действия кода истекло" });
-    }
+    const hashedPassword = bcrypt.hashSync(password, 10);
     const newUser = {
         id: (db.data.users.length > 0 ? Math.max(...db.data.users.map(u => u.id)) : 0) + 1,
         email,
-        fullname: tempUser.fullname,
-        password: tempUser.password
+        fullname,
+        password: hashedPassword,
+        phone
     };
+
     db.data.users.push(newUser);
     await db.write();
-    delete tempUsers[email];
     res.status(201).json({ message: "Регистрация успешно завершена!" });
 });
 
@@ -113,20 +90,13 @@ app.post('/login', (req, res) => {
 app.post('/forgot-password', async (req, res) => {
     const { email } = req.body;
     const user = db.data.users.find(u => u.email === email);
-    if (!user) {
-        return res.status(200).json({ message: "Если такой пользователь существует, мы отправили инструкцию на почту." });
-    }
+    if (!user) return res.status(200).json({ message: "Если такой пользователь существует, мы отправили инструкцию на почту." });
     const token = crypto.randomBytes(32).toString('hex');
     user.resetPasswordToken = token;
     user.resetPasswordExpires = Date.now() + 3600000;
     await db.write();
     const resetLink = `${FRONTEND_URL}/reset-password/${token}`;
-    const mailOptions = {
-        from: process.env.GMAIL_USER || 'abdwwkx2008@gmail.com',
-        to: email,
-        subject: 'Сброс пароля для Monkal',
-        html: `<p>Вы запросили сброс пароля. Перейдите по этой ссылке, чтобы установить новый пароль:</p><a href="${resetLink}">${resetLink}</a>`
-    };
+    const mailOptions = { from: process.env.GMAIL_USER || 'abdwwkx2008@gmail.com', to: email, subject: 'Сброс пароля для Monkal', html: `<p>Вы запросили сброс пароля. Перейдите по этой ссылке, чтобы установить новый пароль:</p><a href="${resetLink}">${resetLink}</a>` };
     transporter.sendMail(mailOptions);
     res.status(200).json({ message: "Если такой пользователь существует, мы отправили инструкцию на почту." });
 });
@@ -135,9 +105,7 @@ app.post('/reset-password/:token', async (req, res) => {
     const { token } = req.params;
     const { password } = req.body;
     const user = db.data.users.find(u => u.resetPasswordToken === token && u.resetPasswordExpires > Date.now());
-    if (!user) {
-        return res.status(400).json({ message: "Токен недействителен или срок его действия истек" });
-    }
+    if (!user) return res.status(400).json({ message: "Токен недействителен или срок его действия истек" });
     user.password = bcrypt.hashSync(password, 10);
     user.resetPasswordToken = undefined;
     user.resetPasswordExpires = undefined;
@@ -153,10 +121,7 @@ app.get('/addresses', (req, res) => {
 });
 
 app.post('/addresses', async (req, res) => {
-    const newAddress = {
-        id: (db.data.addresses.length > 0 ? Math.max(...db.data.addresses.map(a => a.id)) : 0) + 1,
-        ...req.body
-    };
+    const newAddress = { id: (db.data.addresses.length > 0 ? Math.max(...db.data.addresses.map(a => a.id)) : 0) + 1, ...req.body };
     db.data.addresses.push(newAddress);
     await db.write();
     res.status(201).json(newAddress);
@@ -187,11 +152,7 @@ app.get('/orders', (req, res) => {
 });
 
 app.post('/orders', async (req, res) => {
-    const newOrder = {
-        id: (db.data.orders.length > 0 ? Math.max(...db.data.orders.map(o => o.id)) : 0) + 1,
-        ...req.body,
-        createdAt: new Date().toISOString()
-    };
+    const newOrder = { id: (db.data.orders.length > 0 ? Math.max(...db.data.orders.map(o => o.id)) : 0) + 1, ...req.body, createdAt: new Date().toISOString() };
     db.data.orders.push(newOrder);
     await db.write();
     res.status(201).json(newOrder);

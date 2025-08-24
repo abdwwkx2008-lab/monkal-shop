@@ -1,50 +1,68 @@
-import React, { useContext, useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { useNavigate, Link } from 'react-router-dom';
+import React, { useState, useContext } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { CustomContext } from '../../store/store';
 import { toast } from 'react-toastify';
-import './Register.css';
+import eyeOpen from '/assets/eyeOpen.png';
+import eyeClosed from '/assets/eyeClosed.png';
 
 const Register = () => {
-    const { startRegistration } = useContext(CustomContext);
     const navigate = useNavigate();
-    const { register, handleSubmit, formState: { errors } } = useForm({ mode: 'onBlur' });
-    const [isSubmitting, setIsSubmitting] = useState(false);
+    const { registerUser } = useContext(CustomContext);
 
-    const onSubmit = (data) => {
-        setIsSubmitting(true);
-        startRegistration(data)
+    const [formData, setFormData] = useState({
+        fullname: '',
+        email: '',
+        phone: '',
+        password: ''
+    });
+    const [showPassword, setShowPassword] = useState(false);
+
+    const handleChange = (e) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
+
+    const handleRegister = (e) => {
+        e.preventDefault();
+        registerUser(formData)
             .then(() => {
-                toast.success("Код подтверждения отправлен на вашу почту!");
-                navigate(`/verify-email?email=${data.email}`);
+                toast.success("Регистрация успешно завершена! Теперь вы можете войти.");
+                navigate('/login');
             })
-            .catch((err) => {
-                const message = err.response?.data?.message || "Ошибка при регистрации";
-                toast.error(message);
-            })
-            .finally(() => setIsSubmitting(false));
+            .catch(err => toast.error(err.response?.data?.message || "Ошибка регистрации"));
     };
 
     return (
-        <section className="register">
-            <div className="container">
-                <form className="register__form" onSubmit={handleSubmit(onSubmit)}>
-                    <h2 className="register__title">Создать аккаунт</h2>
-                    <p className="register__subtitle">
-                        Введите ваши данные, и мы отправим 6-значный код подтверждения на ваш e-mail.
-                    </p>
-                    <input {...register('fullname', { required: true })} placeholder="Имя и фамилия" />
-                    <input {...register('email', { required: true })} type="email" placeholder="E-mail" />
-                    <input {...register('password', { required: true, minLength: 6 })} type="password" placeholder="Пароль" />
-                    <button type="submit" className="register__form-btn" disabled={isSubmitting}>
-                        {isSubmitting ? "Отправка..." : "Получить код"}
-                    </button>
-                    <p className="register__link-text">
-                        Уже есть аккаунт? <Link to="/login">Войти</Link>
-                    </p>
-                </form>
-            </div>
-        </section>
+        <div className="auth-page-wrapper">
+            <form onSubmit={handleRegister} noValidate className="auth-form">
+                <h1 className="auth-form-title">Создать аккаунт</h1>
+                <p className="auth-form-subtitle">Заполните данные для регистрации</p>
+
+                <div className="auth-form-group">
+                    <label className="auth-form-label">Полное имя</label>
+                    <input name="fullname" value={formData.fullname} onChange={handleChange} className="auth-form-input" type="text" placeholder="Асадов Асадбек" required />
+                </div>
+                <div className="auth-form-group">
+                    <label className="auth-form-label">Email</label>
+                    <input name="email" value={formData.email} onChange={handleChange} className="auth-form-input" type="email" placeholder="example@mail.com" required />
+                </div>
+                <div className="auth-form-group">
+                    <label className="auth-form-label">Номер телефона</label>
+                    <input name="phone" value={formData.phone} onChange={handleChange} className="auth-form-input" type="tel" placeholder="+996XXXXXXXXX" required />
+                </div>
+                <div className="auth-form-group">
+                    <label className="auth-form-label">Пароль</label>
+                    <div className="password-input-wrapper">
+                        <input name="password" value={formData.password} onChange={handleChange} className="auth-form-input" type={showPassword ? 'text' : 'password'} placeholder="••••••••" required />
+                        <img src={showPassword ? eyeClosed : eyeOpen} alt="Toggle password" className="password-eye-icon" onClick={() => setShowPassword(p => !p)} />
+                    </div>
+                </div>
+                <button type="submit" className="auth-form-button">Зарегистрироваться</button>
+                <p className="auth-form-switch-text">
+                    Уже есть аккаунт?{' '}
+                    <Link to="/login" className="auth-form-link">Войти</Link>
+                </p>
+            </form>
+        </div>
     );
 };
 

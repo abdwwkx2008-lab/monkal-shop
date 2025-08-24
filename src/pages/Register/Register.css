@@ -1,122 +1,162 @@
-/* src/pages/Register/Register.css */
-
-/* Используем те же стили, что и для страницы входа, просто меняем классы */
-.register {
+.auth-page-wrapper {
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 100vh;
-    padding: 2rem;
-    background-color: #f4f4f5;
-    font-family: 'Manrope', sans-serif;
+    min-height: 90vh;
+    padding: 2rem 1rem;
+    background-color: #f7f8fa;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    box-sizing: border-box;
 }
 
-.register__form {
+.auth-form {
     width: 100%;
-    max-width: 420px;
+    max-width: 440px;
     padding: 2.5rem;
-    background-color: #fff;
-    border-radius: 20px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
-    animation: form-pop-in 0.6s cubic-bezier(0.25, 1, 0.5, 1) backwards;
+    background-color: #ffffff;
+    border: 1px solid #e0e6ed;
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 30, 80, 0.08);
+    animation: fadeIn 0.5s ease-out forwards;
 }
 
-@keyframes form-pop-in {
-    from { opacity: 0; transform: scale(0.95); }
-    to { opacity: 1; transform: scale(1); }
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
-.register__title {
-    font-size: 2.25rem;
-    font-weight: 800;
-    color: #18181B;
+.auth-form-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1a202c;
     text-align: center;
     margin: 0 0 0.5rem 0;
 }
 
-.register__subtitle {
+.auth-form-subtitle {
     font-size: 1rem;
-    color: #777;
+    color: #6c757d;
     text-align: center;
-    margin: 0 0 2.5rem 0;
-    max-width: 320px;
-    margin-left: auto;
-    margin-right: auto;
+    margin: 0 0 2rem 0;
 }
 
-.register__form-group {
-    margin-bottom: 1.5rem;
+.auth-form-group {
+    margin-bottom: 1.25rem;
 }
 
-.register__form-input {
+.auth-form-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #4a5568;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.auth-form-input {
     width: 100%;
-    height: 50px;
+    height: 52px;
     padding: 0 1rem;
-    border: 1px solid #ddd;
-    border-radius: 10px;
+    border: 1px solid #d2d6dc;
+    border-radius: 8px;
     font-size: 1rem;
-    background-color: #f9f9f9;
-    transition: all 0.2s ease;
+    background-color: #fdfdff;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
     box-sizing: border-box;
 }
 
-.register__form-input:focus {
+.auth-form-input:focus {
     outline: none;
-    border-color: #5D8B9B;
-    background-color: #fff;
-    box-shadow: 0 0 0 3px rgba(93, 139, 155, 0.2);
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
 }
 
-.error-message {
-    color: #e53935;
-    font-size: 0.85rem;
-    font-weight: 500;
-    margin-top: 0.5rem;
-    display: block;
+.password-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
 }
 
-.register__form-btn {
+.password-eye-icon {
+    position: absolute;
+    right: 1rem;
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    opacity: 0.5;
+    transition: opacity 0.2s ease;
+}
+
+.password-eye-icon:hover {
+    opacity: 0.8;
+}
+
+.auth-form-button {
     width: 100%;
     height: 55px;
-    margin-top: 0.5rem;
+    margin-top: 1.5rem;
     border: none;
-    border-radius: 10px;
-    background-color: #18181B;
-    color: #fff;
+    border-radius: 8px;
+    background-color: #1a202c;
+    color: #ffffff;
     font-size: 1rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.register__form-btn:hover:not(:disabled) {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-}
-
-.register__link-text {
-    font-size: 0.9rem;
-    color: #555;
-    text-align: center;
-    margin-top: 2rem;
-}
-
-.register__link-text a {
-    color: #5D8B9B;
-    text-decoration: none;
     font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
 }
 
-@media (max-width: 576px) {
-    .register {
+.auth-form-button:hover:not(:disabled) {
+    background-color: #2d3748;
+    transform: translateY(-2px);
+}
+
+.auth-form-button:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.auth-form-button:disabled {
+    background-color: #a0aec0;
+    cursor: not-allowed;
+}
+
+.auth-form-switch-text {
+    font-size: 0.9rem;
+    color: #4a5568;
+    text-align: center;
+    margin-top: 1.5rem;
+}
+
+.auth-form-link {
+    color: #2563eb;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.auth-form-link:hover {
+    text-decoration: underline;
+}
+
+/* --- Адаптивность --- */
+
+@media (max-width: 768px) {
+    .auth-form {
+        padding: 2rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .auth-page-wrapper {
         padding: 1rem;
         align-items: flex-start;
         padding-top: 5vh;
     }
-    .register__form {
-        padding: 2rem;
+
+    .auth-form {
+        padding: 1.5rem;
+        border: none;
+        box-shadow: none;
     }
-    .register__title {
-        font-size: 2rem;
+
+    .auth-form-title {
+        font-size: 1.75rem;
     }
 }

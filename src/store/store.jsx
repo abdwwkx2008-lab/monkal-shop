@@ -19,7 +19,6 @@ function Context({ children }) {
         if (potentialUser) {
             setUser(JSON.parse(potentialUser));
         }
-
         axios.get(`${API_BASE_URL}/products`)
             .then(res => {
                 setProducts(res.data);
@@ -85,8 +84,8 @@ function Context({ children }) {
         });
     };
 
-    const startRegistration = (data) => axios.post(`${API_BASE_URL}/register/start`, data);
-    const verifyRegistration = (data) => axios.post(`${API_BASE_URL}/register/verify`, data);
+    const registerUser = (data) => axios.post(`${API_BASE_URL}/register`, data);
+
     const loginUser = (data) => {
         return axios.post(`${API_BASE_URL}/login`, data)
             .then((res) => {
@@ -133,35 +132,51 @@ function Context({ children }) {
     const sendTelegramNotification = (order) => {
         const botToken = "7815642060:AAGny8UWvjM3FcuN6NZ6agQ28ZoUJRgxucQ";
         const chatId = "1722434856";
+        const frontendUrl = "https://monkal-shop-3vo2.vercel.app";
 
-        const itemsText = order.items.map(item =>
-            `${item.name} (Размер: ${item.size}) - ${item.count} шт.`
-        ).join('\n');
-
-        const message = `
-            🎉 *Новый заказ!* №${order.id}\n\n
-            *Клиент:*\n
-            Имя: ${order.userInfo.fullname}\n
-            Email: ${order.userInfo.email}\n
-            Телефон: ${order.userInfo.phone || 'Не указан'}\n\n
-            *Адрес доставки:*\n
-            ${order.userInfo.address.city}, ${order.userInfo.address.street}\n\n
-            *Состав заказа:*\n
-            ${itemsText}\n\n
-            *Итого: ${order.totalPrice.toLocaleString()} ₽*
+        const captionText = `
+🎉 *Новый заказ!* №${order.id}
+*Клиент:*
+Имя: ${order.userInfo.fullname}
+Email: ${order.userInfo.email}
+Телефон: ${order.userInfo.phone || 'Не указан'}
+*Адрес доставки:*
+${order.userInfo.address.city}, ${order.userInfo.address.street}
+*Итого: ${order.totalPrice.toLocaleString()} ₽*
         `;
 
-        axios.post(`https://api.telegram.org/bot${botToken}/sendMessage`, {
-            chat_id: chatId,
-            text: message,
+        const media = order.items.map((item, index) => ({
+            type: 'photo',
+            media: `${frontendUrl}${item.image}`,
+            caption: index === 0 ? captionText : `${item.name} (${item.size}) - ${item.count} шт.`,
             parse_mode: 'Markdown'
-        }).catch(err => console.error("Ошибка отправки в Telegram:", err));
+        }));
+
+        if (media.length === 1) {
+            axios.post(`https://api.telegram.org/bot${botToken}/sendPhoto`, {
+                chat_id: chatId,
+                photo: media[0].media,
+                caption: media[0].caption,
+                parse_mode: 'Markdown'
+            }).catch(err => console.error("Ошибка отправки фото в Telegram:", err.response?.data));
+        } else if (media.length > 1) {
+            axios.post(`https://api.telegram.org/bot${botToken}/sendMediaGroup`, {
+                chat_id: chatId,
+                media: media.slice(0, 10)
+            }).then(() => {
+                axios.post(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+                    chat_id: chatId,
+                    text: captionText,
+                    parse_mode: 'Markdown'
+                });
+            }).catch(err => console.error("Ошибка отправки фото в Telegram:", err.response?.data));
+        }
     };
 
     const value = {
         products, product, user, loading, cart, favorites,
         setUser, setCart, setFavorites, getProducts, getProduct, addCart, toggleFavorite,
-        startRegistration, verifyRegistration, loginUser, logOutUser, forgotPassword, resetPassword,
+        registerUser, loginUser, logOutUser, forgotPassword, resetPassword,
         updateUser, sendTelegramNotification
     };
 
