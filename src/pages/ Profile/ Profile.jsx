@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { CustomContext } from '../../store/store';
 import './Profile.css';
@@ -9,7 +9,7 @@ const Profile = () => {
     const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
 
     useEffect(() => {
-        if (!user) {
+        if (user === null) {
             navigate('/login');
         }
     }, [user, navigate]);
@@ -19,7 +19,7 @@ const Profile = () => {
     };
 
     const confirmLogout = () => {
-        logOutUser(navigate);
+        logOutUser();
         setIsLogoutModalOpen(false);
     };
 
