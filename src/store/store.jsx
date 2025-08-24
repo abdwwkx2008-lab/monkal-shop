@@ -4,11 +4,9 @@ import axios from 'axios';
 
 export const CustomContext = createContext();
 
-
-const API_BASE_URL = "https://modeline-api.onrender.com";
-
-
-const FRONTEND_URL = "https://modeline.vercel.app";
+// --- НАШИ ФИНАЛЬНЫЕ, ПОСТОЯННЫЕ АДРЕСА ---
+const API_BASE_URL = "https://modeline-api.onrender.com"; // Адрес "склада"
+const FRONTEND_URL = "https://monkal.vercel.app";      // Адрес "витрины"
 
 function Context({ children }) {
     const [products, setProducts]       = useState([]);
