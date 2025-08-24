@@ -14,21 +14,35 @@ function Context({ children }) {
     const [favorites, setFavorites] = useState(() => JSON.parse(localStorage.getItem('favorites')) || []);
 
     useEffect(() => {
+        setLoading(true);
         const potentialUser = localStorage.getItem('currentUser');
-        if (potentialUser) setUser(JSON.parse(potentialUser));
-        setLoading(false);
+        if (potentialUser) {
+            setUser(JSON.parse(potentialUser));
+        }
+
+        axios.get(`${API_BASE_URL}/products`)
+            .then(res => {
+                setProducts(res.data);
+            })
+            .catch(err => {
+                console.error("Ошибка при получении продуктов:", err);
+                setProducts([]);
+            })
+            .finally(() => {
+                setLoading(false);
+            });
     }, []);
 
     useEffect(() => { localStorage.setItem('cart', JSON.stringify(cart)); }, [cart]);
     useEffect(() => { localStorage.setItem('favorites', JSON.stringify(favorites)); }, [favorites]);
 
     const getProducts = () => {
+        setLoading(true);
         axios.get(`${API_BASE_URL}/products`)
             .then(res => setProducts(res.data))
-            .catch(err => console.error("Ошибка при получении продуктов:", err));
+            .catch(err => console.error("Ошибка при получении продуктов:", err))
+            .finally(() => setLoading(false));
     };
-
-    useEffect(() => { getProducts(); }, []);
 
     const getProduct = (id) => {
         const foundProduct = products.find(p => p.id === parseInt(id));
