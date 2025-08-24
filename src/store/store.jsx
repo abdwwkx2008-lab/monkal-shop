@@ -117,8 +117,8 @@ function Context({ children }) {
     };
 
     const sendTelegramNotification = (order) => {
-        const botToken = "ВАШ_ТОКЕН_БОТА";
-        const chatId = "ВАШ_CHAT_ID";
+        const botToken = "7815642060:AAGny8UWvjM3FcuN6NZ6agQ28ZoUJRgxucQ";
+        const chatId = "1722434856";
 
         const itemsText = order.items.map(item =>
             `${item.name} (Размер: ${item.size}) - ${item.count} шт.`
