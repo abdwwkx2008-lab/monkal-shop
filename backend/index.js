@@ -12,7 +12,7 @@ app.use(cors());
 app.use(express.json());
 
 const JWT_SECRET = process.env.JWT_SECRET || 'MonkalShopSecretKeyForTokens_2025!@#$';
-const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:3000";
+const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
 
 const adapter = new JSONFile('db.json');
 const defaultData = { products: [], users: [], orders: [], addresses: [] };
