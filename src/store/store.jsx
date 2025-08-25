@@ -71,7 +71,10 @@ function Context({ children }) {
             }
         });
     };
-
+    const clearFavorites = () => {
+        setFavorites([]);
+        toast.success("Избранное было полностью очищено");
+    };
     const registerUser = (data) => axios.post(`${API_BASE_URL}/register`, data);
 
     const loginUser = (data) => {
@@ -141,7 +144,7 @@ function Context({ children }) {
     };
 
     const value = {
-        products, product, user, loading, cart, favorites,
+        products, product, user, loading, cart, favorites, clearFavorites,
         setUser, setCart, setFavorites, getProducts, getProduct, addCart, toggleFavorite,
         registerUser, loginUser, logOutUser, forgotPassword, resetPassword,
         updateUser, sendTelegramNotification

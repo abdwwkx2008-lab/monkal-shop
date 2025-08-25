@@ -30,8 +30,14 @@ const FavoriteProductCard = ({ product }) => {
 };
 
 const Favorites = () => {
-    const { favorites, products } = useContext(CustomContext);
+    const { favorites, products, clearFavorites } = useContext(CustomContext);
     const favoriteItems = products.filter(item => favorites.includes(item.id));
+
+    const handleClearAll = () => {
+        if (window.confirm("Вы уверены, что хотите полностью очистить избранное?")) {
+            clearFavorites();
+        }
+    };
 
     if (favoriteItems.length === 0) {
         return (
@@ -60,7 +66,7 @@ const Favorites = () => {
                             {favoriteItems.length} {favoriteItems.length === 1 ? 'товар' : favoriteItems.length > 4 ? 'товаров' : 'товара'}
                         </p>
 
-                        <button className="clear-favorites-button">Очистить избранное</button>
+                        <button onClick={handleClearAll} className="clear-favorites-button">Очистить избранное</button>
                     </div>
                 </div>
                 <div className='favorites-grid'>
