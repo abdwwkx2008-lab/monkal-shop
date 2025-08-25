@@ -29,7 +29,6 @@ import AddressManagement from "../pages/ Profile/AddressManagement.jsx";
 import ChangePassword from "../pages/ Profile/ChangePassword.jsx";
 import PrivateRoute from "../components/PrivateRoute/PrivateRoute.jsx";
 
-// --- ДОБАВИЛ ИМПОРТ НОВОЙ СТРАНИЦЫ ---
 import VerifyEmail from "../pages/VerifyEmail/VerifyEmail.jsx";
 
 
