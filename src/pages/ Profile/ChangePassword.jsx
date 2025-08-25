@@ -16,12 +16,6 @@ const ChangePassword = () => {
             return;
         }
 
-        // Эта проверка не будет работать, т.к. на фронтенде нет реального пароля
-        // Логику проверки старого пароля нужно будет перенести на бэкенд
-        // if (user.password !== data.oldPassword) {
-        //     toast.error("Старый пароль введен неверно.");
-        //     return;
-        // }
 
         updateUser({ password: data.newPassword })
             .then(() => {
