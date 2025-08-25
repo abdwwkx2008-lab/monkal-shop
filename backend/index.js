@@ -12,7 +12,7 @@ app.use(cors());
 app.use(express.json());
 
 const JWT_SECRET = process.env.JWT_SECRET || 'MonkalShopSecretKeyForTokens_2025!@#$';
-const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
+const FRONTEND_URL = "https://monkal-shop-3vo2.vercel.app";
 
 const adapter = new JSONFile('db.json');
 const defaultData = { products: [], users: [], orders: [], addresses: [] };
@@ -22,10 +22,8 @@ const db = new Low(adapter, defaultData);
     await db.read();
     if (!db.data.products || db.data.products.length === 0) {
         try {
-            console.log('База продуктов пуста, засеиваем начальные данные...');
             const seedProducts = require('./db-seed.json');
             db.data.products = seedProducts;
-            console.log(`Загружено ${db.data.products.length} товаров.`);
         } catch (error) {
             console.error('Ошибка при загрузке db-seed.json:', error);
         }
