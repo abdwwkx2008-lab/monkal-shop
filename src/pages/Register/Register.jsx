@@ -16,6 +16,7 @@ const Register = () => {
         password: ''
     });
     const [showPassword, setShowPassword] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -23,12 +24,18 @@ const Register = () => {
 
     const handleRegister = (e) => {
         e.preventDefault();
+        setIsSubmitting(true);
         registerUser(formData)
             .then(() => {
-                toast.success("Регистрация успешно завершена! Теперь вы можете войти.");
-                navigate('/login');
+                toast.success("Код подтверждения отправлен на вашу почту!");
+                navigate(`/verify-email?email=${formData.email}`);
             })
-            .catch(err => toast.error(err.response?.data?.message || "Ошибка регистрации"));
+            .catch(err => {
+                toast.error(err.response?.data?.message || "Ошибка регистрации");
+            })
+            .finally(() => {
+                setIsSubmitting(false);
+            });
     };
 
     return (
@@ -56,7 +63,9 @@ const Register = () => {
                         <img src={showPassword ? eyeClosed : eyeOpen} alt="Toggle password" className="password-eye-icon" onClick={() => setShowPassword(p => !p)} />
                     </div>
                 </div>
-                <button type="submit" className="auth-form-button">Зарегистрироваться</button>
+                <button type="submit" className="auth-form-button" disabled={isSubmitting}>
+                    {isSubmitting ? 'Регистрация...' : 'Зарегистрироваться'}
+                </button>
                 <p className="auth-form-switch-text">
                     Уже есть аккаунт?{' '}
                     <Link to="/login" className="auth-form-link">Войти</Link>

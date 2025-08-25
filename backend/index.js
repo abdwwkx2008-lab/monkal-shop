@@ -54,25 +54,84 @@ app.post('/register', async (req, res) => {
     if (!email || !fullname || !password || !phone) {
         return res.status(400).json({ message: "Пожалуйста, заполните все поля" });
     }
-    if (db.data.users.find(u => u.email === email)) {
+
+    const existingUser = db.data.users.find(u => u.email === email);
+    if (existingUser && existingUser.isVerified) {
         return res.status(400).json({ message: "Этот e-mail уже занят" });
     }
-    if (db.data.users.find(u => u.phone === phone)) {
-        return res.status(400).json({ message: "Этот номер телефона уже занят" });
-    }
+
+    const verificationCode = crypto.randomInt(100000, 999999).toString();
     const hashedPassword = bcrypt.hashSync(password, 10);
-    const newUser = { id: (db.data.users.length > 0 ? Math.max(...db.data.users.map(u => u.id)) : 0) + 1, email, fullname, password: hashedPassword, phone };
-    db.data.users.push(newUser);
+
+    if (existingUser && !existingUser.isVerified) {
+        existingUser.fullname = fullname;
+        existingUser.password = hashedPassword;
+        existingUser.phone = phone;
+        existingUser.verificationCode = verificationCode;
+    } else {
+        const newUser = {
+            id: (db.data.users.length > 0 ? Math.max(...db.data.users.map(u => u.id)) : 0) + 1,
+            email,
+            fullname,
+            password: hashedPassword,
+            phone,
+            isVerified: false,
+            verificationCode
+        };
+        db.data.users.push(newUser);
+    }
+
     await db.write();
-    res.status(201).json({ message: "Регистрация успешно завершена!" });
+
+    const mailOptions = {
+        from: process.env.GMAIL_USER || 'abdwwkx2008@gmail.com',
+        to: email,
+        subject: 'Код подтверждения для Monkal',
+        html: `<p>Ваш код для подтверждения регистрации на сайте Monkal:</p><h2>${verificationCode}</h2>`
+    };
+
+    try {
+        await transporter.sendMail(mailOptions);
+        res.status(201).json({ message: "Код подтверждения отправлен на вашу почту." });
+    } catch (error) {
+        console.error("Ошибка отправки email:", error);
+        res.status(500).json({ message: "Не удалось отправить письмо с кодом." });
+    }
 });
+
+app.post('/verify-email', async (req, res) => {
+    const { email, code } = req.body;
+    const user = db.data.users.find(u => u.email === email);
+
+    if (!user) {
+        return res.status(404).json({ message: "Пользователь не найден." });
+    }
+    if (user.isVerified) {
+        return res.status(400).json({ message: "Аккаунт уже подтвержден." });
+    }
+    if (user.verificationCode !== code) {
+        return res.status(400).json({ message: "Неверный код подтверждения." });
+    }
+
+    user.isVerified = true;
+    user.verificationCode = undefined;
+    await db.write();
+
+    res.status(200).json({ message: "Email успешно подтвержден!" });
+});
+
 
 app.post('/login', (req, res) => {
     const { email, password } = req.body;
     const user = db.data.users.find(u => u.email === email);
-    if (!user || !bcrypt.compareSync(password, user.password)) {
+
+    if (!user || !user.isVerified) {
+        return res.status(400).json({ message: "Пользователь не найден или не подтвержден" });
+    }
+    if (!bcrypt.compareSync(password, user.password)) {
         return res.status(400).json({ message: "Неверный логин или пароль" });
     }
+
     const { password: _, ...userWithoutPassword } = user;
     const accessToken = jwt.sign({ id: user.id }, JWT_SECRET, { expiresIn: '1d' });
     res.json({ accessToken, user: userWithoutPassword });

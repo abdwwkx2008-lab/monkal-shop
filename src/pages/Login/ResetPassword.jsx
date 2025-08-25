@@ -1,27 +1,27 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { useForm } from 'react-hook-form';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import axios from 'axios';
+import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import eyeOpen from '/public/assets/eyeOpen.png';
-import eyeClosed from '/public/assets/eyeClosed.png';
+import { CustomContext } from '../../store/store';
+import eyeOpen from '/assets/eyeOpen.png';
+import eyeClosed from '/assets/eyeClosed.png';
 import './Login.css';
 
 const ResetPassword = () => {
     const [showPassword, setShowPassword] = useState(false);
     const { handleSubmit, register, watch, formState: { errors, isValid } } = useForm({ mode: 'onBlur' });
     const navigate = useNavigate();
-    const [searchParams] = useSearchParams();
-    const token = searchParams.get('token');
+    const { token } = useParams();
+    const { resetPassword } = useContext(CustomContext);
 
     const submitNewPassword = (data) => {
-        axios.post("http://localhost:8080/reset-password", { token, password: data.password })
+        resetPassword({ token, password: data.password })
             .then(() => {
                 toast.success("Пароль успешно изменен!");
                 navigate('/login');
             })
-            .catch(() => {
-                toast.error("Ссылка недействительна или срок ее действия истек.");
+            .catch((err) => {
+                toast.error(err.response?.data?.message || "Ссылка недействительна или срок ее действия истек.");
             });
     };
 

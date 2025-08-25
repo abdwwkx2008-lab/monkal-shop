@@ -71,11 +71,15 @@ function Context({ children }) {
             }
         });
     };
+
     const clearFavorites = () => {
         setFavorites([]);
         toast.success("Избранное было полностью очищено");
     };
+
     const registerUser = (data) => axios.post(`${API_BASE_URL}/register`, data);
+
+    const verifyRegistration = (data) => axios.post(`${API_BASE_URL}/verify-email`, data);
 
     const loginUser = (data) => {
         return axios.post(`${API_BASE_URL}/login`, data)
@@ -144,10 +148,11 @@ function Context({ children }) {
     };
 
     const value = {
-        products, product, user, loading, cart, favorites, clearFavorites,
+        products, product, user, loading, cart, favorites,
         setUser, setCart, setFavorites, getProducts, getProduct, addCart, toggleFavorite,
         registerUser, loginUser, logOutUser, forgotPassword, resetPassword,
-        updateUser, sendTelegramNotification
+        updateUser, sendTelegramNotification,
+        clearFavorites, verifyRegistration
     };
 
     return (

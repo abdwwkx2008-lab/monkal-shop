@@ -1,17 +1,18 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
 import { toast } from 'react-toastify';
+import { CustomContext } from '../../store/store';
 import './Login.css';
 
 const ForgotPassword = () => {
     const { handleSubmit, register, formState: { errors, isValid } } = useForm({ mode: 'onBlur' });
+    const { forgotPassword } = useContext(CustomContext);
 
     const submitEmail = (data) => {
-        axios.post("http://localhost:8080/forgot-password", data)
+        forgotPassword(data)
             .then(() => {
-                toast.success("Ссылка для сброса пароля отправлена на вашу почту!");
+                toast.info("Если такой пользователь существует, мы отправили инструкцию на почту.");
             })
             .catch(() => {
                 toast.error("Произошла ошибка. Попробуйте снова.");
