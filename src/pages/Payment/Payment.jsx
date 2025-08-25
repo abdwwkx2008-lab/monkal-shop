@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { toast } from 'react-toastify';
-import qr from '/public/assets/1qr1.jpg';
+import qr from '/public/assets/asad.mbank.jpg';
 import './Payment.css';
 
 const Payment = () => {
@@ -63,7 +63,7 @@ const Payment = () => {
                         </div>
                         <div className="recipient-info-block">
                             <p className="recipient-label">Получатель</p>
-                            <p className="recipient-name">Асад</p>
+                            <p className="recipient-name">Асад.П</p>
                         </div>
                         <div className="phone-info-block">
                             <p className="phone-info-label">Или по номеру телефона</p>

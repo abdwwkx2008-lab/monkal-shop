@@ -8,7 +8,7 @@ import Lupa from '/public/assets/lupa.svg';
 import Star from '/public/assets/star.svg';
 import Chel from '/public/assets/chelik.svg';
 import Korzina from '/public/assets/korzina.svg';
-import HeaderLogo from '/public/assets/header-monkal-logo-removebg-preview.png';
+import HeaderLogo from '/public/assets/header-logo-pro.png';
 
 function DropdownMenu({ items, parentPath, menuStructure, type }) {
     return (
