@@ -24,13 +24,13 @@ const Contact = () => {
                                 <div className="contact-item-icon">
                                     <img src={gmail} alt="Email" />
                                 </div>
-                                <a href="mailto:mline@gmail.com" className="contact-item-link">mline@example.com</a>
+                                <a href="mailto:mline@gmail.com" className="contact-item-link">monkal@gmail.com</a>
                             </div>
                             <div className="contact-item">
                                 <div className="contact-item-icon">
                                     <img src={adres} alt="Адрес" />
                                 </div>
-                                <p className="contact-item-text">ул.Юльчибаева 23, Жалал-Абад</p>
+                                <p className="contact-item-text">ул.Тургенева 9</p>
                             </div>
                         </div>
 
@@ -40,13 +40,13 @@ const Contact = () => {
                                 <div className="contact-item-icon">
                                     <img src={whatsapp} alt="WhatsApp" />
                                 </div>
-                                <a href="https://wa.me/996559242419" target="_blank" rel="noopener noreferrer" className="contact-item-link">WhatsApp</a>
+                                <a href="https://wa.me/996557220308" target="_blank" rel="noopener noreferrer" className="contact-item-link">WhatsApp</a>
                             </div>
                             <div className="contact-item">
                                 <div className="contact-item-icon">
                                     <img src={tg} alt="Telegram" />
                                 </div>
-                                <a href="https://t.me/abdwwkx" target="_blank" rel="noopener noreferrer" className="contact-item-link">Telegram</a>
+                                <a href="https://t.me/996557220308" target="_blank" rel="noopener noreferrer" className="contact-item-link">Telegram</a>
                             </div>
                         </div>
 
@@ -56,7 +56,7 @@ const Contact = () => {
                                 <div className="contact-item-icon">
                                     <img src={inst} alt="Instagram" />
                                 </div>
-                                <a href="https://www.instagram.com/abdwwkx/" target="_blank" rel="noopener noreferrer" className="contact-item-link">Instagram</a>
+                                <a href="https://www.instagram.com/monkal.kg/" target="_blank" rel="noopener noreferrer" className="contact-item-link">Instagram</a>
                             </div>
                         </div>
                     </div>

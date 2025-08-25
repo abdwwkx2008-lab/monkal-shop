@@ -14,10 +14,10 @@ function AboutBrand() {
                     <div className="about-cart-1">
                         <h2 className="about-title">
                             О ИНТЕРНЕТ- <br/>
-                            МАГАЗИНЕ MODE LINE
+                            МАГАЗИНЕ MONKAL
                         </h2>
                         <p className="about-text">
-                            Команда Mode Line предоставляет услугу доставки только оригинальных товаров с <br/>
+                            Команда MONKAL предоставляет услугу доставки только оригинальных товаров с <br/>
                             крупнейшего китайского маркетплейса Pinduoduo, чтобы наши клиенты экономили более 40% <br/>
                             на каждой покупке. <br/>
                             Мы работаем без посредников, благодаря чему можем предлагать лучшие цены. Быстрая <br/>
@@ -34,7 +34,7 @@ function AboutBrand() {
                             <img src={delivery} alt="Delivery Icon" className="about-icon"/>
                             <div className="text-content">
                                 <h3 className="about-subtitle">БЕСПЛАТНАЯ ДОСТАВКА</h3>
-                                <p className="about-text-small">По городу Жалал-Абад доставим ваш заказ абсолютно бесплатно.</p>
+                                <p className="about-text-small">По городу Жалал-Абад доставим ваш заказ за 100сом </p>
                             </div>
                         </div>
 

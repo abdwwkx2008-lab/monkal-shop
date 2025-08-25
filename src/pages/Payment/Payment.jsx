@@ -5,7 +5,7 @@ import './Payment.css';
 
 const Payment = () => {
     const [copyButtonText, setCopyButtonText] = useState('Копировать');
-    const phoneNumber = '+996559242417';
+    const phoneNumber = '+996557220308';
 
     const handleCopyClick = () => {
         navigator.clipboard.writeText(phoneNumber);
@@ -63,7 +63,7 @@ const Payment = () => {
                         </div>
                         <div className="recipient-info-block">
                             <p className="recipient-label">Получатель</p>
-                            <p className="recipient-name">Абдулазиз Р.</p>
+                            <p className="recipient-name">Асад</p>
                         </div>
                         <div className="phone-info-block">
                             <p className="phone-info-label">Или по номеру телефона</p>

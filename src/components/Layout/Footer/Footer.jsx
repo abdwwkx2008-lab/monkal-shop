@@ -41,18 +41,18 @@ function Footer() {
                         КОНТАКТЫ
                     </Link>
                     <a href="mailto:mline@gmail.com" className="footer-link">mline@gmail.com</a>
-                    <a href="tel:+996559242417" className="footer-link">+996559242417</a>
+                    <a href="tel:+996559242417" className="footer-link">+996557220308</a>
                     <h2 className="footer-title">МЕССЕНДЖЕРЫ</h2>
                     <div className="messenger-box">
-                        <a href="https://t.me/abdwwkx" className="messenger-link" target="_blank" rel="noopener noreferrer">
+                        <a href="https://t.me/996557220308" className="messenger-link" target="_blank" rel="noopener noreferrer">
                             <img src={Tg} alt="Telegram" className="messenger-img" />
                         </a>
-                        <a href="https://wa.me/996559242419" className="messenger-link" target="_blank" rel="noopener noreferrer">
+                        <a href="https://wa.me/996557220308" className="messenger-link" target="_blank" rel="noopener noreferrer">
                             <img src={WhatsApp} alt="WhatsApp" className="messenger-img" />
                         </a>
                     </div>
                     <h2 className="footer-title">НАШИ СОЦ.СЕТИ</h2>
-                    <a href="https://www.instagram.com/abdwwkx/" className="messenger-link" target="_blank" rel="noopener noreferrer">
+                    <a href="https://www.instagram.com/monkal.kg/" className="messenger-link" target="_blank" rel="noopener noreferrer">
                         <img src={Inst} alt="Instagram" className="messenger-img" />
                     </a>
                 </div>

@@ -23,11 +23,11 @@ const Delivery = () => {
                             <div className="price-details">
                                 <div className="price-item">
                                     <span className="price-label">По городу Джалал-Абад</span>
-                                    <span className="price-value free">Бесплатно</span>
+                                    <span className="price-value free">100</span>
                                 </div>
                                 <div className="price-item">
                                     <span className="price-label">За пределы города</span>
-                                    <span className="price-value">Платно</span>
+                                    <span className="price-value">Смотря куда</span>
                                 </div>
                             </div>
                         </div>
@@ -43,7 +43,7 @@ const Delivery = () => {
                             <div className="price-details">
                                 <div className="price-item">
                                     <span className="price-label">Адрес пункта выдачи</span>
-                                    <span className="price-value">ул. Юльчибаева, 23</span>
+                                    <span className="price-value">ул.Тургенева 9</span>
                                 </div>
                                 <div className="price-item">
                                     <span className="price-label">Стоимость</span>
