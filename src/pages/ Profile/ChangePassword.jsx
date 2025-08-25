@@ -59,7 +59,7 @@ const ChangePassword = () => {
                     </div>
                     {errors.confirmPassword && <p className="form-error-message">{errors.confirmPassword.message}</p>}
                 </div>
-                <button type="submit" className="profile-form-btn">Сохранить</button>
+                <button type="submit" className="profile-form-btn">Сохранить</button>/
             </form>
         </div>
     );
