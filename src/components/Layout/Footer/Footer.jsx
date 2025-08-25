@@ -6,7 +6,7 @@ import { CustomContext } from '../../../store/store.jsx';
 import Tg from '/assets/tg.icon.svg';
 import WhatsApp from '/assets/whatsApp.icon.svg';
 import Inst from '/assets/inst.icon2.png';
-import Footerlogo from '/assets/footer-logo.png';
+import Footerlogo from '/assets/header-monkal-logo-removebg-preview.png';
 
 function Footer() {
     const { user, logOutUser } = useContext(CustomContext);
