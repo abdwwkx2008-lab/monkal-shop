@@ -1,6 +1,5 @@
 import React, { useContext } from 'react';
 import { Link } from 'react-router-dom';
-import { toast } from 'react-toastify';
 import { CustomContext } from '../../store/store';
 import './Favorites.css';
 
@@ -8,8 +7,8 @@ const FavoriteProductCard = ({ product }) => {
     const { toggleFavorite } = useContext(CustomContext);
 
     function handleRemoveClick() {
-        toast.error(`'${product.name}' удален из избранного`);
-        toggleFavorite(product.id);
+
+        toggleFavorite(product);
     }
 
     return (

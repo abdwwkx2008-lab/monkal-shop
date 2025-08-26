@@ -62,7 +62,7 @@ function Footer() {
                         <>
                             <Link to="/profile" className="footer-title">АККАУНТ</Link>
                             <p className="footer-link">Добро пожаловать, {user.fullname}!</p>
-                            <Link to="/orderhistory" className="footer-link">Мои заказы</Link>
+                            <Link to="/profile" className="footer-link">Мои заказы</Link>
                             <Link to="/favorites" className="footer-link">Избранное</Link>
                             <button onClick={() => logOutUser(navigate)} className="footer-button">Выйти</button>
                         </>

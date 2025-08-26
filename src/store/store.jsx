@@ -80,7 +80,6 @@ function Context({ children }) {
         });
 
     };
-
     const toggleFavorite = (product) => {
         setFavorites(prevFavorites => {
             if (prevFavorites.includes(product.id)) {
@@ -92,7 +91,6 @@ function Context({ children }) {
             }
         });
     };
-
     const clearFavorites = () => {
         setFavorites([]);
         toast.success("Избранное было полностью очищено");
