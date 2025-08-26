@@ -25,7 +25,6 @@ import Profile from "../pages/ Profile/ Profile.jsx";
 import ProfileDashboard from "../pages/ Profile/ProfileDashboard.jsx";
 import EditProfile from "../pages/ Profile/EditProfile.jsx";
 import OrderHistory from "../pages/ Profile/OrderHistory.jsx";
-import AddressManagement from "../pages/ Profile/AddressManagement.jsx";
 import ChangePassword from "../pages/ Profile/ChangePassword.jsx";
 import PrivateRoute from "../components/PrivateRoute/PrivateRoute.jsx";
 
@@ -67,7 +66,6 @@ const routes = [
                     { index: true, element: <ProfileDashboard /> },
                     { path: "edit", element: <EditProfile /> },
                     { path: "orders", element: <OrderHistory /> },
-                    { path: "address", element: <AddressManagement /> },
                     { path: "password", element: <ChangePassword /> },
                 ],
             },

@@ -78,7 +78,7 @@ function Context({ children }) {
                 return [...prevCart, { ...item, count }];
             }
         });
-        toast.success(`'${item.name}' добавлен в корзину!`);
+
     };
 
     const toggleFavorite = (product) => {
