@@ -4,6 +4,11 @@
     background-color: #000000;
     padding: 25px 0;
     margin-top: 50px;
+    transition: background-color 0.3s ease;
+}
+
+body.light-theme .footer {
+    background-color: #ffffff;
 }
 
 .footer-container {
@@ -35,6 +40,11 @@
     line-height: 28px;
     text-transform: uppercase;
     margin-bottom: 8px;
+    transition: color 0.3s ease;
+}
+
+body.light-theme .footer-title {
+    color: #222;
 }
 
 .footer-link {
@@ -44,13 +54,19 @@
     font-weight: 400;
     line-height: 28px;
     text-decoration: none;
-    transition-property: color;
-    transition-duration: 0.3s;
-    transition-timing-function: ease;
+    transition: color 0.3s ease;
+}
+
+body.light-theme .footer-link {
+    color: #555;
 }
 
 .footer-link:hover {
     color: #ffffff;
+}
+
+body.light-theme .footer-link:hover {
+    color: #222;
 }
 
 .footer-logo {
@@ -85,19 +101,31 @@
     text-decoration: none;
     width: auto;
     cursor: pointer;
-    transition-property: background-color;
-    transition-duration: 0.3s;
-    transition-timing-function: ease;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+body.light-theme .footer-button {
+    background-color: #1a1a1a;
+    color: #ffffff;
 }
 
 .footer-button:hover {
     background-color: #dddddd;
 }
 
+body.light-theme .footer-button:hover {
+    opacity: 0.8;
+}
+
 .register-link {
     color: #ffffff;
     text-decoration: underline;
     font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+body.light-theme .register-link {
+    color: #007aff;
 }
 
 .register-link:hover {
@@ -107,6 +135,11 @@
     color: #cccccc;
     margin-top: 40px;
     font-size: 15px;
+    transition: color 0.3s ease;
+}
+
+body.light-theme .politika-link {
+    color: #555;
 }
 
 

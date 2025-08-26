@@ -4,7 +4,7 @@ import { toast } from 'react-toastify';
 import { CustomContext } from "../store/store";
 import './ProductCard.css';
 
-function ProductsCard({ product }) {
+function ProductCards({ product }) {
     const { favorites, toggleFavorite } = useContext(CustomContext);
     const isFavorite = favorites.includes(product.id);
 
@@ -14,14 +14,7 @@ function ProductsCard({ product }) {
 
     const handleFavoriteClick = (event) => {
         event.stopPropagation();
-
-        if (isFavorite) {
-            toast.error(`'${product.name}' удален из избранного`);
-        } else {
-            toast.success(`'${product.name}' добавлен в избранное`);
-        }
-
-        toggleFavorite(product.id);
+        toggleFavorite(product);
     };
 
     return (
@@ -51,4 +44,4 @@ function ProductsCard({ product }) {
     );
 };
 
-export default ProductsCard;
+export default ProductCards;

@@ -5,19 +5,30 @@
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    padding: 2rem;
+    padding: 32px;
     background-color: #f4f4f5;
     font-family: 'Manrope', sans-serif;
+    transition: background-color 0.3s ease;
+}
+
+body.dark-theme .auth-page-wrapper {
+    background-color: var(--background-color);
 }
 
 .auth-form {
     width: 100%;
     max-width: 420px;
-    padding: 2.5rem;
+    padding: 40px;
     background-color: #fff;
     border-radius: 20px;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
     animation: form-pop-in 0.6s cubic-bezier(0.25, 1, 0.5, 1) backwards;
+    transition: background-color 0.3s ease;
+}
+
+body.dark-theme .auth-form {
+    background-color: var(--card-bg);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
 }
 
 @keyframes form-pop-in {
@@ -26,42 +37,64 @@
 }
 
 .auth-form-title {
-    font-size: 2.25rem;
+    font-size: 36px;
     font-weight: 800;
     color: #18181B;
     text-align: center;
-    margin: 0 0 0.5rem 0;
+    margin: 0 0 8px 0;
+    transition: color 0.3s ease;
+}
+
+body.dark-theme .auth-form-title {
+    color: var(--text-color);
 }
 
 .auth-form-subtitle {
-    font-size: 1rem;
+    font-size: 16px;
     color: #777;
     text-align: center;
-    margin: 0 0 2.5rem 0;
+    margin: 0 0 40px 0;
+    transition: color 0.3s ease;
+}
+
+body.dark-theme .auth-form-subtitle {
+    color: var(--secondary-text-color);
 }
 
 .auth-form-group {
-    margin-bottom: 1.5rem;
+    margin-bottom: 24px;
 }
 
 .auth-form-label {
     display: block;
-    font-size: 0.9rem;
+    font-size: 14px;
     font-weight: 600;
     color: #555;
-    margin-bottom: 0.5rem;
+    margin-bottom: 8px;
+    transition: color 0.3s ease;
+}
+
+body.dark-theme .auth-form-label {
+    color: var(--secondary-text-color);
 }
 
 .auth-form-input {
     width: 100%;
     height: 50px;
-    padding: 0 1rem;
+    padding: 0 16px;
     border: 1px solid #ddd;
     border-radius: 10px;
-    font-size: 1rem;
+    font-size: 16px;
     background-color: #f9f9f9;
+    color: #18181B;
     transition: all 0.2s ease;
     box-sizing: border-box;
+}
+
+body.dark-theme .auth-form-input {
+    background-color: var(--background-color);
+    border-color: var(--border-color);
+    color: var(--text-color);
 }
 
 .auth-form-input:focus {
@@ -70,6 +103,12 @@
     background-color: #fff;
     box-shadow: 0 0 0 3px rgba(93, 139, 155, 0.2);
 }
+body.dark-theme .auth-form-input:focus {
+    background-color: var(--card-bg);
+    border-color: var(--primary-accent);
+    box-shadow: 0 0 0 3px rgba(138, 180, 248, 0.3);
+}
+
 .auth-form-input.invalid {
     border-color: #e53935;
     background-color: #fff;
@@ -86,7 +125,7 @@
 
 .password-eye-icon {
     position: absolute;
-    right: 1rem;
+    right: 16px;
     width: 22px;
     height: 22px;
     cursor: pointer;
@@ -95,24 +134,29 @@
 
 .auth-form-error {
     color: #e53935;
-    font-size: 0.85rem;
+    font-size: 14px;
     font-weight: 500;
-    margin-top: 0.5rem;
+    margin-top: 8px;
     display: block;
 }
 
 .auth-form-button {
     width: 100%;
     height: 55px;
-    margin-top: 0.5rem;
+    margin-top: 8px;
     border: none;
     border-radius: 10px;
     background-color: #18181B;
     color: #fff;
-    font-size: 1rem;
+    font-size: 16px;
     font-weight: 700;
     cursor: pointer;
     transition: all 0.3s ease;
+}
+
+body.dark-theme .auth-form-button {
+    background-color: var(--button-primary-bg);
+    color: var(--button-primary-text);
 }
 
 .auth-form-button:hover:not(:disabled) {
@@ -125,11 +169,20 @@
     cursor: not-allowed;
 }
 
+body.dark-theme .auth-form-button:disabled {
+    background-color: var(--button-secondary-bg);
+}
+
 .auth-form-switch-text {
-    font-size: 0.9rem;
+    font-size: 14px;
     color: #555;
     text-align: center;
-    margin-top: 2rem;
+    margin-top: 32px;
+    transition: color 0.3s ease;
+}
+
+body.dark-theme .auth-form-switch-text {
+    color: var(--secondary-text-color);
 }
 
 .auth-form-link {
@@ -138,23 +191,27 @@
     font-weight: 600;
 }
 
+body.dark-theme .auth-form-link {
+    color: var(--primary-accent);
+}
+
 .forgot-password-link {
     display: block;
     text-align: right;
-    margin-top: -1rem;
-    margin-bottom: 1.5rem;
+    margin-top: -16px;
+    margin-bottom: 24px;
 }
 
 @media (max-width: 576px) {
     .auth-page-wrapper {
-        padding: 1rem;
+        padding: 16px;
         align-items: flex-start;
         padding-top: 5vh;
     }
     .auth-form {
-        padding: 2rem;
+        padding: 32px;
     }
     .auth-form-title {
-        font-size: 2rem;
+        font-size: 32px;
     }
 }

@@ -1,6 +1,11 @@
 .aboutbrand {
     padding: 60px 0;
     background-color: #fdfdfd;
+    transition: background-color 0.3s ease;
+}
+
+body.dark-theme .aboutbrand {
+    background-color: var(--background-color);
 }
 
 .container {
@@ -31,6 +36,11 @@
     text-align: left;
     text-transform: uppercase;
     margin-bottom: 25px;
+    transition: color 0.3s ease;
+}
+
+body.dark-theme .about-title {
+    color: var(--text-color);
 }
 
 .about-text {
@@ -40,6 +50,11 @@
     font-weight: 400;
     line-height: 1.8;
     text-align: left;
+    transition: color 0.3s ease;
+}
+
+body.dark-theme .about-text {
+    color: var(--secondary-text-color);
 }
 
 .about-cart-2 {
@@ -52,6 +67,12 @@
     flex-direction: column;
     gap: 25px;
     flex-shrink: 0;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+body.dark-theme .about-cart-2 {
+    background: var(--card-bg);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
 }
 
 .feature-item {
@@ -62,6 +83,11 @@
     border-bottom-style: solid;
     border-bottom-color: #f0f0f0;
     padding-bottom: 25px;
+    transition: border-color 0.3s ease;
+}
+
+body.dark-theme .feature-item {
+    border-bottom-color: var(--border-color);
 }
 
 .feature-item:last-child {
@@ -91,6 +117,11 @@
     margin-bottom: 5px;
     margin-left: 0;
     text-transform: uppercase;
+    transition: color 0.3s ease;
+}
+
+body.dark-theme .about-subtitle {
+    color: var(--text-color);
 }
 
 .about-text-small {
@@ -100,6 +131,11 @@
     margin: 0;
     font-family: 'RF Dewi Expanded', sans-serif;
     font-weight: 400;
+    transition: color 0.3s ease;
+}
+
+body.dark-theme .about-text-small {
+    color: var(--secondary-text-color);
 }
 
 @media (max-width: 1024px) {
@@ -163,6 +199,9 @@
         gap: 20px;
         border-bottom: 1px solid #f0f0f0;
         padding-bottom: 20px;
+    }
+    body.dark-theme .feature-item {
+        border-bottom-color: var(--border-color);
     }
     .feature-item:last-child {
         border-bottom: none;

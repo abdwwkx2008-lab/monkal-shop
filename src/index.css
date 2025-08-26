@@ -5,6 +5,38 @@
     text-decoration: none;
     list-style-type: none;
 }
+
+:root {
+    --background-color: whitesmoke;
+    --text-color: #222;
+    --secondary-text-color: #555;
+    --card-bg: #ffffff;
+    --header-bg: #ffffff;
+    --button-primary-bg: #1a1a1a;
+    --button-primary-text: #ffffff;
+    --button-secondary-bg: #f0f0f0;
+    --button-secondary-text: #333;
+    --border-color: #ddd;
+    --modal-overlay-bg: rgba(0, 0, 0, 0.6);
+    --primary-accent: #007aff;
+}
+
+body.dark-theme {
+    /* ВОТ ИЗМЕНЕНИЯ: */
+    --background-color: #202124; /* Более мягкий фон */
+    --text-color: #f1f2f3; /* Чуть мягче белого */
+    --secondary-text-color: #9aa0a6; /* Приятный серый для доп. текста */
+    --card-bg: #303134; /* Карточки чуть светлее фона */
+    --header-bg: #303134; /* Хедер в цвет карточек */
+    --button-primary-bg: #f1f2f3;
+    --button-primary-text: #202124;
+    --button-secondary-bg: #3c4043;
+    --button-secondary-text: #f1f2f3;
+    --border-color: #414245; /* Границы чуть заметнее */
+    --modal-overlay-bg: rgba(0, 0, 0, 0.7);
+    --primary-accent: #8ab4f8; /* Более мягкий синий акцент */
+}
+
 .container{
     width: 100%;
     padding:  0 20px;
@@ -14,7 +46,9 @@ html, body, #root {
     height: 100%;
     margin: 0;
     padding: 0;
-    background: whitesmoke;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 
@@ -22,6 +56,8 @@ html, body, #root {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    background-color: var(--background-color);
+    transition: background-color 0.3s ease;
 }
 
 .layout-main {
@@ -35,7 +71,7 @@ html, body, #root {
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: rgba(0, 0, 0, 0.6);
+    background-color: var(--modal-overlay-bg);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -44,7 +80,7 @@ html, body, #root {
 }
 
 .logout-modal-content {
-    background: white;
+    background: var(--card-bg);
     padding: 30px 40px;
     border-radius: 12px;
     width: 90%;
@@ -52,6 +88,7 @@ html, body, #root {
     text-align: center;
     box-shadow: 0 10px 30px rgba(0,0,0,0.1);
     animation: scaleUp 0.3s ease-out;
+    transition: background-color 0.3s ease;
 }
 
 .logout-modal-content h2 {
@@ -59,13 +96,15 @@ html, body, #root {
     margin-bottom: 10px;
     font-size: 22px;
     font-weight: 600;
-    color: #222;
+    color: var(--text-color);
+    transition: color 0.3s ease;
 }
 
 .logout-modal-content p {
     margin-bottom: 5px;
-    color: #555;
+    color: var(--secondary-text-color);
     font-size: 16px;
+    transition: color 0.3s ease;
 }
 
 .logout-modal-content .modal-subtitle {
@@ -92,22 +131,22 @@ html, body, #root {
 }
 
 .modal-btn-cancel {
-    background-color: #f0f0f0;
-    color: #333;
-    border: 1px solid #ddd;
+    background-color: var(--button-secondary-bg);
+    color: var(--button-secondary-text);
+    border: 1px solid var(--border-color);
 }
 
 .modal-btn-cancel:hover {
-    background-color: #e0e0e0;
+    opacity: 0.8;
 }
 
 .modal-btn-confirm {
-    background-color: #1a1a1a;
-    color: white;
+    background-color: var(--button-primary-bg);
+    color: var(--button-primary-text);
 }
 
 .modal-btn-confirm:hover {
-    background-color: #333;
+    opacity: 0.8;
     transform: translateY(-2px);
     box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
@@ -135,27 +174,27 @@ html, body, #root {
 }
 
 .Toastify__toast--success {
-
-    color: black !important;
+    background-color: var(--card-bg) !important;
+    color: var(--text-color) !important;
 }
 
 .Toastify__toast--error {
-
-    color: black !important;
+    background-color: var(--card-bg) !important;
+    color: var(--text-color) !important;
 }
 
 .Toastify__toast--info {
-    background: transparent !important;
-    color: black !important;
+    background: var(--card-bg) !important;
+    color: var(--text-color) !important;
 }
 
 .Toastify__toast--warning {
-
-    color: black !important;
+    background-color: var(--card-bg) !important;
+    color: var(--text-color) !important;
 }
 
 .Toastify__close-button {
-    color: #fff !important;
+    color: var(--text-color) !important;
     opacity: 0.8 !important;
     transition: opacity 0.2s ease-in-out;
 }
@@ -164,7 +203,7 @@ html, body, #root {
 }
 
 .Toastify__progress-bar {
-    background: rgba(255,255,255,0.85) !important;
+    background: var(--text-color) !important;
     height: 4px !important;
     border-radius: 4px !important;
 }

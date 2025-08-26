@@ -7,16 +7,28 @@
     border-bottom-width: 1px;
     border-bottom-style: solid;
     border-bottom-color: #f0f0f0;
+    transition: border-color 0.3s ease;
+}
+
+body.dark-theme .catalog-header {
+    border-bottom-color: var(--border-color);
 }
 
 .page-title {
     margin: 0;
+    color: var(--text-color);
+    transition: color 0.3s ease;
 }
 
 .product-count {
     margin: 0;
     color: #828282;
     font-size: 15px;
+    transition: color 0.3s ease;
+}
+
+body.dark-theme .product-count {
+    color: var(--secondary-text-color);
 }
 
 .no-products-message {
@@ -26,6 +38,11 @@
     font-size: 1.2em;
     color: #888;
     margin-top: 50px;
+    transition: color 0.3s ease;
+}
+
+body.dark-theme .no-products-message {
+    color: var(--secondary-text-color);
 }
 
 .catalog-page-grid {

@@ -13,6 +13,16 @@ function Context({ children }) {
     const [cart, setCart] = useState(() => JSON.parse(localStorage.getItem('cart')) || []);
     const [favorites, setFavorites] = useState(() => JSON.parse(localStorage.getItem('favorites')) || []);
 
+    const [theme, setTheme] = useState(() => {
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            return savedTheme;
+        }
+        return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+            ? 'dark'
+            : 'light';
+    });
+
     useEffect(() => {
         setLoading(true);
         const potentialUser = localStorage.getItem('currentUser');
@@ -27,6 +37,16 @@ function Context({ children }) {
 
     useEffect(() => { localStorage.setItem('cart', JSON.stringify(cart)); }, [cart]);
     useEffect(() => { localStorage.setItem('favorites', JSON.stringify(favorites)); }, [favorites]);
+
+    useEffect(() => {
+        localStorage.setItem('theme', theme);
+        document.body.classList.remove('light-theme', 'dark-theme');
+        document.body.classList.add(`${theme}-theme`);
+    }, [theme]);
+
+    const toggleTheme = () => {
+        setTheme(prevTheme => (prevTheme === 'light' ? 'dark' : 'light'));
+    };
 
     const getProducts = () => {
         setLoading(true);
@@ -58,16 +78,17 @@ function Context({ children }) {
                 return [...prevCart, { ...item, count }];
             }
         });
+
     };
 
-    const toggleFavorite = (id) => {
+    const toggleFavorite = (product) => {
         setFavorites(prevFavorites => {
-            if (prevFavorites.includes(id)) {
-                toast.info("Удалено из избранного");
-                return prevFavorites.filter(favId => favId !== id);
+            if (prevFavorites.includes(product.id)) {
+                toast.error(`'${product.name}' удален из избранного`);
+                return prevFavorites.filter(favId => favId !== product.id);
             } else {
-                toast.success("Добавлено в избранное!");
-                return [...prevFavorites, id];
+                toast.success(`'${product.name}' добавлен в избранное`);
+                return [...prevFavorites, product.id];
             }
         });
     };
@@ -155,7 +176,9 @@ function Context({ children }) {
         registerUser, loginUser, logOutUser, forgotPassword, resetPassword,
         updateUser, sendTelegramNotification,
         clearFavorites, verifyRegistration,
-        changePassword
+        changePassword,
+        theme,
+        toggleTheme
     };
 
     return (

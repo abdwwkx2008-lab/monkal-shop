@@ -3,49 +3,70 @@
 .policy-section {
     background-color: #fff;
     min-height: 90vh;
-    padding: 4rem 0;
+    padding: 64px 0;
     font-family: 'Manrope', sans-serif;
     color: #18181B;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+body.dark-theme .policy-section {
+    background-color: var(--background-color);
+    color: var(--text-color);
 }
 
 .policy-container {
     max-width: 800px;
     margin: 0 auto;
-    padding: 0 2rem;
+    padding: 0 32px;
     animation: content-slide-up 0.8s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
 .policy-hero {
     text-align: left;
-    margin-bottom: 4rem;
-    padding-bottom: 2rem;
+    margin-bottom: 64px;
+    padding-bottom: 32px;
     border-bottom: 1px solid #f0f0f0;
+    transition: border-color 0.3s ease;
+}
+
+body.dark-theme .policy-hero {
+    border-bottom-color: var(--border-color);
 }
 
 .policy-main-title {
-    font-size: 3rem;
+    font-size: 48px;
     font-weight: 800;
-    margin: 0 0 1rem 0;
+    margin: 0 0 16px 0;
 }
 
 .policy-subtitle {
-    font-size: 1.1rem;
+    font-size: 18px;
     color: #555;
     line-height: 1.7;
     max-width: 650px;
+    transition: color 0.3s ease;
+}
+
+body.dark-theme .policy-subtitle {
+    color: var(--secondary-text-color);
 }
 
 .policy-content h2 {
-    font-size: 1.5rem;
+    font-size: 24px;
     font-weight: 700;
-    margin: 3rem 0 1.5rem 0;
+    margin: 48px 0 24px 0;
 }
 
 .policy-content p, .policy-content li {
-    font-size: 1.05rem;
+    font-size: 17px;
     color: #333;
     line-height: 1.8;
-    margin-bottom: 1rem;
+    margin-bottom: 16px;
+    transition: color 0.3s ease;
+}
+
+body.dark-theme .policy-content p, body.dark-theme .policy-content li {
+    color: var(--secondary-text-color);
 }
 
 .policy-content ul {
@@ -53,11 +74,12 @@
     padding-left: 20px;
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 8px;
 }
 
 .policy-content strong {
     font-weight: 600;
+    color: var(--text-color);
 }
 
 @keyframes content-slide-up {
@@ -67,40 +89,40 @@
 
 @media (max-width: 768px) {
     .policy-section {
-        padding: 3rem 0;
+        padding: 48px 0;
     }
     .policy-container {
-        padding: 0 1.5rem;
+        padding: 0 24px;
     }
     .policy-main-title {
-        font-size: 2.5rem;
+        font-size: 40px;
     }
     .policy-subtitle {
-        font-size: 1rem;
+        font-size: 16px;
     }
     .policy-content h2 {
-        font-size: 1.3rem;
-        margin-top: 2.5rem;
+        font-size: 21px;
+        margin-top: 40px;
     }
     .policy-content p, .policy-content li {
-        font-size: 1rem;
+        font-size: 16px;
     }
 }
 
 @media (max-width: 480px) {
     .policy-section {
-        padding: 2rem 0;
+        padding: 32px 0;
     }
     .policy-container {
-        padding: 0 1rem;
+        padding: 0 16px;
     }
     .policy-hero {
-        margin-bottom: 2rem;
+        margin-bottom: 32px;
     }
     .policy-main-title {
-        font-size: 2rem;
+        font-size: 32px;
     }
     .policy-content p, .policy-content li {
-        font-size: 0.95rem;
+        font-size: 15px;
     }
 }

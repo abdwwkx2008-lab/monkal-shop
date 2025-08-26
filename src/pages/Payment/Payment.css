@@ -3,20 +3,26 @@
 .payment-page-section {
     background-color: #fff;
     min-height: 90vh;
-    padding: 4rem 0;
+    padding: 64px 0;
     font-family: 'Manrope', sans-serif;
     color: #18181B;
     display: flex;
     align-items: center;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+body.dark-theme .payment-page-section {
+    background-color: var(--background-color);
+    color: var(--text-color);
 }
 
 .payment-layout-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 6rem;
+    gap: 96px;
     max-width: 1100px;
     margin: 0 auto;
-    padding: 0 2rem;
+    padding: 0 32px;
     align-items: center;
 }
 
@@ -25,28 +31,33 @@
 }
 
 .instructions-title {
-    font-size: 2.75rem;
+    font-size: 44px;
     font-weight: 800;
-    margin: 0 0 1rem 0;
+    margin: 0 0 16px 0;
 }
 
 .instructions-subtitle {
-    font-size: 1rem;
+    font-size: 16px;
     color: #555;
     line-height: 1.7;
-    margin: 0 0 3rem 0;
+    margin: 0 0 48px 0;
+    transition: color 0.3s ease;
+}
+
+body.dark-theme .instructions-subtitle {
+    color: var(--secondary-text-color);
 }
 
 .steps-container {
     display: flex;
     flex-direction: column;
-    gap: 2.5rem;
+    gap: 40px;
 }
 
 .step-item {
     display: flex;
     align-items: flex-start;
-    gap: 1.5rem;
+    gap: 24px;
 }
 
 .step-number {
@@ -58,20 +69,30 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 1rem;
+    font-size: 16px;
     font-weight: 600;
+    transition: background-color 0.3s ease;
+}
+
+body.dark-theme .step-number {
+    background-color: var(--button-secondary-bg);
 }
 
 .step-title {
-    font-size: 1.1rem;
+    font-size: 18px;
     font-weight: 700;
-    margin: 0 0 0.5rem 0;
+    margin: 0 0 8px 0;
 }
 
 .step-description {
     color: #555;
     line-height: 1.6;
     margin: 0;
+    transition: color 0.3s ease;
+}
+
+body.dark-theme .step-description {
+    color: var(--secondary-text-color);
 }
 
 .payment-details-column {
@@ -83,6 +104,13 @@
     border-radius: 24px;
     border: 1px solid #f0f0f0;
     box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08);
+    transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+body.dark-theme .payment-details-card {
+    background: var(--card-bg);
+    border-color: var(--border-color);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
 }
 
 .qr-display-wrapper {
@@ -98,21 +126,31 @@
 }
 
 .recipient-info-block, .phone-info-block {
-    padding: 1.5rem 2rem;
+    padding: 24px 32px;
 }
 
 .phone-info-block {
     border-top: 1px solid #f0f0f0;
+    transition: border-color 0.3s ease;
+}
+
+body.dark-theme .phone-info-block {
+    border-top-color: var(--border-color);
 }
 
 .recipient-label, .phone-info-label {
-    font-size: 0.85rem;
+    font-size: 14px;
     color: #777;
-    margin: 0 0 0.25rem 0;
+    margin: 0 0 4px 0;
+    transition: color 0.3s ease;
+}
+
+body.dark-theme .recipient-label, body.dark-theme .phone-info-label {
+    color: var(--secondary-text-color);
 }
 
 .recipient-name {
-    font-size: 1.25rem;
+    font-size: 20px;
     font-weight: 700;
     margin: 0;
 }
@@ -123,12 +161,17 @@
     align-items: center;
     background-color: #f9f9f9;
     border-radius: 12px;
-    padding: 0.75rem 0.75rem 0.75rem 1.25rem;
-    margin-top: 0.5rem;
+    padding: 12px 12px 12px 20px;
+    margin-top: 8px;
+    transition: background-color 0.3s ease;
+}
+
+body.dark-theme .phone-number-box {
+    background-color: var(--background-color);
 }
 
 .phone-number {
-    font-size: 1rem;
+    font-size: 16px;
     font-weight: 600;
     letter-spacing: 1px;
     margin: 0;
@@ -136,15 +179,20 @@
 
 .copy-button {
     height: 40px;
-    padding: 0 1.25rem;
+    padding: 0 20px;
     border-radius: 8px;
     border: none;
     background-color: #18181B;
     color: #fff;
-    font-size: 0.9rem;
+    font-size: 14px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s ease;
+}
+
+body.dark-theme .copy-button {
+    background-color: var(--button-primary-bg);
+    color: var(--button-primary-text);
 }
 
 .copy-button:hover {
@@ -157,12 +205,12 @@
 
 @media (max-width: 992px) {
     .payment-page-section {
-        padding: 3rem 0;
+        padding: 48px 0;
         align-items: flex-start;
     }
     .payment-layout-grid {
         grid-template-columns: 1fr;
-        gap: 4rem;
+        gap: 64px;
     }
     .payment-details-column {
         order: -1;
@@ -176,54 +224,54 @@
         margin: 0 auto;
     }
     .instructions-title {
-        font-size: 2.5rem;
+        font-size: 40px;
     }
 }
 
 @media (max-width: 768px) {
     .payment-layout-grid {
-        padding: 0 1.5rem;
+        padding: 0 24px;
     }
 }
 
 @media (max-width: 480px) {
     .payment-page-section {
-        padding: 2rem 0;
+        padding: 32px 0;
     }
     .payment-layout-grid {
-        padding: 0 1rem;
-        gap: 3rem;
+        padding: 0 16px;
+        gap: 48px;
     }
     .instructions-title {
-        font-size: 2rem;
+        font-size: 32px;
     }
     .instructions-subtitle {
-        margin-bottom: 2.5rem;
+        margin-bottom: 40px;
     }
     .steps-container {
-        gap: 2rem;
+        gap: 32px;
     }
     .step-item {
-        gap: 1rem;
+        gap: 16px;
     }
     .step-description {
-        font-size: 0.95rem;
+        font-size: 15px;
     }
     .recipient-info-block, .phone-info-block {
-        padding: 1.25rem 1.5rem;
+        padding: 20px 24px;
     }
     .recipient-name {
-        font-size: 1.15rem;
+        font-size: 18px;
     }
     .phone-number-box {
-        padding: 0.5rem 0.5rem 0.5rem 1rem;
+        padding: 8px 8px 8px 16px;
     }
     .phone-number {
-        font-size: 0.9rem;
+        font-size: 14px;
     }
     .copy-button {
         height: 36px;
-        padding: 0 1rem;
-        font-size: 0.85rem;
+        padding: 0 16px;
+        font-size: 14px;
     }
 }

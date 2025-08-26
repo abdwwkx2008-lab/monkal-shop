@@ -3,54 +3,80 @@
 .faq-section {
     background-color: #fff;
     min-height: 90vh;
-    padding: 4rem 0;
+    padding: 64px 0;
     font-family: 'Manrope', sans-serif;
     color: #18181B;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+body.dark-theme .faq-section {
+    background-color: var(--background-color);
+    color: var(--text-color);
 }
 
 .faq-container {
     max-width: 900px;
     margin: 0 auto;
-    padding: 0 2rem;
+    padding: 0 32px;
     animation: content-slide-up 0.8s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
 .faq-hero {
     text-align: left;
-    margin-bottom: 4rem;
+    margin-bottom: 64px;
 }
 
 .faq-main-title {
-    font-size: 3.5rem;
+    font-size: 56px;
     font-weight: 800;
     margin: 0;
 }
 
 .faq-subtitle {
-    font-size: 1.1rem;
+    font-size: 18px;
     color: #555;
-    margin-top: 0.5rem;
+    margin-top: 8px;
+    transition: color 0.3s ease;
+}
+
+body.dark-theme .faq-subtitle {
+    color: var(--secondary-text-color);
 }
 
 .faq-category {
-    margin-bottom: 3.5rem;
+    margin-bottom: 56px;
 }
 
 .faq-category-title {
-    font-size: 1.25rem;
+    font-size: 20px;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 1px;
     color: #777;
-    margin-bottom: 1.5rem;
+    margin-bottom: 24px;
+    transition: color 0.3s ease;
+}
+
+body.dark-theme .faq-category-title {
+    color: var(--secondary-text-color);
 }
 
 .faq-items-container {
     border-top: 1px solid #f0f0f0;
+    transition: border-color 0.3s ease;
+}
+
+body.dark-theme .faq-items-container {
+    border-top-color: var(--border-color);
 }
 
 .faq-item {
     border-bottom: 1px solid #f0f0f0;
+    transition: border-color 0.3s ease;
+}
+
+body.dark-theme .faq-item {
+    border-bottom-color: var(--border-color);
 }
 
 .faq-question-button {
@@ -58,7 +84,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1.5rem 0;
+    padding: 24px 0;
     background: none;
     border: none;
     cursor: pointer;
@@ -67,10 +93,15 @@
 }
 
 .faq-question-button span {
-    font-size: 1.1rem;
+    font-size: 18px;
     font-weight: 600;
     color: #18181B;
-    padding-right: 1rem;
+    padding-right: 16px;
+    transition: color 0.3s ease;
+}
+
+body.dark-theme .faq-question-button span {
+    color: var(--text-color);
 }
 
 .faq-arrow {
@@ -79,8 +110,12 @@
     border-left: 2px solid #999;
     border-bottom: 2px solid #999;
     transform: rotate(-45deg);
-    transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+    transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), border-color 0.3s ease;
     flex-shrink: 0;
+}
+
+body.dark-theme .faq-arrow {
+    border-color: var(--secondary-text-color);
 }
 
 .faq-arrow.open {
@@ -95,65 +130,70 @@
 
 .faq-answer.open {
     max-height: 200px;
-    padding-bottom: 1.5rem;
+    padding-bottom: 24px;
 }
 
 .faq-answer p {
     margin: 0;
     color: #555;
     line-height: 1.7;
-    padding-right: 2rem;
+    padding-right: 32px;
+    transition: color 0.3s ease;
+}
+
+body.dark-theme .faq-answer p {
+    color: var(--secondary-text-color);
 }
 
 @media (max-width: 992px) {
     .faq-main-title {
-        font-size: 3rem;
+        font-size: 48px;
     }
 }
 
 @media (max-width: 768px) {
     .faq-section {
-        padding: 3rem 0;
+        padding: 48px 0;
     }
     .faq-container {
-        padding: 0 1.5rem;
+        padding: 0 24px;
     }
     .faq-hero {
-        margin-bottom: 3rem;
+        margin-bottom: 48px;
     }
     .faq-main-title {
-        font-size: 2.5rem;
+        font-size: 40px;
     }
     .faq-subtitle {
-        font-size: 1rem;
+        font-size: 16px;
     }
     .faq-category {
-        margin-bottom: 2.5rem;
+        margin-bottom: 40px;
     }
     .faq-question-button {
-        padding: 1.25rem 0;
+        padding: 20px 0;
     }
     .faq-question-button span {
-        font-size: 1rem;
+        font-size: 16px;
     }
     .faq-answer p {
-        padding-right: 1rem;
+        padding-right: 16px;
     }
 }
 
 @media (max-width: 480px) {
     .faq-container {
-        padding: 0 1rem;
+        padding: 0 16px;
     }
     .faq-main-title {
-        font-size: 2.1rem;
+        font-size: 34px;
     }
     .faq-question-button span {
-        font-size: 0.95rem;
+        font-size: 15px;
     }
     .faq-answer p {
         padding-right: 0;
-        font-size: 0.95rem;
+        font-size: 15px;
     }
     .faq-arrow {
         width: 10px;

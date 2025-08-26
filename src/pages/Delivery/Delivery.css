@@ -3,52 +3,68 @@
 .delivery-section {
     background-color: #fff;
     min-height: 90vh;
-    padding: 4rem 0;
+    padding: 64px 0;
     font-family: 'Manrope', sans-serif;
     color: #18181B;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+body.dark-theme .delivery-section {
+    background-color: var(--background-color);
+    color: var(--text-color);
 }
 
 .delivery-container {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 0 2rem;
+    padding: 0 32px;
     animation: content-slide-up 0.8s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
 .delivery-hero {
     text-align: left;
-    margin-bottom: 4rem;
+    margin-bottom: 64px;
 }
 
 .delivery-title {
-    font-size: 3.5rem;
+    font-size: 56px;
     font-weight: 800;
-    margin: 0 0 1rem 0;
+    margin: 0 0 16px 0;
 }
 
 .delivery-subtitle {
-    font-size: 1.1rem;
+    font-size: 18px;
     color: #555;
     line-height: 1.7;
     max-width: 650px;
     margin: 0;
+    transition: color 0.3s ease;
+}
+
+body.dark-theme .delivery-subtitle {
+    color: var(--secondary-text-color);
 }
 
 .delivery-methods-container {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 2rem;
+    gap: 32px;
 }
 
 .info-card {
     display: flex;
     flex-direction: column;
     height: 100%;
-    gap: 2rem;
+    gap: 32px;
     background-color: #f9f9f9;
-    padding: 2.5rem;
+    padding: 40px;
     border-radius: 24px;
     animation: item-pop-in 0.6s ease-out backwards;
+    transition: background-color 0.3s ease;
+}
+
+body.dark-theme .info-card {
+    background-color: var(--card-bg);
 }
 
 .delivery-methods-container .info-card:nth-child(2) {
@@ -94,25 +110,35 @@
 }
 
 .info-card-title {
-    font-size: 1.5rem;
+    font-size: 24px;
     font-weight: 700;
-    margin: 0 0 1rem 0;
+    margin: 0 0 16px 0;
 }
 
 .info-card-text {
     color: #555;
     line-height: 1.6;
-    margin: 0 0 2rem 0;
+    margin: 0 0 32px 0;
     flex-grow: 1;
+    transition: color 0.3s ease;
+}
+
+body.dark-theme .info-card-text {
+    color: var(--secondary-text-color);
 }
 
 .price-details {
-    padding-top: 1.5rem;
+    padding-top: 24px;
     border-top: 1px solid #e5e5e5;
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 16px;
     margin-top: auto;
+    transition: border-color 0.3s ease;
+}
+
+body.dark-theme .price-details {
+    border-top-color: var(--border-color);
 }
 
 .price-item {
@@ -122,13 +148,18 @@
 }
 
 .price-label {
-    font-size: 1rem;
+    font-size: 16px;
     color: #555;
     font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+body.dark-theme .price-label {
+    color: var(--secondary-text-color);
 }
 
 .price-value {
-    font-size: 1rem;
+    font-size: 16px;
     font-weight: 700;
 }
 .price-value.free {
@@ -146,41 +177,41 @@
         grid-template-columns: 1fr;
     }
     .delivery-title {
-        font-size: 3rem;
+        font-size: 48px;
     }
 }
 
 @media (max-width: 768px) {
     .delivery-section {
-        padding: 3rem 0;
+        padding: 48px 0;
     }
     .delivery-container {
-        padding: 0 1.5rem;
+        padding: 0 24px;
     }
     .delivery-hero {
-        margin-bottom: 3rem;
+        margin-bottom: 48px;
     }
     .delivery-title {
-        font-size: 2.5rem;
+        font-size: 40px;
     }
     .delivery-subtitle {
-        font-size: 1rem;
+        font-size: 16px;
     }
     .info-card {
-        padding: 2rem;
-        gap: 1.5rem;
+        padding: 32px;
+        gap: 24px;
     }
 }
 
 @media (max-width: 480px) {
     .delivery-container {
-        padding: 0 1rem;
+        padding: 0 16px;
     }
     .delivery-title {
-        font-size: 2.1rem;
+        font-size: 34px;
     }
     .info-card {
-        padding: 1.5rem;
+        padding: 24px;
         border-radius: 20px;
     }
     .info-card-icon {
@@ -198,14 +229,14 @@
         height: 28px;
     }
     .info-card-title {
-        font-size: 1.25rem;
+        font-size: 20px;
     }
     .info-card-text {
-        font-size: 0.95rem;
-        margin-bottom: 1.5rem;
+        font-size: 15px;
+        margin-bottom: 24px;
     }
     .price-label,
     .price-value {
-        font-size: 0.9rem;
+        font-size: 14px;
     }
 }
