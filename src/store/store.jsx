@@ -132,7 +132,7 @@ function Context({ children }) {
             .then((res) => {
                 const updatedUser = res.data;
                 localStorage.setItem('currentUser', JSON.stringify(updatedUser));
-                setUser(updatedUser);
+                setUser(updatedUser); // Обновляем состояние user в контексте
                 return updatedUser;
             })
             .catch((err) => {

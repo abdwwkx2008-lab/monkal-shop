@@ -23,6 +23,14 @@ const EditProfile = () => {
             phone: data.phone
         }).then(() => {
             toast.success("Профиль успешно обновлен!");
+
+            reset({
+                fullname: user.fullname,
+                email: user.email,
+                phone: user.phone
+            });
+        }).catch(() => {
+
         });
     };
 
