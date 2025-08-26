@@ -20,14 +20,6 @@ const db = new Low(adapter, defaultData);
 
 (async () => {
     await db.read();
-    if (!db.data.products || db.data.products.length === 0) {
-        try {
-            const seedProducts = require('./db-seed.json');
-            db.data.products = seedProducts;
-        } catch (error) {
-            console.error('Ошибка при загрузке db-seed.json:', error);
-        }
-    }
     await db.write();
 })();
 
@@ -40,7 +32,6 @@ const transporter = nodemailer.createTransport({
 });
 
 app.get('/products', (req, res) => res.json(db.data.products));
-
 app.get('/products/:id', (req, res) => {
     const product = db.data.products.find(p => p.id === parseInt(req.params.id));
     if (product) res.json(product);
@@ -49,50 +40,30 @@ app.get('/products/:id', (req, res) => {
 
 app.post('/register', async (req, res) => {
     const { email, fullname, password, phone } = req.body;
-    if (!email || !fullname || !password || !phone) {
-        return res.status(400).json({ message: "Пожалуйста, заполните все поля" });
-    }
-
+    if (!email || !fullname || !password || !phone) return res.status(400).json({ message: "Пожалуйста, заполните все поля" });
     const existingUser = db.data.users.find(u => u.email === email);
-    if (existingUser && existingUser.isVerified) {
-        return res.status(400).json({ message: "Этот e-mail уже занят" });
-    }
-
+    if (existingUser && existingUser.isVerified) return res.status(400).json({ message: "Этот e-mail уже занят" });
     const verificationCode = crypto.randomInt(100000, 999999).toString();
     const hashedPassword = bcrypt.hashSync(password, 10);
-
     if (existingUser && !existingUser.isVerified) {
         existingUser.fullname = fullname;
         existingUser.password = hashedPassword;
         existingUser.phone = phone;
         existingUser.verificationCode = verificationCode;
-    } else {
+    } else if (!existingUser) {
         const newUser = {
             id: (db.data.users.length > 0 ? Math.max(...db.data.users.map(u => u.id)) : 0) + 1,
-            email,
-            fullname,
-            password: hashedPassword,
-            phone,
-            isVerified: false,
-            verificationCode
+            email, fullname, password: hashedPassword, phone,
+            isVerified: false, verificationCode
         };
         db.data.users.push(newUser);
     }
-
     await db.write();
-
-    const mailOptions = {
-        from: process.env.GMAIL_USER || 'abdwwkx2008@gmail.com',
-        to: email,
-        subject: 'Код подтверждения для Monkal',
-        html: `<p>Ваш код для подтверждения регистрации на сайте Monkal:</p><h2>${verificationCode}</h2>`
-    };
-
+    const mailOptions = { from: process.env.GMAIL_USER || 'abdwwkx2008@gmail.com', to: email, subject: 'Код подтверждения для Monkal', html: `<p>Ваш код для подтверждения регистрации на сайте Monkal:</p><h2>${verificationCode}</h2>` };
     try {
         await transporter.sendMail(mailOptions);
         res.status(201).json({ message: "Код подтверждения отправлен на вашу почту." });
     } catch (error) {
-        console.error("Ошибка отправки email:", error);
         res.status(500).json({ message: "Не удалось отправить письмо с кодом." });
     }
 });
@@ -100,36 +71,20 @@ app.post('/register', async (req, res) => {
 app.post('/verify-email', async (req, res) => {
     const { email, code } = req.body;
     const user = db.data.users.find(u => u.email === email);
-
-    if (!user) {
-        return res.status(404).json({ message: "Пользователь не найден." });
-    }
-    if (user.isVerified) {
-        return res.status(400).json({ message: "Аккаунт уже подтвержден." });
-    }
-    if (user.verificationCode !== code) {
-        return res.status(400).json({ message: "Неверный код подтверждения." });
-    }
-
+    if (!user) return res.status(404).json({ message: "Пользователь не найден." });
+    if (user.isVerified) return res.status(400).json({ message: "Аккаунт уже подтвержден." });
+    if (user.verificationCode !== code) return res.status(400).json({ message: "Неверный код подтверждения." });
     user.isVerified = true;
     user.verificationCode = undefined;
     await db.write();
-
     res.status(200).json({ message: "Email успешно подтвержден!" });
 });
-
 
 app.post('/login', (req, res) => {
     const { email, password } = req.body;
     const user = db.data.users.find(u => u.email === email);
-
-    if (!user || !user.isVerified) {
-        return res.status(400).json({ message: "Пользователь не найден или не подтвержден" });
-    }
-    if (!bcrypt.compareSync(password, user.password)) {
-        return res.status(400).json({ message: "Неверный логин или пароль" });
-    }
-
+    if (!user || !user.isVerified) return res.status(400).json({ message: "Пользователь не найден или не подтвержден" });
+    if (!bcrypt.compareSync(password, user.password)) return res.status(400).json({ message: "Неверный логин или пароль" });
     const { password: _, ...userWithoutPassword } = user;
     const accessToken = jwt.sign({ id: user.id }, JWT_SECRET, { expiresIn: '1d' });
     res.json({ accessToken, user: userWithoutPassword });
@@ -161,49 +116,15 @@ app.post('/reset-password/:token', async (req, res) => {
     res.status(200).json({ message: "Пароль успешно изменен!" });
 });
 
-app.get('/addresses', (req, res) => {
-    const userId = parseInt(req.query.userId);
-    if (isNaN(userId)) return res.status(400).json({ message: "Неверный userId" });
-    const userAddresses = db.data.addresses.filter(a => a.userId === userId);
-    res.json(userAddresses);
-});
-
-app.post('/addresses', async (req, res) => {
-    const newAddress = { id: (db.data.addresses.length > 0 ? Math.max(...db.data.addresses.map(a => a.id)) : 0) + 1, ...req.body };
-    db.data.addresses.push(newAddress);
+app.patch('/users/:id/password', async (req, res) => {
+    const { oldPassword, newPassword } = req.body;
+    const userId = parseInt(req.params.id);
+    const user = db.data.users.find(u => u.id === userId);
+    if (!user) return res.status(404).json({ message: "Пользователь не найден" });
+    if (!bcrypt.compareSync(oldPassword, user.password)) return res.status(400).json({ message: "Старый пароль введен неверно" });
+    user.password = bcrypt.hashSync(newPassword, 10);
     await db.write();
-    res.status(201).json(newAddress);
-});
-
-app.patch('/addresses/:id', async (req, res) => {
-    const address = db.data.addresses.find(a => a.id === parseInt(req.params.id));
-    if (address) {
-        Object.assign(address, req.body);
-        await db.write();
-        res.json(address);
-    } else {
-        res.status(404).json({ message: "Адрес не найден" });
-    }
-});
-
-app.delete('/addresses/:id', async (req, res) => {
-    db.data.addresses = db.data.addresses.filter(a => a.id !== parseInt(req.params.id));
-    await db.write();
-    res.status(204).send();
-});
-
-app.get('/orders', (req, res) => {
-    const userId = parseInt(req.query.userId);
-    if (isNaN(userId)) return res.status(400).json({ message: "Неверный userId" });
-    const userOrders = db.data.orders.filter(o => o.userId === userId);
-    res.json(userOrders);
-});
-
-app.post('/orders', async (req, res) => {
-    const newOrder = { id: (db.data.orders.length > 0 ? Math.max(...db.data.orders.map(o => o.id)) : 0) + 1, ...req.body, createdAt: new Date().toISOString() };
-    db.data.orders.push(newOrder);
-    await db.write();
-    res.status(201).json(newOrder);
+    res.status(200).json({ message: "Пароль успешно изменен!" });
 });
 
 app.patch('/users/:id', async (req, res) => {
@@ -211,7 +132,6 @@ app.patch('/users/:id', async (req, res) => {
     if (user) {
         if (req.body.fullname) user.fullname = req.body.fullname;
         if (req.body.phone) user.phone = req.body.phone;
-        if (req.body.password) user.password = bcrypt.hashSync(req.body.password, 10);
         await db.write();
         const { password, ...userWithoutPassword } = user;
         res.json(userWithoutPassword);

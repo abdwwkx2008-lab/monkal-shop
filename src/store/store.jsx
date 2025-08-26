@@ -109,7 +109,6 @@ function Context({ children }) {
             toast.error("Пользователь не найден. Пожалуйста, войдите снова.");
             return Promise.reject("No user");
         }
-
         return axios.patch(`${API_BASE_URL}/users/${user.id}`, dataToUpdate)
             .then((res) => {
                 const updatedUser = res.data;
@@ -119,9 +118,13 @@ function Context({ children }) {
             })
             .catch((err) => {
                 toast.error("Не удалось обновить профиль");
-                console.error(err);
                 return Promise.reject(err);
             });
+    };
+
+    const changePassword = (data) => {
+        if (!user || !user.id) return Promise.reject("Пользователь не найден");
+        return axios.patch(`${API_BASE_URL}/users/${user.id}/password`, data);
     };
 
     const sendTelegramNotification = (order) => {
@@ -142,7 +145,6 @@ function Context({ children }) {
                 axios.post(`https://api.telegram.org/bot${botToken}/sendMessage`, { chat_id: chatId, text: messageText, parse_mode: 'Markdown' });
             })
             .catch(err => {
-                console.error("Ошибка отправки в Telegram:", err.response?.data);
                 axios.post(`https://api.telegram.org/bot${botToken}/sendMessage`, { chat_id: chatId, text: "Не удалось загрузить фото заказа. \n\n" + messageText, parse_mode: 'Markdown' });
             });
     };
@@ -152,7 +154,8 @@ function Context({ children }) {
         setUser, setCart, setFavorites, getProducts, getProduct, addCart, toggleFavorite,
         registerUser, loginUser, logOutUser, forgotPassword, resetPassword,
         updateUser, sendTelegramNotification,
-        clearFavorites, verifyRegistration
+        clearFavorites, verifyRegistration,
+        changePassword
     };
 
     return (

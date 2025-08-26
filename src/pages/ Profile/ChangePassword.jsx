@@ -2,31 +2,24 @@ import React, { useContext, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
 import { CustomContext } from '../../store/store';
-import eyeOpen from '/assets/eyeOpen.png';
-import eyeClosed from '/assets/eyeClosed.png';
 
 const ChangePassword = () => {
-    const { user, updateUser } = useContext(CustomContext);
+    const { changePassword } = useContext(CustomContext);
     const { register, handleSubmit, formState: { errors }, watch, reset } = useForm({ mode: 'onBlur' });
-    const [showPassword, setShowPassword] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const onSubmit = (data) => {
-        if (!user || !user.password) {
-            toast.error("Не удалось проверить старый пароль.");
-            return;
-        }
-
-
-        updateUser({ password: data.newPassword })
+        setIsSubmitting(true);
+        changePassword({ oldPassword: data.oldPassword, newPassword: data.newPassword })
             .then(() => {
                 toast.success("Пароль успешно изменен!");
                 reset();
-            });
+            })
+            .catch((err) => {
+                toast.error(err.response?.data?.message || "Произошла ошибка");
+            })
+            .finally(() => setIsSubmitting(false));
     };
-
-    if (!user) {
-        return <p>Загрузка...</p>;
-    }
 
     return (
         <div>
@@ -34,26 +27,22 @@ const ChangePassword = () => {
             <form onSubmit={handleSubmit(onSubmit)} className="profile-form">
                 <div className="form-group">
                     <label>Старый пароль</label>
-                    <input {...register('oldPassword', { required: 'Это поле обязательно' })} type={showPassword ? 'text' : 'password'} />
+                    <input {...register('oldPassword', { required: 'Это поле обязательно' })} type="password" />
                     {errors.oldPassword && <p className="form-error-message">{errors.oldPassword.message}</p>}
                 </div>
                 <div className="form-group">
                     <label>Новый пароль</label>
-                    <div className="password-input-wrapper">
-                        <input {...register('newPassword', { required: 'Это поле обязательно', minLength: { value: 6, message: 'Минимум 6 символов' } })} type={showPassword ? 'text' : 'password'} />
-                        <img src={showPassword ? eyeClosed : eyeOpen} alt="Toggle password" className="password-eye-icon" onClick={() => setShowPassword(prev => !prev)} />
-                    </div>
+                    <input {...register('newPassword', { required: 'Это поле обязательно', minLength: { value: 6, message: 'Минимум 6 символов' } })} type="password" />
                     {errors.newPassword && <p className="form-error-message">{errors.newPassword.message}</p>}
                 </div>
                 <div className="form-group">
                     <label>Повторите новый пароль</label>
-                    <div className="password-input-wrapper">
-                        <input {...register('confirmPassword', { required: 'Это поле обязательно', validate: (value) => value === watch('newPassword') || 'Пароли не совпадают' })} type={showPassword ? 'text' : 'password'} />
-                        <img src={showPassword ? eyeClosed : eyeOpen} alt="Toggle password" className="password-eye-icon" onClick={() => setShowPassword(prev => !prev)} />
-                    </div>
+                    <input {...register('confirmPassword', { required: 'Это поле обязательно', validate: (value) => value === watch('newPassword') || 'Пароли не совпадают' })} type="password" />
                     {errors.confirmPassword && <p className="form-error-message">{errors.confirmPassword.message}</p>}
                 </div>
-                <button type="submit" className="profile-form-btn">Сохранить</button>/
+                <button type="submit" className="profile-form-btn" disabled={isSubmitting}>
+                    {isSubmitting ? "Сохранение..." : "Сохранить"}
+                </button>
             </form>
         </div>
     );
