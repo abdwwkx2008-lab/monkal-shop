@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { CustomContext, API_BASE_URL } from "../../store/store.jsx";
 import axios from 'axios';
@@ -9,38 +9,25 @@ const Basket = () => {
     const { cart, setCart, user, sendTelegramNotification } = useContext(CustomContext);
     const navigate = useNavigate();
     const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false);
-    const [userAddresses, setUserAddresses] = useState([]);
-    const [selectedAddressId, setSelectedAddressId] = useState('');
 
-    useEffect(() => {
-        if (isCheckoutModalOpen && user && user.id) {
-            axios(`${API_BASE_URL}/addresses?userId=${user.id}`)
-                .then(res => {
-                    const addresses = res.data;
-                    setUserAddresses(addresses);
-                    if (addresses.length > 0) {
-                        const lastSelected = localStorage.getItem('lastSelectedAddressId');
-                        const defaultId = lastSelected && addresses.some(a => a.id.toString() === lastSelected) ? lastSelected : addresses[0].id.toString();
-                        setSelectedAddressId(defaultId);
-                    }
-                })
-                .catch(() => {
-                    toast.error("Не удалось загрузить адреса.");
-                });
-        }
-    }, [isCheckoutModalOpen, user]);
+    function getUniqueCartId(item) {
+        return `${item.id}-${item.size}`;
+    }
 
-    const handleAddressChange = (e) => {
-        const newAddressId = e.target.value;
-        setSelectedAddressId(newAddressId);
-        localStorage.setItem('lastSelectedAddressId', newAddressId);
+    const incrementCount = (cartId) => {
+        setCart(prevCart => prevCart.map(item => getUniqueCartId(item) === cartId ? { ...item, count: item.count + 1 } : item));
     };
 
-    function getUniqueCartId(item) { return `${item.id}-${item.size}`; }
-    const incrementCount = (cartId) => { setCart(prevCart => prevCart.map(item => getUniqueCartId(item) === cartId ? { ...item, count: item.count + 1 } : item )); };
-    const decrementCount = (cartId) => { setCart(prevCart => prevCart.map(item => getUniqueCartId(item) === cartId && item.count > 1 ? { ...item, count: item.count - 1 } : item )); };
-    const removeCartItem = (cartId) => { setCart(prevCart => prevCart.filter(item => getUniqueCartId(item) !== cartId)); };
+    const decrementCount = (cartId) => {
+        setCart(prevCart => prevCart.map(item => getUniqueCartId(item) === cartId && item.count > 1 ? { ...item, count: item.count - 1 } : item));
+    };
+
+    const removeCartItem = (cartId) => {
+        setCart(prevCart => prevCart.filter(item => getUniqueCartId(item) !== cartId));
+    };
+
     const clearCart = () => setCart([]);
+
     const totalPrice = cart.reduce((acc, item) => acc + (item.price * item.count), 0);
     const totalItems = cart.reduce((acc, item) => acc + item.count, 0);
 
@@ -66,20 +53,19 @@ const Basket = () => {
             navigate('/login');
             return;
         }
-        if (userAddresses.length === 0) {
-            toast.error("Пожалуйста, добавьте адрес в личном кабинете.");
-            return;
-        }
-        if (!selectedAddressId) {
-            toast.warn("Пожалуйста, выберите адрес доставки.");
-            return;
-        }
-        const selectedAddressObject = userAddresses.find(addr => addr.id.toString() === selectedAddressId);
-        if (!selectedAddressObject) {
-            toast.error("Выбранный адрес не найден.");
-            return;
-        }
-        const newOrder = { userId: user.id, userInfo: { fullname: user.fullname, email: user.email, phone: user.phone || 'Не указан', address: selectedAddressObject }, items: cart, totalPrice: totalPrice, status: 'В обработке' };
+
+        const newOrder = {
+            userId: user.id,
+            userInfo: {
+                fullname: user.fullname,
+                email: user.email,
+                phone: user.phone || 'Не указан',
+            },
+            items: cart,
+            totalPrice: totalPrice,
+            status: 'В обработке'
+        };
+
         axios.post(`${API_BASE_URL}/orders`, newOrder)
             .then((res) => {
                 if (sendTelegramNotification) sendTelegramNotification(res.data);
@@ -106,6 +92,7 @@ const Basket = () => {
             </div>
         );
     }
+
     return (
         <>
             <section className="basket-section">
@@ -116,42 +103,65 @@ const Basket = () => {
                     </div>
                     <div className="basket-layout">
                         <div className="basket-items-list">
-                            {cart.map((item) => { const uniqueId = getUniqueCartId(item);
-                                return (<div key={uniqueId} className="basket-item-card">
-                                    <Link to={`/product/${item.id}`} className="item-image-link">
-                                        <img src={item.image} alt={item.name} className="item-image" />
-                                    </Link>
-                                    <div className="item-details">
-                                        <Link to={`/product/${item.id}`} className="item-title-link">
-                                            <p className="item-brand">{item.brand}</p>
-                                            <h3 className="item-title">{item.name}</h3>
-                                        </Link><p className="item-size">Размер: {item.size}</p>
-                                        <div className="item-quantity-stepper">
-                                            <button onClick={() => decrementCount(uniqueId)}>-</button><span>{item.count}</span>
-                                            <button onClick={() => incrementCount(uniqueId)}>+</button>
+                            {cart.map((item) => {
+                                const uniqueId = getUniqueCartId(item);
+                                return (
+                                    <div key={uniqueId} className="basket-item-card">
+                                        <Link to={`/product/${item.id}`} className="item-image-link">
+                                            <img src={item.image} alt={item.name} className="item-image" />
+                                        </Link>
+                                        <div className="item-details">
+                                            <Link to={`/product/${item.id}`} className="item-title-link">
+                                                <p className="item-brand">{item.brand}</p>
+                                                <h3 className="item-title">{item.name}</h3>
+                                            </Link>
+                                            <p className="item-size">Размер: {item.size}</p>
+                                            <div className="item-quantity-stepper">
+                                                <button onClick={() => decrementCount(uniqueId)}>-</button>
+                                                <span>{item.count}</span>
+                                                <button onClick={() => incrementCount(uniqueId)}>+</button>
+                                            </div>
+                                        </div>
+                                        <div className="item-price-and-remove">
+                                            <p className="item-price">{(item.price * item.count).toLocaleString()} ₽</p>
+                                            <button onClick={() => removeCartItem(uniqueId)} className="item-remove-button">Удалить</button>
                                         </div>
                                     </div>
-                                    <div className="item-price-and-remove">
-                                        <p className="item-price">{(item.price * item.count).toLocaleString()} c</p>
-                                        <button onClick={() => removeCartItem(uniqueId)} className="item-remove-button">Удалить</button>
-                                    </div>
-                                </div>
-                                ); })}
+                                );
+                            })}
                         </div>
                         <div className="order-summary-card">
                             <h2 className="summary-title">Итог заказа</h2>
                             <div className="summary-row">
-                                <p>{totalItems} {getItemWord(totalItems)}</p><p>{totalPrice.toLocaleString()} c</p>
-                            </div><div className="summary-row"><p>Доставка по городу <br/>Жалал-Абад</p>
-                            <p className="delivery-free">100 c </p>
-                        </div>
-                            <div className="summary-total-row"><p>К оплате</p><p>{totalPrice.toLocaleString()} С</p>
-                            </div><button onClick={handleCheckout} className="checkout-main-button">Перейти к оформлению</button>
+                                <p>{totalItems} {getItemWord(totalItems)}</p>
+                                <p>{totalPrice.toLocaleString()} ₽</p>
+                            </div>
+                            <div className="summary-row">
+                                <p>Доставка по городу <br/>Жалал-Абад</p>
+                                <p className="delivery-free">Бесплатно</p>
+                            </div>
+                            <div className="summary-total-row">
+                                <p>К оплате</p>
+                                <p>{totalPrice.toLocaleString()} С</p>
+                            </div>
+                            <button onClick={handleCheckout} className="checkout-main-button">Перейти к оформлению</button>
                         </div>
                     </div>
                 </div>
             </section>
-            {isCheckoutModalOpen && (<div className="logout-modal-overlay"><div className="logout-modal-content"><h2>Подтверждение заказа</h2><p>Ваш заказ на сумму {totalPrice.toLocaleString()} ₽</p><div className="checkout-address-block"><label htmlFor="address-select">Выберите адрес доставки:</label>{userAddresses.length > 0 ? (<select id="address-select" className="checkout-address-select" value={selectedAddressId} onChange={handleAddressChange}>{userAddresses.map(addr => (<option key={addr.id} value={addr.id}>{addr.city}, {addr.street}</option>))}</select>) : (<div className="checkout-no-address"><p>У вас нет сохраненных адресов.</p><Link to="/profile/address" onClick={() => setIsCheckoutModalOpen(false)}>Добавить адрес</Link></div>)}</div><div className="logout-modal-actions"><button onClick={() => setIsCheckoutModalOpen(false)} className="modal-btn-cancel">Отмена</button><button onClick={confirmOrder} className="modal-btn-confirm" disabled={userAddresses.length === 0}>Подтвердить</button></div></div></div>)}
+
+            {isCheckoutModalOpen && (
+                <div className="logout-modal-overlay">
+                    <div className="logout-modal-content">
+                        <h2>Подтверждение заказа</h2>
+                        <p>Ваш заказ на сумму {totalPrice.toLocaleString()} ₽ будет оформлен. Продолжить?</p>
+                        <div className="logout-modal-actions">
+                            <button onClick={() => setIsCheckoutModalOpen(false)} className="modal-btn-cancel">Отмена</button>
+                            <button onClick={confirmOrder} className="modal-btn-confirm">Подтвердить</button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </>
     );
 };
