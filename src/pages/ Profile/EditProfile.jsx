@@ -8,6 +8,7 @@ const EditProfile = () => {
     const { register, handleSubmit, reset } = useForm();
 
     useEffect(() => {
+  
         if (user) {
             reset({
                 fullname: user.fullname || '',
@@ -21,16 +22,16 @@ const EditProfile = () => {
         updateUser({
             fullname: data.fullname,
             phone: data.phone
-        }).then(() => {
+        }).then((updatedUser) => {
             toast.success("Профиль успешно обновлен!");
 
             reset({
-                fullname: user.fullname,
-                email: user.email,
-                phone: user.phone
+                fullname: updatedUser.fullname,
+                email: updatedUser.email,
+                phone: updatedUser.phone
             });
-        }).catch(() => {
-
+        }).catch((err) => {
+            toast.error(err.response?.data?.message || "Не удалось обновить профиль");
         });
     };
 
