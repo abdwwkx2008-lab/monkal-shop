@@ -1,12 +1,12 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { CustomContext, API_BASE_URL } from '../../store/store';
-import { PersonIcon, ListIcon, GeoIcon, StarIcon, ExitIcon, EditIcon } from './icons';
+import { PersonIcon, ListIcon, StarIcon, ExitIcon, EditIcon } from './icons';
 import axios from 'axios';
 import './Profile.css';
 
 const ProfileDashboard = () => {
-    const { user, logOutUser } = useContext(CustomContext);
+    const { user, logOutUser, theme } = useContext(CustomContext);
     const [orders, setOrders] = useState([]);
 
     useEffect(() => {
@@ -21,16 +21,17 @@ const ProfileDashboard = () => {
         return <p>Загрузка...</p>;
     }
 
+    const iconColor = theme === 'dark' ? 'var(--text-color)' : '#34495e';
+
     return (
         <div>
             <h2 className="profile-greeting">Приветствуем, {user.fullname}!</h2>
             <div className="profile-quick-links">
-                <Link to="/profile/edit" className="quick-link-item"><PersonIcon /><span>Мой профиль</span></Link>
-                <Link to="/profile/orders" className="quick-link-item"><ListIcon /><span>Заказы</span></Link>
-                <Link to="/profile/address" className="quick-link-item"><GeoIcon /><span>Мои адреса</span></Link>
-                <Link to="/profile/edit" className="quick-link-item"><EditIcon /><span>Редактировать профиль</span></Link>
-                <Link to="/favorites" className="quick-link-item"><StarIcon /><span>Избранные товары</span></Link>
-                <div className="quick-link-item" onClick={logOutUser} style={{cursor: 'pointer'}}><ExitIcon /><span>Выход</span></div>
+                <Link to="/profile" className="quick-link-item"><PersonIcon color={iconColor}/><span>Мой аккаунт</span></Link>
+                <Link to="/profile/orders" className="quick-link-item"><ListIcon color={iconColor}/><span>Заказы</span></Link>
+                <Link to="/profile/edit" className="quick-link-item"><EditIcon color={iconColor}/><span>Редактировать профиль</span></Link>
+                <Link to="/favorites" className="quick-link-item"><StarIcon color={iconColor}/><span>Избранные товары</span></Link>
+                <div className="quick-link-item" onClick={logOutUser} style={{cursor: 'pointer'}}><ExitIcon color={iconColor}/><span>Выход</span></div>
             </div>
             <div className="current-orders">
                 <h3 className="current-orders-title">Последние заказы</h3>
