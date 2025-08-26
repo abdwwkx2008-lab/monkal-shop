@@ -37,7 +37,6 @@ const Profile = () => {
                             <NavLink to="/profile" end>Мой аккаунт</NavLink>
                             <NavLink to="/profile/edit">Редактировать профиль</NavLink>
                             <NavLink to="/profile/orders">История заказов</NavLink>
-                            <NavLink to="/profile/address">Адреса</NavLink>
                             <NavLink to="/profile/password">Пароль</NavLink>
                             <button onClick={handleLogoutClick} className="profile-logout-btn">Выход</button>
                         </nav>

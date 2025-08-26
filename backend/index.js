@@ -15,7 +15,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'MonkalShopSecretKeyForTokens_2025!
 const FRONTEND_URL = "https://monkal-shop-3vo2.vercel.app";
 
 const adapter = new JSONFile('db.json');
-const defaultData = { products: [], users: [], orders: [], addresses: [] };
+const defaultData = { products: [], users: [], orders: [] }; // Убрал addresses
 const db = new Low(adapter, defaultData);
 
 (async () => {
@@ -37,6 +37,30 @@ app.get('/products/:id', (req, res) => {
     if (product) res.json(product);
     else res.status(404).json({ message: "Товар не найден" });
 });
+
+// Добавлен эндпоинт для добавления продукта (для админки)
+app.post('/products', async (req, res) => {
+    const newProduct = {
+        id: (db.data.products.length > 0 ? Math.max(...db.data.products.map(p => p.id)) : 0) + 1,
+        ...req.body
+    };
+    db.data.products.push(newProduct);
+    await db.write();
+    res.status(201).json(newProduct);
+});
+
+app.get('/orders', (req, res) => res.json(db.data.orders));
+app.post('/orders', async (req, res) => {
+    const newOrder = {
+        id: (db.data.orders.length > 0 ? Math.max(...db.data.orders.map(o => o.id)) : 0) + 1,
+        ...req.body,
+        createdAt: new Date().toISOString()
+    };
+    db.data.orders.push(newOrder);
+    await db.write();
+    res.status(201).json(newOrder);
+});
+
 
 app.post('/register', async (req, res) => {
     const { email, fullname, password, phone } = req.body;

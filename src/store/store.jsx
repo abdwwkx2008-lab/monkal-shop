@@ -78,7 +78,7 @@ function Context({ children }) {
                 return [...prevCart, { ...item, count }];
             }
         });
-
+        toast.success(`'${item.name}' добавлен в корзину!`);
     };
 
     const toggleFavorite = (product) => {
@@ -152,7 +152,7 @@ function Context({ children }) {
         const botToken = "7815642060:AAGny8UWvjM3FcuN6NZ6agQ28ZoUJRgxucQ";
         const chatId = "1722434856";
         const frontendUrl = "https://monkal-shop-3vo2.vercel.app";
-        const messageText = `🎉 *Новый заказ!* №${order.id}\n\n*Клиент:*\nИмя: ${order.userInfo.fullname}\nEmail: ${order.userInfo.email}\nТелефон: ${order.userInfo.phone || 'Не указан'}\n\n*Адрес доставки:*\n${order.userInfo.address.city}, ${order.userInfo.address.street}\n\n*Состав заказа:*\n${order.items.map(item => `- ${item.name} (Размер: ${item.size}) - ${item.count} шт.`).join('\n')}\n\n*Итого: ${order.totalPrice.toLocaleString()} ₽*`;
+        const messageText = `🎉 *Новый заказ!* №${order.id}\n\n*Клиент:*\nИмя: ${order.userInfo.fullname}\nEmail: ${order.userInfo.email}\nТелефон: ${order.userInfo.phone || 'Не указан'}\n\n*Состав заказа:*\n${order.items.map(item => `- ${item.name} (Размер: ${item.size}) - ${item.count} шт.`).join('\n')}\n\n*Итого: ${order.totalPrice.toLocaleString()} ₽*`;
         const media = order.items.map(item => ({ type: 'photo', media: `${frontendUrl}${item.image}` }));
         const sendPhotos = () => {
             if (media.length === 0) return Promise.resolve();
