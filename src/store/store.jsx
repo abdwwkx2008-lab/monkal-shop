@@ -123,12 +123,12 @@ function Context({ children }) {
     const forgotPassword = (data) => axios.post(`${API_BASE_URL}/forgot-password`, data);
     const resetPassword = (data) => axios.post(`${API_BASE_URL}/reset-password/${data.token}`, { password: data.password });
 
-    const updateUser = (dataToUpdate) => {
-        if (!user || !user.id) {
-            toast.error("Пользователь не найден. Пожалуйста, войдите снова.");
-            return Promise.reject("No user");
+    const updateUser = (userId, dataToUpdate) => { // Принимаем userId как отдельный аргумент
+        if (!userId) { // Проверяем, что userId передан
+            toast.error("Идентификатор пользователя не найден. Пожалуйста, войдите снова.");
+            return Promise.reject("No user ID");
         }
-        return axios.patch(`${API_BASE_URL}/users/${user.id}`, dataToUpdate)
+        return axios.patch(`${API_BASE_URL}/users/${userId}`, dataToUpdate)
             .then((res) => {
                 const updatedUser = res.data;
                 localStorage.setItem('currentUser', JSON.stringify(updatedUser));

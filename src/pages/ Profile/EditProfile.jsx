@@ -18,13 +18,15 @@ const EditProfile = () => {
     }, [user, reset]);
 
     const onSubmit = (data) => {
-        updateUser({
+        if (!user || !user.id) {
+            toast.error("Пользователь не найден. Пожалуйста, войдите снова.");
+            return;
+        }
+        updateUser(user.id, { // Передаем user.id явно
             fullname: data.fullname,
             phone: data.phone
         }).then((updatedUser) => {
             toast.success("Профиль успешно обновлен!");
-            // Теперь нет необходимости вручную сбрасывать форму,
-            // так как user в контексте уже обновлен, и useEffect сработает.
         }).catch((err) => {
             toast.error(err.response?.data?.message || "Не удалось обновить профиль");
         });
