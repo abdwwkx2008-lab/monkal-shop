@@ -44,6 +44,7 @@ const EditProfile = () => {
                 <div className="form-group"><label>Email</label><input {...register('email')} type="email" disabled /></div>
                 <div className="form-group"><label>Телефон</label><input {...register('phone')} type="tel" /></div>
                 <button type="submit" className="profile-form-btn">Сохранить изменения</button>
+
             </form>
         </div>
     );
