@@ -8,7 +8,6 @@ const EditProfile = () => {
     const { register, handleSubmit, reset } = useForm();
 
     useEffect(() => {
-  
         if (user) {
             reset({
                 fullname: user.fullname || '',
@@ -24,12 +23,8 @@ const EditProfile = () => {
             phone: data.phone
         }).then((updatedUser) => {
             toast.success("Профиль успешно обновлен!");
-
-            reset({
-                fullname: updatedUser.fullname,
-                email: updatedUser.email,
-                phone: updatedUser.phone
-            });
+            // Теперь нет необходимости вручную сбрасывать форму,
+            // так как user в контексте уже обновлен, и useEffect сработает.
         }).catch((err) => {
             toast.error(err.response?.data?.message || "Не удалось обновить профиль");
         });
