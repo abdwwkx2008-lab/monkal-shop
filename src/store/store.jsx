@@ -123,8 +123,8 @@ function Context({ children }) {
     const forgotPassword = (data) => axios.post(`${API_BASE_URL}/forgot-password`, data);
     const resetPassword = (data) => axios.post(`${API_BASE_URL}/reset-password/${data.token}`, { password: data.password });
 
-    const updateUser = (userId, dataToUpdate) => { // Принимаем userId как отдельный аргумент
-        if (!userId) { // Проверяем, что userId передан
+    const updateUser = (userId, dataToUpdate) => {
+        if (!userId) {
             toast.error("Идентификатор пользователя не найден. Пожалуйста, войдите снова.");
             return Promise.reject("No user ID");
         }
@@ -132,7 +132,7 @@ function Context({ children }) {
             .then((res) => {
                 const updatedUser = res.data;
                 localStorage.setItem('currentUser', JSON.stringify(updatedUser));
-                setUser(updatedUser); // Обновляем состояние user в контексте
+                setUser(updatedUser);
                 return updatedUser;
             })
             .catch((err) => {

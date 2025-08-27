@@ -22,7 +22,7 @@ const EditProfile = () => {
             toast.error("Пользователь не найден. Пожалуйста, войдите снова.");
             return;
         }
-        updateUser(user.id, { // Передаем user.id явно
+        updateUser(user.id, {
             fullname: data.fullname,
             phone: data.phone
         }).then((updatedUser) => {
@@ -32,9 +32,7 @@ const EditProfile = () => {
         });
     };
 
-    if (!user) {
-        return <p>Загрузка...</p>;
-    }
+
 
     return (
         <div>
