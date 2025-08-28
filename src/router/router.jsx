@@ -27,9 +27,10 @@ import EditProfile from "../pages/Profile/EditProfile.jsx";
 import OrderHistory from "../pages/Profile/OrderHistory.jsx";
 import ChangePassword from "../pages/Profile/ChangePassword.jsx";
 import PrivateRoute from "../components/PrivateRoute/PrivateRoute.jsx";
-
 import VerifyEmail from "../pages/VerifyEmail/VerifyEmail.jsx";
 
+
+import AdminAddProduct from "../AdminAddProduct/AdminAddProduct.jsx";
 
 const routes = [
     {
@@ -54,7 +55,6 @@ const routes = [
             { path: "faq", element: <Faq /> },
             { path: "politika", element: <Politika /> },
 
-
             {
                 path: "profile",
                 element: (
@@ -71,12 +71,21 @@ const routes = [
             },
         ],
     },
+
+
+    {
+        path: "/admin",
+        element: (
+            <PrivateRoute>
+                <AdminAddProduct />
+            </PrivateRoute>
+        ),
+    },
+
     { path: "login", element: <Login /> },
     { path: "register", element: <Register /> },
     { path: "forgot-password", element: <ForgotPassword /> },
     { path: "reset-password", element: <ResetPassword /> },
-
-
     { path: "verify-email", element: <VerifyEmail /> },
 ];
 
