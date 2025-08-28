@@ -3407,70 +3407,8 @@
       "description": "Черная бейсболка от ERKE. Модель из гладкой ткани, украшена брендированной лентой 'ERKE SPIRIT' по краю козырька."
     }
   ],
-  "users": [
-    {
-      "email": "aman@gmail.com",
-      "password": "$2a$10$jTwlgCScMHcoZSHB1JHx.u8jbr1FVlFmfCiQSXWsaNDnKApCO5Ur.",
-      "fullname": "Данияр",
-      "phone": "+996778167946",
-      "id": 1
-    },
-    {
-      "email": "bema@gmail.com",
-      "password": "$2a$10$E7P8Fmsyy.9xodsHJcfNvODlklAhiodlPSTE8ZLmiRfSFp5MWUSky",
-      "fullname": "Данияр",
-      "phone": "+996777333444",
-      "id": 2
-    },
-    {
-      "email": "dima@gmail.com",
-      "password": "$2a$10$LmTNWa.Z6lR1dRQgMT4zYexHbl5tIvNEsDMTh40MDvQR1S/X8fe5K",
-      "fullname": "Абдумаликов Нурдооолот",
-      "phone": "+996706787854",
-      "id": 3
-    },
-    {
-      "email": "rayka@gmail.com",
-      "password": "$2a$10$OyUdPGEg/jCPc8cE0Lb18uAVxgJrf4IpVxzzJtp4N9wlFnxUPBC5.",
-      "fullname": "Рахманалиева Раена",
-      "phone": "+996706454545",
-      "id": 4
-    },
-    {
-      "email": "asad@gmail.com",
-      "password": "$2a$10$pEeZbOfNGym/C2uCQ3Y1BulY/IyXCzD7tnIx.TxiUtSsjlfAmRJUi",
-      "fullname": "Асадбек Роналдо",
-      "id": 5
-    },
-    {
-      "email": "miku@gmail.com",
-      "password": "$2a$10$OWdj678QiZrM9LMb7MLBFeb98atc3BkD7Xn0YK6jctM9nOcPBisUC",
-      "fullname": "Каратаев Мирель",
-      "phone": "+996706787823",
-      "id": 6
-    },
-    {
-      "email": "aika@gmail.com",
-      "password": "$2a$10$QI.ISBLexqHhbpRgi6AbmuoUgz95GEyMFXEAT3FUhpGpanjELeWDS",
-      "fullname": "Пепси",
-      "phone": "+996559242418",
-      "id": 7
-    },
-    {
-      "email": "abay@gmail.com",
-      "password": "$2a$10$bUfqm/QddYSDHg20c/wEYeWSzKoQg/3DeGDtR5FkT5mecTrM06sI6",
-      "fullname": "Абай Абайев",
-      "phone": "+996706787898",
-      "id": 8
-    },
-    {
-      "email": "andrey@gmail.com",
-      "password": "$2a$10$CBVWzbMzj2h1kFHHxdXIReD8fdi9PbGjxeeE9Auz0P.lRbMZwoJui",
-      "fullname": "Лионель Пепси",
-      "phone": "+996706111222",
-      "id": 9
-    }
-  ],
+  "users": [],
+
 
   "orders": [
     {
