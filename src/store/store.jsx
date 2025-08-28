@@ -27,13 +27,18 @@ function Context({ children }) {
         setLoading(true);
         const potentialUser = localStorage.getItem('currentUser');
         if (potentialUser) {
-            setUser(JSON.parse(potentialUser));
+            const parsedUser = JSON.parse(potentialUser);
+
+            parsedUser.id = Number(parsedUser.id);
+
+            setUser(parsedUser);
         }
         axios.get(`${API_BASE_URL}/products`)
             .then(res => { setProducts(res.data); })
             .catch(err => { console.error("Ошибка при получении продуктов:", err); setProducts([]); })
             .finally(() => { setLoading(false); });
     }, []);
+
 
     useEffect(() => { localStorage.setItem('cart', JSON.stringify(cart)); }, [cart]);
     useEffect(() => { localStorage.setItem('favorites', JSON.stringify(favorites)); }, [favorites]);
@@ -104,6 +109,9 @@ function Context({ children }) {
         return axios.post(`${API_BASE_URL}/login`, data)
             .then((res) => {
                 const loggedInUser = res.data.user;
+
+                loggedInUser.id = Number(loggedInUser.id);
+
                 localStorage.setItem('currentUser', JSON.stringify(loggedInUser));
                 setUser(loggedInUser);
                 toast.success(`Добро пожаловать, ${loggedInUser.fullname}!`);
@@ -114,6 +122,7 @@ function Context({ children }) {
                 return Promise.reject(err);
             });
     };
+
 
     const logOutUser = () => {
         localStorage.removeItem('currentUser');
@@ -128,9 +137,12 @@ function Context({ children }) {
             toast.error("Идентификатор пользователя не найден. Пожалуйста, войдите снова.");
             return Promise.reject("No user ID");
         }
-        return axios.patch(`${API_BASE_URL}/users/${userId}`, dataToUpdate)
+
+        return axios.patch(`${API_BASE_URL}/users/${Number(userId)}`, dataToUpdate)
             .then((res) => {
                 const updatedUser = res.data;
+                updatedUser.id = Number(updatedUser.id);
+
                 localStorage.setItem('currentUser', JSON.stringify(updatedUser));
                 setUser(updatedUser);
                 return updatedUser;
@@ -140,6 +152,7 @@ function Context({ children }) {
                 return Promise.reject(err);
             });
     };
+
 
     const changePassword = (data) => {
         if (!user || !user.id) return Promise.reject("Пользователь не найден");

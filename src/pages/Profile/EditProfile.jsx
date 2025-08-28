@@ -17,21 +17,30 @@ const EditProfile = () => {
         }
     }, [user, reset]);
 
+    // EditProfile.jsx
     const onSubmit = (data) => {
+        // ⬇️ ЛОГИ ДЛЯ ПРОВЕРКИ
+        console.log("User object:", user);
+        console.log("User ID:", user?.id);
+
         if (!user || !user.id) {
             toast.error("Пользователь не найден. Пожалуйста, войдите снова.");
             return;
         }
+
         updateUser(user.id, {
             fullname: data.fullname,
             phone: data.phone
-        }).then((updatedUser) => {
-            toast.success("Профиль успешно обновлен!");
-        }).catch((err) => {
-            toast.error(err.response?.data?.message || "Не удалось обновить профиль");
-        });
+        })
+            .then((updatedUser) => {
+                console.log("Update success:", updatedUser); // можно увидеть ответ сервера
+                toast.success("Профиль успешно обновлен!");
+            })
+            .catch((err) => {
+                console.error("Update error:", err?.response?.data || err.message);
+                toast.error(err.response?.data?.message || "Не удалось обновить профиль");
+            });
     };
-
 
 
     return (

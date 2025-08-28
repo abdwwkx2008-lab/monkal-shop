@@ -21,11 +21,11 @@ import ResetPassword from "../pages/Login/ResetPassword.jsx";
 import Faq from "../pages/FAQ/Faq.jsx";
 import Return from "../pages/Return/Return.jsx";
 import Politika from "../pages/Politika/Politika.jsx";
-import Profile from "../pages/ Profile/ Profile.jsx";
-import ProfileDashboard from "../pages/ Profile/ProfileDashboard.jsx";
-import EditProfile from "../pages/ Profile/EditProfile.jsx";
-import OrderHistory from "../pages/ Profile/OrderHistory.jsx";
-import ChangePassword from "../pages/ Profile/ChangePassword.jsx";
+import Profile from "../pages/Profile/Profile.jsx";
+import ProfileDashboard from "../pages/Profile/ProfileDashboard.jsx";
+import EditProfile from "../pages/Profile/EditProfile.jsx";
+import OrderHistory from "../pages/Profile/OrderHistory.jsx";
+import ChangePassword from "../pages/Profile/ChangePassword.jsx";
 import PrivateRoute from "../components/PrivateRoute/PrivateRoute.jsx";
 
 import VerifyEmail from "../pages/VerifyEmail/VerifyEmail.jsx";
