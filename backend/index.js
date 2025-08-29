@@ -1,34 +1,25 @@
-const express = require('express');
-const cors = require('cors');
-const nodemailer = require('nodemailer');
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcryptjs');
-const crypto = require('crypto');
-const { Low } = require('lowdb');
-const { JSONFile } = require('lowdb/node');
+import express from 'express';
+import cors from 'cors';
+import nodemailer from 'nodemailer';
+import jwt from 'jsonwebtoken';
+import bcrypt from 'bcryptjs';
+import crypto from 'crypto';
+import { createClient } from '@supabase/supabase-js';
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
+// 🔑 Конфиг
 const JWT_SECRET = process.env.JWT_SECRET || 'MonkalShopSecretKeyForTokens_2025!@#$';
-const FRONTEND_URL = "https://monkal-shop-3vo2.vercel.app";
+const FRONTEND_URL = process.env.FRONTEND_URL || 'https://monkal-shop-3vo2.vercel.app';
 
-// 📦 Инициализация базы
-const adapter = new JSONFile('db.json');
-const defaultData = { products: [], users: [], orders: [] };
-const db = new Low(adapter, defaultData);
+// ⚙️ Supabase
+const SUPABASE_URL = process.env.SUPABASE_URL || 'https://iznleemibqghrngxdqho.supabase.co';
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml6bmxlZW1pYnFnaHJuZ3hkcWhvIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NjM2NzExMSwiZXhwIjoyMDcxOTQzMTExfQ.MVdhR_HUr-0xlyD87N_b0_SJf0m_xs54sbhF-W8fGxI';
+const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
-async function main() {
-    await db.read();
-    await db.write();
-
-    const PORT = process.env.PORT || 10000;
-    app.listen(PORT, '0.0.0.0', () => console.log(`🚀 Сервер запущен на порту ${PORT}`));
-}
-
-main();
-
+// 📩 Email
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
@@ -37,166 +28,271 @@ const transporter = nodemailer.createTransport({
     }
 });
 
-// 📦 Товары
-app.get('/products', (req, res) => res.json(db.data.products));
-app.get('/products/:id', (req, res) => {
-    const product = db.data.products.find(p => p.id === parseInt(req.params.id));
-    product ? res.json(product) : res.status(404).json({ message: "Товар не найден" });
+/*
+Ожидаемые таблицы и поля:
+- products: id, name, category, subcategory, price, sizes (array/json), brand, image, rating, description, created_at
+- users: id, email, fullname, password, phone, is_verified, verification_code, reset_token, reset_expires, created_at
+- orders: id, user_email, items (json), total_price, created_at
+*/
+
+// ================== 📦 ТОВАРЫ ==================
+app.get('/products', async (req, res) => {
+    const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .order('id', { ascending: true });
+
+    if (error) return res.status(500).json({ message: error.message });
+    res.json(data);
 });
 
-// 🛒 Заказы
-app.get('/orders', (req, res) => {
+app.get('/products/:id', async (req, res) => {
+    const id = Number(req.params.id);
+    const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .eq('id', id)
+        .single();
+
+    if (error) return res.status(404).json({ message: 'Товар не найден' });
+    res.json(data);
+});
+
+// ================== 🛒 ЗАКАЗЫ ==================
+app.get('/orders', async (req, res) => {
     const { email } = req.query;
-    if (email) {
-        const userOrders = db.data.orders.filter(order => order.user_email === email);
-        return res.json(userOrders);
-    }
-    res.json(db.data.orders);
+    let query = supabase.from('orders').select('*').order('id', { ascending: true });
+    if (email) query = query.eq('user_email', String(email));
+    const { data, error } = await query;
+
+    if (error) return res.status(500).json({ message: error.message });
+    res.json(data);
 });
 
 app.post('/orders', async (req, res) => {
-    const newOrder = {
-        id: (db.data.orders.length > 0 ? Math.max(...db.data.orders.map(o => o.id)) : 0) + 1,
-        ...req.body,
-        createdAt: new Date().toISOString()
+    const payload = {
+        user_email: req.body.user_email,
+        items: req.body.items,
+        total_price: Number(req.body.total_price ?? 0),
+        created_at: new Date().toISOString()
     };
-    db.data.orders.push(newOrder);
-    await db.write();
-    res.status(201).json(newOrder);
+
+    const { data, error } = await supabase.from('orders').insert([payload]).select().single();
+    if (error) return res.status(500).json({ message: error.message });
+    res.status(201).json(data);
 });
 
-// 👤 Регистрация
+// ================== 👤 РЕГИСТРАЦИЯ ==================
 app.post('/register', async (req, res) => {
     const { email, fullname, password, phone } = req.body;
     if (!email || !fullname || !password || !phone) {
-        return res.status(400).json({ message: "Пожалуйста, заполните все поля" });
+        return res.status(400).json({ message: 'Пожалуйста, заполните все поля' });
     }
 
-    await db.read();
+    const { data: existing, error: findErr } = await supabase
+        .from('users')
+        .select('*')
+        .eq('email', email)
+        .maybeSingle();
 
-    const existingUser = db.data.users.find(u => u.email === email);
-    const verificationCode = crypto.randomInt(100000, 999999).toString();
+    if (findErr) return res.status(500).json({ message: findErr.message });
+
+    const verificationCode = String(crypto.randomInt(100000, 999999));
     const hashedPassword = bcrypt.hashSync(password, 10);
 
-    if (existingUser && existingUser.isVerified) {
-        return res.status(400).json({ message: "Этот e-mail уже занят" });
+    if (existing && existing.is_verified) {
+        return res.status(400).json({ message: 'Этот e-mail уже занят' });
     }
 
-    if (existingUser && !existingUser.isVerified) {
-        existingUser.fullname = fullname;
-        existingUser.password = hashedPassword;
-        existingUser.phone = phone;
-        existingUser.verificationCode = verificationCode;
+    if (existing && !existing.is_verified) {
+        const { error } = await supabase
+            .from('users')
+            .update({ fullname, password: hashedPassword, phone, verification_code: verificationCode })
+            .eq('email', email);
+        if (error) return res.status(500).json({ message: error.message });
     } else {
-        const newUser = {
-            id: (db.data.users.length > 0 ? Math.max(...db.data.users.map(u => u.id)) : 0) + 1,
+        const { error } = await supabase.from('users').insert([{
             email, fullname, password: hashedPassword, phone,
-            isVerified: false, verificationCode
-        };
-        db.data.users.push(newUser);
+            is_verified: false,
+            verification_code: verificationCode,
+            created_at: new Date().toISOString()
+        }]);
+        if (error) return res.status(500).json({ message: error.message });
     }
-
-    await db.write();
-
-    const mailOptions = {
-        from: process.env.GMAIL_USER || 'abdwwkx2008@gmail.com',
-        to: email,
-        subject: 'Код подтверждения для Monkal',
-        html: `<p>Ваш код для подтверждения регистрации:</p><h2>${verificationCode}</h2>`
-    };
 
     try {
-        await transporter.sendMail(mailOptions);
-        res.status(201).json({ message: "Код подтверждения отправлен на вашу почту." });
-    } catch (error) {
-        res.status(500).json({ message: "Не удалось отправить письмо с кодом." });
+        await transporter.sendMail({
+            from: process.env.GMAIL_USER || 'abdwwkx2008@gmail.com',
+            to: email,
+            subject: 'Код подтверждения для Monkal',
+            html: `<p>Ваш код для подтверждения регистрации:</p><h2>${verificationCode}</h2>`
+        });
+        res.status(201).json({ message: 'Код подтверждения отправлен на вашу почту.' });
+    } catch {
+        res.status(500).json({ message: 'Не удалось отправить письмо с кодом.' });
     }
 });
 
-// ✅ Подтверждение email
+// ================== ✅ ПОДТВЕРЖДЕНИЕ EMAIL ==================
 app.post('/verify-email', async (req, res) => {
     const { email, code } = req.body;
-    const user = db.data.users.find(u => u.email === email);
-    if (!user) return res.status(404).json({ message: "Пользователь не найден." });
-    if (user.isVerified) return res.status(400).json({ message: "Аккаунт уже подтвержден." });
-    if (user.verificationCode !== code) return res.status(400).json({ message: "Неверный код подтверждения." });
 
-    user.isVerified = true;
-    user.verificationCode = undefined;
-    await db.write();
-    res.status(200).json({ message: "Email успешно подтвержден!" });
+    const { data: user, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('email', email)
+        .maybeSingle();
+
+    if (error) return res.status(500).json({ message: error.message });
+    if (!user) return res.status(404).json({ message: 'Пользователь не найден.' });
+    if (user.is_verified) return res.status(400).json({ message: 'Аккаунт уже подтвержден.' });
+    if (user.verification_code !== code) return res.status(400).json({ message: 'Неверный код подтверждения.' });
+
+    const { error: upErr } = await supabase
+        .from('users')
+        .update({ is_verified: true, verification_code: null })
+        .eq('email', email);
+
+    if (upErr) return res.status(500).json({ message: upErr.message });
+    res.status(200).json({ message: 'Email успешно подтвержден!' });
 });
 
-// 🔐 Вход
-app.post('/login', (req, res) => {
+// ================== 🔐 ЛОГИН ==================
+app.post('/login', async (req, res) => {
     const { email, password } = req.body;
-    const user = db.data.users.find(u => u.email === email);
-    if (!user || !user.isVerified) return res.status(400).json({ message: "Пользователь не найден или не подтвержден" });
-    if (!bcrypt.compareSync(password, user.password)) return res.status(400).json({ message: "Неверный логин или пароль" });
 
-    const { password: _, ...userWithoutPassword } = user;
+    const { data: user, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('email', email)
+        .maybeSingle();
+
+    if (error) return res.status(500).json({ message: error.message });
+    if (!user || !user.is_verified) return res.status(400).json({ message: 'Пользователь не найден или не подтвержден' });
+    if (!bcrypt.compareSync(password, user.password)) return res.status(400).json({ message: 'Неверный логин или пароль' });
+
+    const { password: _, ...safeUser } = user;
     const accessToken = jwt.sign({ id: user.id }, JWT_SECRET, { expiresIn: '1d' });
-    res.json({ accessToken, user: userWithoutPassword });
+    res.json({ accessToken, user: safeUser });
 });
 
-// 🔁 Сброс пароля
+// ================== 🔁 СБРОС ПАРОЛЯ ==================
 app.post('/forgot-password', async (req, res) => {
     const { email } = req.body;
-    const user = db.data.users.find(u => u.email === email);
-    if (!user) return res.status(200).json({ message: "Если такой пользователь существует, мы отправили инструкцию на почту." });
+
+    const { data: user, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('email', email)
+        .maybeSingle();
+
+    if (error) return res.status(500).json({ message: error.message });
+    if (!user) return res.status(200).json({ message: 'Если такой пользователь существует, мы отправили инструкцию на почту.' });
 
     const token = crypto.randomBytes(32).toString('hex');
-    user.resetPasswordToken = token;
-    user.resetPasswordExpires = Date.now() + 3600000;
-    await db.write();
+
+    const { error: upErr } = await supabase
+        .from('users')
+        .update({
+            reset_token: token,
+            reset_expires: new Date(Date.now() + 3600000).toISOString()
+        })
+        .eq('email', email);
+
+    if (upErr) return res.status(500).json({ message: upErr.message });
 
     const resetLink = `${FRONTEND_URL}/reset-password/${token}`;
-    const mailOptions = {
-        from: process.env.GMAIL_USER || 'abdwwkx2008@gmail.com',
-        to: email,
-        subject: 'Сброс пароля для Monkal',
-        html: `<p>Вы запросили сброс пароля:</p><a href="${resetLink}">${resetLink}</a>`
-    };
 
-    transporter.sendMail(mailOptions);
-    res.status(200).json({ message: "Если такой пользователь существует, мы отправили инструкцию на почту." });
+    try {
+        await transporter.sendMail({
+            from: process.env.GMAIL_USER || 'abdwwkx2008@gmail.com',
+            to: email,
+            subject: 'Сброс пароля для Monkal',
+            html: `<p>Вы запросили сброс пароля:</p><a href="${resetLink}">${resetLink}</a>`
+        });
+    } catch {
+        // не падём, ответим нейтрально
+    }
+
+    res.status(200).json({ message: 'Если такой пользователь существует, мы отправили инструкцию на почту.' });
 });
 
 app.post('/reset-password/:token', async (req, res) => {
     const { token } = req.params;
     const { password } = req.body;
-    const user = db.data.users.find(u => u.resetPasswordToken === token && u.resetPasswordExpires > Date.now());
-    if (!user) return res.status(400).json({ message: "Токен недействителен или срок его действия истек" });
 
-    user.password = bcrypt.hashSync(password, 10);
-    user.resetPasswordToken = undefined;
-    user.resetPasswordExpires = undefined;
-    await db.write();
-    res.status(200).json({ message: "Пароль успешно изменен!" });
+    const { data: user, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('reset_token', token)
+        .gt('reset_expires', new Date().toISOString())
+        .maybeSingle();
+
+    if (error) return res.status(500).json({ message: error.message });
+    if (!user) return res.status(400).json({ message: 'Токен недействителен или срок его действия истек' });
+
+    const { error: upErr } = await supabase
+        .from('users')
+        .update({
+            password: bcrypt.hashSync(password, 10),
+            reset_token: null,
+            reset_expires: null
+        })
+        .eq('id', user.id);
+
+    if (upErr) return res.status(500).json({ message: upErr.message });
+    res.status(200).json({ message: 'Пароль успешно изменен!' });
 });
 
-// 🔧 Обновление профиля
+// ================== 🔧 ОБНОВЛЕНИЕ ПРОФИЛЯ ==================
 app.patch('/users/:id', async (req, res) => {
-    const user = db.data.users.find(u => u.id === parseInt(req.params.id));
-    if (!user) return res.status(404).json({ message: "Пользователь не найден" });
+    const id = Number(req.params.id);
+    const updates = {};
+    if (req.body.fullname) updates.fullname = req.body.fullname;
+    if (req.body.phone) updates.phone = req.body.phone;
 
-    if (req.body.fullname) user.fullname = req.body.fullname;
-    if (req.body.phone) user.phone = req.body.phone;
-    await db.write();
+    const { data: user, error: findErr } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', id)
+        .maybeSingle();
 
-    const { password, ...userWithoutPassword } = user;
-    res.json(userWithoutPassword);
+    if (findErr) return res.status(500).json({ message: findErr.message });
+    if (!user) return res.status(404).json({ message: 'Пользователь не найден' });
+
+    const { error: upErr } = await supabase.from('users').update(updates).eq('id', id);
+    if (upErr) return res.status(500).json({ message: upErr.message });
+
+    const { password, ...safe } = { ...user, ...updates };
+    res.json(safe);
 });
 
-// 🔐 Смена пароля
+// ================== 🔐 СМЕНА ПАРОЛЯ ==================
 app.patch('/users/:id/password', async (req, res) => {
+    const id = Number(req.params.id);
     const { oldPassword, newPassword } = req.body;
-    const userId = parseInt(req.params.id);
-    const user = db.data.users.find(u => u.id === userId);
-    if (!user) return res.status(404).json({ message: "Пользователь не найден" });
-    if (!bcrypt.compareSync(oldPassword, user.password)) return res.status(400).json({ message: "Старый пароль введен неверно" });
 
-    user.password = bcrypt.hashSync(newPassword, 10);
-    await db.write();
-    res.status(200).json({ message: "Пароль успешно изменен!" });
+    const { data: user, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', id)
+        .maybeSingle();
+
+    if (error) return res.status(500).json({ message: error.message });
+    if (!user) return res.status(404).json({ message: 'Пользователь не найден' });
+    if (!bcrypt.compareSync(oldPassword, user.password)) {
+        return res.status(400).json({ message: 'Старый пароль введен неверно' });
+    }
+
+    const { error: upErr } = await supabase
+        .from('users')
+        .update({ password: bcrypt.hashSync(newPassword, 10) })
+        .eq('id', id);
+
+    if (upErr) return res.status(500).json({ message: upErr.message });
+    res.status(200).json({ message: 'Пароль успешно изменен!' });
 });
+
+// ================== 🚀 СТАРТ СЕРВЕРА ==================
+const PORT = process.env.PORT || 10000;
+app.listen(PORT, '0.0.0.0', () => console.log(`🚀 Сервер запущен на порту ${PORT}`));
