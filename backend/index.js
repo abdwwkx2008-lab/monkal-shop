@@ -14,13 +14,15 @@ app.use(express.json());
 const JWT_SECRET = process.env.JWT_SECRET || 'MonkalShopSecretKeyForTokens_2025!@#$';
 const FRONTEND_URL = "https://monkal-shop-3vo2.vercel.app";
 
+// Инициализация базы
+
 const adapter = new JSONFile('db.json');
 const db = new Low(adapter);
+const defaultData = { products: [], users: [], orders: [] };
 
-// Инициализация базы
 (async () => {
     await db.read();
-    db.data ||= { products: [], users: [], orders: [] };
+    db.data ||= defaultData;
     await db.write();
 })();
 
