@@ -163,21 +163,47 @@ function Context({ children }) {
         const botToken = "7815642060:AAGny8UWvjM3FcuN6NZ6agQ28ZoUJRgxucQ";
         const chatId = "1722434856";
         const frontendUrl = "https://monkal-shop-3vo2.vercel.app";
-        const messageText = `🎉 *Новый заказ!* №${order.id}\n\n*Клиент:*\nИмя: ${order.userInfo.fullname}\nEmail: ${order.userInfo.email}\nТелефон: ${order.userInfo.phone || 'Не указан'}\n\n*Состав заказа:*\n${order.items.map(item => `- ${item.name} (Размер: ${item.size}) - ${item.count} шт.`).join('\n')}\n\n*Итого: ${order.totalPrice.toLocaleString()} ₽*`;
-        const media = order.items.map(item => ({ type: 'photo', media: `${frontendUrl}${item.image}` }));
+
+        const messageText = `🎉 *Новый заказ!* №${order.id || '—'}\n\n` +
+            `*Клиент:*\nEmail: ${order.user_email}\n\n` +
+            `*Состав заказа:*\n${order.items.map(item =>
+                `- ${item.name} (Размер: ${item.size}) - ${item.count} шт.`
+            ).join('\n')}\n\n` +
+            `*Итого: ${order.total_price?.toLocaleString() || 0} ₽*`;
+
+        const media = order.items.map(item => ({
+            type: 'photo',
+            media: `${frontendUrl}${item.image}`
+        }));
+
         const sendPhotos = () => {
             if (media.length === 0) return Promise.resolve();
             if (media.length === 1) {
-                return axios.post(`https://api.telegram.org/bot${botToken}/sendPhoto`, { chat_id: chatId, photo: media[0].media });
+                return axios.post(`https://api.telegram.org/bot${botToken}/sendPhoto`, {
+                    chat_id: chatId,
+                    photo: media[0].media
+                });
             }
-            return axios.post(`https://api.telegram.org/bot${botToken}/sendMediaGroup`, { chat_id: chatId, media: media.slice(0, 10) });
+            return axios.post(`https://api.telegram.org/bot${botToken}/sendMediaGroup`, {
+                chat_id: chatId,
+                media: media.slice(0, 10)
+            });
         };
+
         sendPhotos()
             .then(() => {
-                axios.post(`https://api.telegram.org/bot${botToken}/sendMessage`, { chat_id: chatId, text: messageText, parse_mode: 'Markdown' });
+                axios.post(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+                    chat_id: chatId,
+                    text: messageText,
+                    parse_mode: 'Markdown'
+                });
             })
-            .catch(err => {
-                axios.post(`https://api.telegram.org/bot${botToken}/sendMessage`, { chat_id: chatId, text: "Не удалось загрузить фото заказа. \n\n" + messageText, parse_mode: 'Markdown' });
+            .catch(() => {
+                axios.post(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+                    chat_id: chatId,
+                    text: "Не удалось загрузить фото заказа. \n\n" + messageText,
+                    parse_mode: 'Markdown'
+                });
             });
     };
 

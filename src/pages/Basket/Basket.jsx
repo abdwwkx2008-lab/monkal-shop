@@ -55,16 +55,12 @@ const Basket = () => {
         }
 
         const newOrder = {
-            userId: user.id,
-            userInfo: {
-                fullname: user.fullname,
-                email: user.email,
-                phone: user.phone || 'Не указан',
-            },
+            user_email: user.email,
             items: cart,
-            totalPrice: totalPrice,
-            status: 'В обработке'
+            total_price: totalPrice,
+            created_at: new Date().toISOString()
         };
+
 
         axios.post(`${API_BASE_URL}/orders`, newOrder)
             .then((res) => {
