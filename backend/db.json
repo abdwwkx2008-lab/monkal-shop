@@ -3408,23 +3408,8 @@
     }
   ],
   "users": [
-    {
-      "email": "aman@gmail.com",
-      "password": "$2a$10$jTwlgCScMHcoZSHB1JHx.u8jbr1FVlFmfCiQSXWsaNDnKApCO5Ur.",
-      "fullname": "Данияр",
-      "phone": "+996778167946",
-      "id": 1
-    },
-    {
-      "email": "bema@gmail.com",
-      "password": "$2a$10$E7P8Fmsyy.9xodsHJcfNvODlklAhiodlPSTE8ZLmiRfSFp5MWUSky",
-      "fullname": "Данияр",
-      "phone": "+996777333444",
-      "id": 2
-    }
 
   ],
-
   "orders": []
 
 }

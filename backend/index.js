@@ -15,16 +15,24 @@ const JWT_SECRET = process.env.JWT_SECRET || 'MonkalShopSecretKeyForTokens_2025!
 const FRONTEND_URL = "https://monkal-shop-3vo2.vercel.app";
 
 // Инициализация базы
-
 const adapter = new JSONFile('db.json');
 const db = new Low(adapter);
-const defaultData = { products: [], users: [], orders: [] };
 
-(async () => {
+async function main() {
     await db.read();
-    db.data ||= defaultData;
+
+    db.data ||= {};
+    db.data.products ||= [];
+    db.data.users ||= [];
+    db.data.orders ||= [];
+
     await db.write();
-})();
+
+    const PORT = process.env.PORT || 10000;
+    app.listen(PORT, '0.0.0.0', () => console.log(`🚀 Сервер запущен на порту ${PORT}`));
+}
+
+main();
 
 const transporter = nodemailer.createTransport({
     service: 'gmail',
@@ -70,7 +78,8 @@ app.post('/register', async (req, res) => {
     }
 
     await db.read();
-    db.data ||= { products: [], users: [], orders: [] };
+    db.data ||= {};
+    db.data.users ||= [];
 
     const existingUser = db.data.users.find(u => u.email === email);
     const verificationCode = crypto.randomInt(100000, 999999).toString();
@@ -198,6 +207,3 @@ app.patch('/users/:id/password', async (req, res) => {
     await db.write();
     res.status(200).json({ message: "Пароль успешно изменен!" });
 });
-
-const PORT = process.env.PORT || 10000;
-app.listen(PORT, '0.0.0.0', () => console.log(`✅ Сервер запущен на порту ${PORT}`));
