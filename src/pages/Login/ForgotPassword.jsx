@@ -12,7 +12,7 @@ const ForgotPassword = () => {
     const submitEmail = (data) => {
         forgotPassword(data)
             .then(() => {
-                toast.info("Если такой пользователь существует, мы отправили инструкцию на почту.");
+                toast.info("Если такой пользователь существует, мы отправили  инструкцию на почту.");
             })
             .catch(() => {
                 toast.error("Произошла ошибка. Попробуйте снова.");
