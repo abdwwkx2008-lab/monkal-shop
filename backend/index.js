@@ -14,18 +14,13 @@ app.use(express.json());
 const JWT_SECRET = process.env.JWT_SECRET || 'MonkalShopSecretKeyForTokens_2025!@#$';
 const FRONTEND_URL = "https://monkal-shop-3vo2.vercel.app";
 
-// Инициализация базы
+// 📦 Инициализация базы
 const adapter = new JSONFile('db.json');
-const db = new Low(adapter);
+const defaultData = { products: [], users: [], orders: [] };
+const db = new Low(adapter, defaultData);
 
 async function main() {
     await db.read();
-
-    db.data ||= {};
-    db.data.products ||= [];
-    db.data.users ||= [];
-    db.data.orders ||= [];
-
     await db.write();
 
     const PORT = process.env.PORT || 10000;
@@ -56,7 +51,7 @@ app.get('/orders', (req, res) => {
         const userOrders = db.data.orders.filter(order => order.user_email === email);
         return res.json(userOrders);
     }
-    res.json(db.data.orders); // ← для админки
+    res.json(db.data.orders);
 });
 
 app.post('/orders', async (req, res) => {
@@ -78,8 +73,6 @@ app.post('/register', async (req, res) => {
     }
 
     await db.read();
-    db.data ||= {};
-    db.data.users ||= [];
 
     const existingUser = db.data.users.find(u => u.email === email);
     const verificationCode = crypto.randomInt(100000, 999999).toString();
