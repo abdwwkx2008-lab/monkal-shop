@@ -55,6 +55,7 @@ const Basket = () => {
         }
 
         const newOrder = {
+            user_id: user.id,
             user_email: user.email,
             user_fullname: user.fullname,
             user_phone: user.phone,

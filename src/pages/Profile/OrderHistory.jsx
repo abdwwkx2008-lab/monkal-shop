@@ -9,9 +9,12 @@ const OrderHistory = () => {
 
     useEffect(() => {
         if (user && user.id) {
-            axios(`${API_BASE_URL}/orders?userId=${user.id}&_sort=createdAt&_order=desc`)
+            axios(`${API_BASE_URL}/orders?user_id=${user.id}&_sort=created_at&_order=desc`)
                 .then(res => { setOrders(res.data); })
-                .catch(err => { console.error("Ошибка загрузки заказов:", err); setOrders([]); })
+                .catch(err => {
+                    console.error("Ошибка загрузки заказов:", err);
+                    setOrders([]);
+                })
                 .finally(() => { setLoading(false); });
         } else if (user === null) {
             setLoading(false);
@@ -32,15 +35,20 @@ const OrderHistory = () => {
             {orders.length > 0 ? (
                 <table className="orders-table">
                     <thead>
-                    <tr><th>НОМЕР</th><th>ДАТА</th><th>СТАТУС</th><th>ИТОГ</th></tr>
+                    <tr>
+                        <th>НОМЕР</th>
+                        <th>ДАТА</th>
+                        <th>СТАТУС</th>
+                        <th>ИТОГ</th>
+                    </tr>
                     </thead>
                     <tbody>
                     {orders.map(order => (
                         <tr key={order.id}>
-                            <td>#{order.id}</td>
-                            <td>{new Date(order.createdAt).toLocaleDateString()}</td>
-                            <td>{order.status}</td>
-                            <td className="order-total">{order.totalPrice.toLocaleString()} ₽</td>
+                            <td>#{order.order_code || order.id}</td>
+                            <td>{new Date(order.created_at).toLocaleDateString()}</td>
+                            <td>{order.status || '—'}</td>
+                            <td className="order-total">{order.total_price?.toLocaleString() || 0} ₽</td>
                         </tr>
                     ))}
                     </tbody>
