@@ -28,9 +28,6 @@ const transporter = nodemailer.createTransport({
     }
 });
 
-
-
-// ================== 📦 ТОВАРЫ ==================
 app.get('/products', async (req, res) => {
     const { data, error } = await supabase
         .from('products')
