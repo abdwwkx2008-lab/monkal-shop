@@ -173,6 +173,17 @@ body.dark-theme .profile-sidebar-nav a.active {
     font-size: 13px;
     margin-top: 5px;
 }
+.admin-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #ff9800;
+    font-weight: 500;
+}
+
+.admin-link:hover {
+    color: #e68900;
+}
 
 .profile-form-btn {
     padding: 12px 25px;

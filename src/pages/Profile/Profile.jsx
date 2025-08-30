@@ -38,6 +38,12 @@ const Profile = () => {
                             <NavLink to="/profile/edit">Редактировать профиль</NavLink>
                             <NavLink to="/profile/orders">История заказов</NavLink>
                             <NavLink to="/profile/password">Пароль</NavLink>
+                            {user && user.email === 'abdulazizrahmanaliev5@gmail.com' && (
+                                <NavLink to="/admin" className="admin-link">
+                                    <AdminIcon color="#ff9800" style={{ marginRight: '8px' }} />
+                                    Админка
+                                </NavLink>
+                            )}
                             <button onClick={handleLogoutClick} className="profile-logout-btn">Выход</button>
                         </nav>
                     </aside>

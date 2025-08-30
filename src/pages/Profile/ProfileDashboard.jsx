@@ -11,7 +11,7 @@ const ProfileDashboard = () => {
 
     useEffect(() => {
         if (user && user.id) {
-            axios(`${API_BASE_URL}/orders?userId=${user.id}&_sort=createdAt&_order=desc&_limit=5`)
+            axios(`${API_BASE_URL}/orders?user_id=${user.id}&_sort=created_at&_order=desc&_limit=5`)
                 .then(res => setOrders(res.data))
                 .catch(err => console.error("Ошибка загрузки последних заказов:", err));
         }
@@ -43,10 +43,10 @@ const ProfileDashboard = () => {
                         <tbody>
                         {orders.map(order => (
                             <tr key={order.id}>
-                                <td>#{order.id}</td>
-                                <td>{new Date(order.createdAt).toLocaleDateString()}</td>
-                                <td>{order.status}</td>
-                                <td>{order.totalPrice.toLocaleString()} ₽</td>
+                                <td>#{order.order_code || order.id}</td>
+                                <td>{new Date(order.created_at).toLocaleDateString()}</td>
+                                <td>{order.status || '—'}</td>
+                                <td>{order.total_price?.toLocaleString() || 0} С</td>
                             </tr>
                         ))}
                         </tbody>

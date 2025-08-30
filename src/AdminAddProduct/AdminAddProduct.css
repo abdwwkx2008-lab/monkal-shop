@@ -1,36 +1,73 @@
 .admin-wrapper {
-    max-width: 800px;
-    margin: 40px auto;
-    padding: 30px;
-    background-color: var(--card-bg);
-    border-radius: 12px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
-    transition: background-color 0.3s ease;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    background: var(--background-color);
+    color: var(--text-color);
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-.admin-wrapper h2 {
-    font-size: 24px;
+.admin-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
     margin-bottom: 20px;
+}
+
+.admin-header h1 {
+    font-size: 24px;
+    font-weight: 600;
     color: var(--text-color);
-    text-align: center;
+}
+
+.admin-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.admin-tabs button {
+    padding: 10px 14px;
+    border: 1px solid var(--border-color);
+    background: var(--button-secondary-bg);
+    color: var(--button-secondary-text);
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.admin-tabs button.active {
+    background: var(--button-primary-bg);
+    color: var(--button-primary-text);
+}
+
+.admin-tabs button:hover {
+    opacity: 0.85;
 }
 
 .admin-form {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 14px;
+    background: var(--card-bg);
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
 }
 
 .admin-form input,
 .admin-form select,
 .admin-form textarea {
-    padding: 12px;
-    border-radius: 8px;
-    border: 1px solid var(--border-color);
-    background-color: var(--card-bg);
-    color: var(--text-color);
-    transition: background-color 0.3s ease, color 0.3s ease;
+    padding: 10px;
     font-size: 16px;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    background: var(--card-bg);
+    color: var(--text-color);
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 
 .admin-form textarea {
@@ -38,67 +75,137 @@
     min-height: 80px;
 }
 
-.admin-form .sizes {
+.sizes {
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
 }
 
-.admin-form .sizes label {
-    background-color: var(--button-secondary-bg);
-    color: var(--button-secondary-text);
-    padding: 8px 12px;
-    border-radius: 6px;
-    cursor: pointer;
-    border: 1px solid var(--border-color);
-    transition: background-color 0.3s ease;
+.sizes label {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 14px;
 }
 
-.admin-form .sizes input {
-    display: none;
-}
-
-.admin-form .image-upload {
+.image-upload {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 10px;
 }
 
-.admin-form .image-preview {
+.image-preview {
     max-width: 100%;
     border-radius: 8px;
-    margin-top: 10px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    border: 1px solid var(--border-color);
 }
 
-.admin-form button {
-    padding: 14px;
-    background-color: var(--button-primary-bg);
-    color: var(--button-primary-text);
+.actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    grid-column: 1 / -1;
+}
+
+.actions button {
+    padding: 10px 14px;
     border: none;
-    border-radius: 8px;
-    font-weight: 600;
+    border-radius: 6px;
     cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.2s ease;
+    font-weight: 500;
+    transition: all 0.2s ease;
 }
 
-.admin-form button:hover {
-    opacity: 0.9;
-    transform: translateY(-2px);
+.actions .secondary {
+    background: var(--button-secondary-bg);
+    color: var(--button-secondary-text);
+    border: 1px solid var(--border-color);
 }
 
-@media (max-width: 600px) {
-    .admin-wrapper {
-        padding: 20px;
+.actions .secondary:hover {
+    opacity: 0.85;
+}
+
+.actions button:not(.secondary) {
+    background: var(--button-primary-bg);
+    color: var(--button-primary-text);
+}
+
+.actions button:not(.secondary):hover {
+    opacity: 0.85;
+}
+
+.product-list {
+    overflow-x: auto;
+    background: var(--card-bg);
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    padding: 10px;
+}
+
+.product-list table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 600px;
+}
+
+.product-list th,
+.product-list td {
+    border: 1px solid var(--border-color);
+    padding: 10px;
+    text-align: left;
+    color: var(--text-color);
+}
+
+.thumb {
+    width: 56px;
+    height: 56px;
+    object-fit: cover;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+}
+
+.delete-btn {
+    background: #e53935;
+    color: #fff;
+    border: none;
+    padding: 8px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+}
+
+.delete-btn:hover {
+    opacity: 0.85;
+}
+
+/* 📱 Адаптив на все устройства */
+@media (max-width: 1024px) {
+    .admin-form {
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     }
+}
 
-    .admin-form input,
-    .admin-form select,
-    .admin-form textarea {
+@media (max-width: 768px) {
+    .admin-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .admin-tabs {
+        width: 100%;
+    }
+}
+
+@media (max-width: 576px) {
+    .admin-form {
+        grid-template-columns: 1fr;
+        padding: 15px;
+    }
+    .actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .product-list table {
         font-size: 14px;
-    }
-
-    .admin-form button {
-        font-size: 15px;
     }
 }
