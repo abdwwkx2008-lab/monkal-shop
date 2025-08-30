@@ -56,6 +56,8 @@ const Basket = () => {
 
         const newOrder = {
             user_email: user.email,
+            user_fullname: user.fullname,
+            user_phone: user.phone,
             items: cart,
             total_price: totalPrice,
             created_at: new Date().toISOString()

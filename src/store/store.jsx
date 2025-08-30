@@ -164,13 +164,23 @@ function Context({ children }) {
         const chatId = "1722434856";
         const frontendUrl = "https://monkal-shop-3vo2.vercel.app";
 
-        const messageText = `🎉 *Новый заказ!* №${order.id || '—'}\n\n` +
-            `*Клиент:*\nEmail: ${order.user_email}\n\n` +
-            `*Состав заказа:*\n${order.items.map(item =>
-                `- ${item.name} (Размер: ${item.size}) - ${item.count} шт.`
-            ).join('\n')}\n\n` +
-            `*Итого: ${order.total_price?.toLocaleString() || 0} ₽*`;
+        // Формируем текст сообщения
+        const messageText =
+            `🎉 *Новый заказ!* №${order.order_code || order.id || '—'}
 
+*Клиент:*
+Имя: ${order.user_fullname || 'Не указано'}
+Телефон: ${order.user_phone || 'Не указан'}
+Email: ${order.user_email || 'Не указан'}
+
+*Состав заказа:*
+${order.items.map(item =>
+                `ID: ${item.id} | ${item.name} (Размер: ${item.size}) - ${item.count} шт. × ${item.price} ₽`
+            ).join('\n')}
+
+*Итого: ${order.total_price?.toLocaleString() || 0} ₽*`;
+
+        // Фото товаров
         const media = order.items.map(item => ({
             type: 'photo',
             media: `${frontendUrl}${item.image}`
@@ -186,7 +196,7 @@ function Context({ children }) {
             }
             return axios.post(`https://api.telegram.org/bot${botToken}/sendMediaGroup`, {
                 chat_id: chatId,
-                media: media.slice(0, 10)
+                media: media.slice(0, 10) // максимум 10 фото
             });
         };
 
@@ -201,11 +211,12 @@ function Context({ children }) {
             .catch(() => {
                 axios.post(`https://api.telegram.org/bot${botToken}/sendMessage`, {
                     chat_id: chatId,
-                    text: "Не удалось загрузить фото заказа. \n\n" + messageText,
+                    text: "Не удалось загрузить фото заказа.\n\n" + messageText,
                     parse_mode: 'Markdown'
                 });
             });
     };
+
 
     const value = {
         products, product, user, loading, cart, favorites,

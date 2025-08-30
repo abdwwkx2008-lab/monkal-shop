@@ -26,18 +26,26 @@ function computeTotal(items) {
     }
 }
 
+// 🔹 Генератор кода заказа (11 цифр)
+function generateOrderCode() {
+    return Math.floor(10000000000 + Math.random() * 90000000000).toString();
+}
+
 const normalizeOrder = (o) => {
     const items = o.items ?? o.cart ?? o.products ?? [];
     const total = o.total_price ?? computeTotal(items);
     const user_email = o.user_email ?? o.email ?? o.user?.email ?? null;
 
     return {
-        id: o.id,
+        id: o.id, // Можно убрать, если в Supabase автоинкремент
+        order_code: o.order_code ?? generateOrderCode(),
         user_email,
         items,
         total_price: total != null ? Number(total) : 0,
-        created_at: o.created_at ? new Date(o.created_at).toISOString()
-            : o.createdAt ? new Date(o.createdAt).toISOString()
+        created_at: o.created_at
+            ? new Date(o.created_at).toISOString()
+            : o.createdAt
+                ? new Date(o.createdAt).toISOString()
                 : new Date().toISOString()
     };
 };

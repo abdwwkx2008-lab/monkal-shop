@@ -28,12 +28,7 @@ const transporter = nodemailer.createTransport({
     }
 });
 
-/*
-Ожидаемые таблицы и поля:
-- products: id, name, category, subcategory, price, sizes (array/json), brand, image, rating, description, created_at
-- users: id, email, fullname, password, phone, is_verified, verification_code, reset_token, reset_expires, created_at
-- orders: id, user_email, items (json), total_price, created_at
-*/
+
 
 // ================== 📦 ТОВАРЫ ==================
 app.get('/products', async (req, res) => {
@@ -59,27 +54,52 @@ app.get('/products/:id', async (req, res) => {
 });
 
 // ================== 🛒 ЗАКАЗЫ ==================
-app.get('/orders', async (req, res) => {
-    const { email } = req.query;
-    let query = supabase.from('orders').select('*').order('id', { ascending: true });
-    if (email) query = query.eq('user_email', String(email));
-    const { data, error } = await query;
-
-    if (error) return res.status(500).json({ message: error.message });
-    res.json(data);
-});
+// Генератор кода заказа (11 цифр)
+function generateOrderCode() {
+    return Math.floor(10000000000 + Math.random() * 90000000000).toString();
+}
 
 app.post('/orders', async (req, res) => {
-    const payload = {
-        user_email: req.body.user_email,
-        items: req.body.items,
-        total_price: Number(req.body.total_price ?? 0),
-        created_at: new Date().toISOString()
-    };
+    try {
+        const {
+            user_email,
+            user_fullname,
+            user_phone,
+            items,
+            total_price,
+            created_at
+        } = req.body;
 
-    const { data, error } = await supabase.from('orders').insert([payload]).select().single();
-    if (error) return res.status(500).json({ message: error.message });
-    res.status(201).json(data);
+        // Генерируем код заказа
+        const order_code = generateOrderCode();
+
+        // Вставляем заказ в Supabase
+        const { data, error } = await supabase
+            .from('orders')
+            .insert([{
+                order_code,
+                user_email,
+                user_fullname,
+                user_phone,
+                items,
+                total_price,
+                created_at
+            }])
+            .select()
+            .single();
+
+        if (error) {
+            console.error('Ошибка вставки заказа:', error.message);
+            return res.status(500).json({ message: error.message });
+        }
+
+        // Возвращаем полный заказ
+        res.status(201).json(data);
+
+    } catch (err) {
+        console.error('Ошибка сервера при создании заказа:', err);
+        res.status(500).json({ message: 'Ошибка сервера' });
+    }
 });
 
 // ================== 👤 РЕГИСТРАЦИЯ ==================
