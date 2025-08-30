@@ -62,6 +62,7 @@ function generateOrderCode() {
 app.post('/orders', async (req, res) => {
     try {
         const {
+            user_id,
             user_email,
             user_fullname,
             user_phone,
@@ -78,6 +79,7 @@ app.post('/orders', async (req, res) => {
             .from('orders')
             .insert([{
                 order_code,
+                user_id,
                 user_email,
                 user_fullname,
                 user_phone,
