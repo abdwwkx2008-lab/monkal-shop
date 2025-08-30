@@ -10,16 +10,15 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// 🔑 Конфиг
 const JWT_SECRET = process.env.JWT_SECRET || 'MonkalShopSecretKeyForTokens_2025!@#$';
 const FRONTEND_URL = process.env.FRONTEND_URL || 'https://monkal-shop-3vo2.vercel.app';
 
-// ⚙️ Supabase
+
 const SUPABASE_URL = process.env.SUPABASE_URL || 'https://iznleemibqghrngxdqho.supabase.co';
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml6bmxlZW1pYnFnaHJuZ3hkcWhvIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NjM2NzExMSwiZXhwIjoyMDcxOTQzMTExfQ.MVdhR_HUr-0xlyD87N_b0_SJf0m_xs54sbhF-W8fGxI';
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
-// 📩 Email
+
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
@@ -50,8 +49,6 @@ app.get('/products/:id', async (req, res) => {
     res.json(data);
 });
 
-// ================== 🛒 ЗАКАЗЫ ==================
-// Генератор кода заказа (11 цифр)
 function generateOrderCode() {
     return Math.floor(10000000000 + Math.random() * 90000000000).toString();
 }
@@ -68,10 +65,10 @@ app.post('/orders', async (req, res) => {
             created_at
         } = req.body;
 
-        // Генерируем код заказа
+
         const order_code = generateOrderCode();
 
-        // Вставляем заказ в Supabase
+
         const { data, error } = await supabase
             .from('orders')
             .insert([{
@@ -101,7 +98,7 @@ app.post('/orders', async (req, res) => {
     }
 });
 
-// ================== 👤 РЕГИСТРАЦИЯ ==================
+
 app.post('/register', async (req, res) => {
     const { email, fullname, password, phone } = req.body;
     if (!email || !fullname || !password || !phone) {
@@ -152,7 +149,7 @@ app.post('/register', async (req, res) => {
     }
 });
 
-// ================== ✅ ПОДТВЕРЖДЕНИЕ EMAIL ==================
+
 app.post('/verify-email', async (req, res) => {
     const { email, code } = req.body;
 
@@ -176,7 +173,7 @@ app.post('/verify-email', async (req, res) => {
     res.status(200).json({ message: 'Email успешно подтвержден!' });
 });
 
-// ================== 🔐 ЛОГИН ==================
+
 app.post('/login', async (req, res) => {
     const { email, password } = req.body;
 
@@ -195,7 +192,7 @@ app.post('/login', async (req, res) => {
     res.json({ accessToken, user: safeUser });
 });
 
-// ================== 🔁 СБРОС ПАРОЛЯ ==================
+
 app.post('/forgot-password', async (req, res) => {
     const { email } = req.body;
 
@@ -263,7 +260,7 @@ app.post('/reset-password/:token', async (req, res) => {
     res.status(200).json({ message: 'Пароль успешно изменен!' });
 });
 
-// ================== 🔧 ОБНОВЛЕНИЕ ПРОФИЛЯ ==================
+
 app.patch('/users/:id', async (req, res) => {
     const id = Number(req.params.id);
     const updates = {};
@@ -312,6 +309,6 @@ app.patch('/users/:id/password', async (req, res) => {
     res.status(200).json({ message: 'Пароль успешно изменен!' });
 });
 
-// ================== 🚀 СТАРТ СЕРВЕРА ==================
+
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, '0.0.0.0', () => console.log(`🚀 Сервер запущен на порту ${PORT}`));
