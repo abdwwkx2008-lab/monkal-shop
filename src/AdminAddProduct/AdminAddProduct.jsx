@@ -1,13 +1,21 @@
-
 import React, { useState, useContext, useEffect } from 'react';
 import { supabase } from '../supabaseClient.js';
 import { CustomContext } from '../store/store.jsx';
-import  './AdminAddProduct.css'
+import './AdminAddProduct.css'; // Убедись, что этот файл существует и содержит стили
 
-const categories = {
-    'Одежда': ['Куртки', 'Футболки', 'Штаны', 'Ветровки', 'Толстовки', 'Шорты'],
-    'Обувь': ['Кроссовки', 'Тапочки'],
-    'Аксессуары': ['Рюкзаки', 'Кепки', 'Барсетки'],
+const categoriesConfig = {
+    'Одежда': {
+        subcategories: ['Куртки', 'Футболки', 'Штаны', 'Ветровки', 'Толстовки', 'Шорты'],
+        sizes: ['S', 'M', 'L', 'XL', 'XXL'],
+    },
+    'Обувь': {
+        subcategories: ['Кроссовки', 'Тапочки'],
+        sizes: Array.from({ length: 8 }, (_, i) => 38 + i), // От 38 до 45
+    },
+    'Аксессуары': {
+        subcategories: ['Рюкзаки', 'Кепки', 'Барсетки'],
+        sizes: ['one size'],
+    },
 };
 
 export default function AdminPanel() {
@@ -19,7 +27,7 @@ export default function AdminPanel() {
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    const [form, setForm] = useState({
+    const initialFormState = {
         name: '',
         category: '',
         subcategory: '',
@@ -29,7 +37,9 @@ export default function AdminPanel() {
         image: '',
         rating: '',
         description: '',
-    });
+    };
+
+    const [form, setForm] = useState(initialFormState);
 
     const [preview, setPreview] = useState(null);
     const [uploading, setUploading] = useState(false);
@@ -52,6 +62,18 @@ export default function AdminPanel() {
         if (tab === 'manage') fetchProducts();
     }, [tab]);
 
+    // Сброс подкатегории и размеров при смене основной категории
+    useEffect(() => {
+        if (form.category) {
+            setForm(prev => ({
+                ...prev,
+                subcategory: '', // Сбрасываем подкатегорию
+                sizes: [], // Сбрасываем выбранные размеры
+            }));
+        }
+    }, [form.category]);
+
+
     const handleChange = (e) => {
         const { name, value } = e.target;
         setForm((prev) => ({ ...prev, [name]: value }));
@@ -62,7 +84,14 @@ export default function AdminPanel() {
             ...prev,
             sizes: prev.sizes.includes(size)
                 ? prev.sizes.filter((s) => s !== size)
-                : [...prev.sizes, size],
+                : [...prev.sizes, size].sort((a, b) => { // Сортируем размеры для удобства
+                    // Простая сортировка для S, M, L, XL, XXL
+                    const order = { 'S': 1, 'M': 2, 'L': 3, 'XL': 4, 'XXL': 5, 'one size': 6 };
+                    if (typeof a === 'string' && typeof b === 'string') {
+                        return (order[a] || 99) - (order[b] || 99);
+                    }
+                    return a - b; // Для чисел (размеров обуви)
+                }),
         }));
     };
 
@@ -77,7 +106,7 @@ export default function AdminPanel() {
             .upload(fileName, file);
 
         if (error) {
-            alert('Ошибка загрузки фото');
+            alert('Ошибка загрузки фото: ' + error.message);
             console.error(error);
         } else {
             const imageUrl = supabase.storage
@@ -98,6 +127,10 @@ export default function AdminPanel() {
             alert('Загрузите фото товара');
             return;
         }
+        if (form.sizes.length === 0) {
+            alert('Выберите хотя бы один размер');
+            return;
+        }
 
         const payload = {
             ...form,
@@ -107,30 +140,31 @@ export default function AdminPanel() {
 
         const { error } = await supabase.from('products').insert([payload]);
         if (error) {
-            alert('Ошибка при добавлении товара');
+            alert('Ошибка при добавлении товара: ' + error.message);
             console.error(error);
         } else {
             alert('✅ Товар успешно добавлен!');
-            setForm({
-                name: '',
-                category: '',
-                subcategory: '',
-                price: '',
-                sizes: [],
-                brand: '',
-                image: '',
-                rating: '',
-                description: '',
-            });
+            setForm(initialFormState); // Сбрасываем форму полностью
             setPreview(null);
         }
     };
 
     const handleDelete = async (id) => {
         if (!window.confirm('Удалить этот товар?')) return;
+        setLoading(true); // Показываем загрузку при удалении
         const { error } = await supabase.from('products').delete().eq('id', id);
-        if (!error) setProducts((prev) => prev.filter((p) => p.id !== id));
+        if (!error) {
+            setProducts((prev) => prev.filter((p) => p.id !== id));
+        } else {
+            alert('Ошибка при удалении товара: ' + error.message);
+            console.error(error);
+        }
+        setLoading(false);
     };
+
+    // Получаем доступные размеры для выбранной категории
+    const availableSizes = form.category ? categoriesConfig[form.category].sizes : [];
+    const availableSubcategories = form.category ? categoriesConfig[form.category].subcategories : [];
 
     return (
         <div className="admin-wrapper">
@@ -152,49 +186,63 @@ export default function AdminPanel() {
 
                     <select name="category" value={form.category} onChange={handleChange} required>
                         <option value="">Выберите категорию</option>
-                        {Object.keys(categories).map((cat) => (
+                        {Object.keys(categoriesConfig).map((cat) => (
                             <option key={cat} value={cat}>
                                 {cat}
                             </option>
                         ))}
                     </select>
 
-                    <select name="subcategory" value={form.subcategory} onChange={handleChange} required>
-                        <option value="">Выберите подкатегорию</option>
-                        {form.category &&
-                            categories[form.category].map((sub) => (
+                    {form.category && (
+                        <select name="subcategory" value={form.subcategory} onChange={handleChange} required>
+                            <option value="">Выберите подкатегорию</option>
+                            {availableSubcategories.map((sub) => (
                                 <option key={sub} value={sub}>
                                     {sub}
                                 </option>
                             ))}
-                    </select>
+                        </select>
+                    )}
 
                     <input name="price" type="number" value={form.price} onChange={handleChange} placeholder="Цена" required />
 
-                    <div className="sizes">
-                        {['S', 'M', 'L', 'XL', 'XXL', 'one size'].map((size) => (
-                            <label key={size}>
-                                <input type="checkbox" checked={form.sizes.includes(size)} onChange={() => handleSizes(size)} />
-                                {size}
-                            </label>
-                        ))}
-                    </div>
+                    {form.category && availableSizes.length > 0 && (
+                        <div className="sizes-selection">
+                            <label>Доступные размеры:</label>
+                            <div className="sizes-grid">
+                                {availableSizes.map((size) => (
+                                    <label key={size} className="size-label">
+                                        <input
+                                            type="checkbox"
+                                            checked={form.sizes.includes(size)}
+                                            onChange={() => handleSizes(size)}
+                                        />
+                                        {size}
+                                    </label>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
 
                     <input name="brand" value={form.brand} onChange={handleChange} placeholder="Бренд" required />
 
                     <div className="image-upload">
                         <label>Фото товара:</label>
                         <input type="file" accept="image/*" capture="environment" onChange={handleImageUpload} />
-                        {uploading && <p>Загрузка фото...</p>}
-                        {preview && <img src={preview} alt="preview" className="image-preview" />}
+                        {uploading && <p className="uploading-text">Загрузка фото...</p>}
+                        {preview && <img src={preview} alt="Предпросмотр" className="image-preview" />}
+                        {!preview && form.image && ( // Показываем уже загруженное изображение при редактировании/просмотре
+                            <img src={form.image} alt="Загруженное изображение" className="image-preview" />
+                        )}
                     </div>
 
-                    <input name="rating" type="number" step="0.1" value={form.rating} onChange={handleChange} placeholder="Оценка" />
-                    <textarea name="description" value={form.description} onChange={handleChange} placeholder="Описание" rows={4} />
+                    <input name="rating" type="number" step="0.1" value={form.rating} onChange={handleChange} placeholder="Оценка (например, 4.5)" min="0" max="5" />
+                    <textarea name="description" value={form.description} onChange={handleChange} placeholder="Описание товара" rows={4} />
 
                     <div className="actions">
-                        <button type="button" className="secondary" onClick={() => { setForm({ name: '', category: '', subcategory: '', price: '', sizes: [], brand: '', image: '', rating: '', description: '' }); setPreview(null); }}>
-                            Очистить
+                        <button type="button" className="secondary" onClick={() => { setForm(initialFormState); setPreview(null); }}>
+                            Очистить форму
                         </button>
                         <button type="submit" disabled={uploading}>Добавить товар</button>
                     </div>
@@ -204,36 +252,40 @@ export default function AdminPanel() {
             {tab === 'manage' && (
                 <div className="product-list">
                     {loading ? (
-                        <p>Загрузка...</p>
+                        <p className="loading-text">Загрузка товаров...</p>
                     ) : products.length > 0 ? (
-                        <table>
-                            <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Фото</th>
-                                <th>Название</th>
-                                <th>Категория</th>
-                                <th>Цена</th>
-                                <th>Действия</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {products.map((p) => (
-                                <tr key={p.id}>
-                                    <td>{p.id}</td>
-                                    <td>{p.image ? <img src={p.image} alt={p.name} className="thumb" /> : '—'}</td>
-                                    <td>{p.name}</td>
-                                    <td>{p.category} / {p.subcategory}</td>
-                                    <td>{Number(p.price).toLocaleString()} ₽</td>
-                                    <td>
-                                        <button onClick={() => handleDelete(p.id)} className="delete-btn">🗑 Удалить</button>
-                                    </td>
+                        <div className="table-responsive">
+                            <table>
+                                <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Фото</th>
+                                    <th>Название</th>
+                                    <th>Категория</th>
+                                    <th>Размеры</th>
+                                    <th>Цена</th>
+                                    <th>Действия</th>
                                 </tr>
-                            ))}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                {products.map((p) => (
+                                    <tr key={p.id}>
+                                        <td>{p.id}</td>
+                                        <td>{p.image ? <img src={p.image} alt={p.name} className="thumb" /> : '—'}</td>
+                                        <td>{p.name}</td>
+                                        <td>{p.category} / {p.subcategory}</td>
+                                        <td>{p.sizes && p.sizes.length > 0 ? p.sizes.join(', ') : '—'}</td>
+                                        <td>{Number(p.price).toLocaleString()} ₽</td>
+                                        <td>
+                                            <button onClick={() => handleDelete(p.id)} className="delete-btn">🗑 Удалить</button>
+                                        </td>
+                                    </tr>
+                                ))}
+                                </tbody>
+                            </table>
+                        </div>
                     ) : (
-                        <p>Товаров нет</p>
+                        <p className="no-products-text">Товаров пока нет. Добавьте первый товар!</p>
                     )}
                 </div>
             )}
