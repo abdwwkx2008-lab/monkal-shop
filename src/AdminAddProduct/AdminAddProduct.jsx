@@ -2,7 +2,7 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { supabase } from '../supabaseClient.js';
 import { CustomContext } from '../store/store.jsx';
-import './AdminPanel.css';
+import './AdminAddProduct.css';
 
 const categories = {
     'Одежда': ['Куртки', 'Футболки', 'Штаны', 'Ветровки', 'Толстовки', 'Шорты'],
