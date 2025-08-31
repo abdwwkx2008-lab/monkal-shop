@@ -4,15 +4,15 @@ import { CustomContext } from '../store/store.jsx';
 import './AdminAddProduct.css'; // Убедись, что этот файл существует и содержит стили
 
 const categoriesConfig = {
-    'Одежда': {
+    'одежда': {
         subcategories: ['Куртки', 'Футболки', 'Штаны', 'Ветровки', 'Толстовки', 'Шорты'],
         sizes: ['S', 'M', 'L', 'XL', 'XXL'],
     },
-    'Обувь': {
+    'обувь': {
         subcategories: ['Кроссовки', 'Тапочки'],
         sizes: Array.from({ length: 8 }, (_, i) => 38 + i), // От 38 до 45
     },
-    'Аксессуары': {
+    'аксессуары': {
         subcategories: ['Рюкзаки', 'Кепки', 'Барсетки'],
         sizes: ['one size'],
     },
