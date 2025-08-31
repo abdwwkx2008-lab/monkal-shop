@@ -27,6 +27,14 @@ export default function AdminPanel() {
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
 
+    const [editingSizesId, setEditingSizesId] = useState(null);
+    const [newSizes, setNewSizes] = useState([]);
+    const [editingPriceId, setEditingPriceId] = useState(null);
+    const [newPrice, setNewPrice] = useState('');
+
+
+
+
     const initialFormState = {
         name: '',
         category: '',
@@ -47,6 +55,46 @@ export default function AdminPanel() {
     if (!isAdmin) {
         return <h2 className="access-denied">⛔ Доступ запрещён</h2>;
     }
+
+    const handleSizesSave = async (id) => {
+        const { error } = await supabase
+            .from('products')
+            .update({ sizes: newSizes })
+            .eq('id', id);
+
+        if (!error) {
+            setProducts(prev =>
+                prev.map(p => (p.id === id ? { ...p, sizes: newSizes } : p))
+            );
+        } else {
+            alert('Ошибка при обновлении размеров: ' + error.message);
+        }
+
+        setEditingSizesId(null);
+        setNewSizes([]);
+    };
+
+    const handlePriceSave = async (id) => {
+        const priceValue = Number(newPrice);
+        if (isNaN(priceValue) || priceValue < 0) return;
+
+        const { error } = await supabase
+            .from('products')
+            .update({ price: priceValue })
+            .eq('id', id);
+
+        if (!error) {
+            setProducts(prev =>
+                prev.map(p => (p.id === id ? { ...p, price: priceValue } : p))
+            );
+        } else {
+            alert('Ошибка при обновлении цены: ' + error.message);
+        }
+
+        setEditingPriceId(null);
+        setNewPrice('');
+    };
+
 
     const fetchProducts = async () => {
         setLoading(true);
@@ -274,13 +322,67 @@ export default function AdminPanel() {
                                         <td>{p.image ? <img src={p.image} alt={p.name} className="thumb" /> : '—'}</td>
                                         <td>{p.name}</td>
                                         <td>{p.category} / {p.subcategory}</td>
-                                        <td>{p.sizes && p.sizes.length > 0 ? p.sizes.join(', ') : '—'}</td>
-                                        <td>{Number(p.price).toLocaleString()} ₽</td>
+
+                                        <td>
+                                            {editingSizesId === p.id ? (
+                                                <div className="sizes-edit">
+                                                    {categoriesConfig[p.category]?.sizes.map(size => (
+                                                        <label key={size} className="size-checkbox">
+                                                            <input
+                                                                type="checkbox"
+                                                                checked={newSizes.includes(size)}
+                                                                onChange={() => {
+                                                                    setNewSizes(prev =>
+                                                                        prev.includes(size)
+                                                                            ? prev.filter(s => s !== size)
+                                                                            : [...prev, size]
+                                                                    );
+                                                                }}
+                                                            />
+                                                            {size}
+                                                        </label>
+                                                    ))}
+                                                    <button onClick={() => handleSizesSave(p.id)} className="save-sizes-btn">Сохранить</button>
+                                                </div>
+                                            ) : (
+                                                <span onClick={() => {
+                                                    setEditingSizesId(p.id);
+                                                    setNewSizes(p.sizes || []);
+                                                }} className="sizes-editable">
+                    {p.sizes?.join(', ') || '—'} ✏️
+                </span>
+                                            )}
+                                        </td>
+
+                                        <td>
+                                            {editingPriceId === p.id ? (
+                                                <input
+                                                    type="number"
+                                                    value={newPrice}
+                                                    onChange={(e) => setNewPrice(e.target.value)}
+                                                    onBlur={() => handlePriceSave(p.id)}
+                                                    onKeyDown={(e) => {
+                                                        if (e.key === 'Enter') handlePriceSave(p.id);
+                                                    }}
+                                                    className="price-input"
+                                                    autoFocus
+                                                />
+                                            ) : (
+                                                <span onClick={() => {
+                                                    setEditingPriceId(p.id);
+                                                    setNewPrice(p.price);
+                                                }} className="price-editable">
+                    {Number(p.price).toLocaleString()} С ✏️
+                </span>
+                                            )}
+                                        </td>
+
                                         <td>
                                             <button onClick={() => handleDelete(p.id)} className="delete-btn">🗑 Удалить</button>
                                         </td>
                                     </tr>
                                 ))}
+
                                 </tbody>
                             </table>
                         </div>
