@@ -183,7 +183,7 @@ ${order.items.map(item =>
         // Фото товаров
         const media = order.items.map(item => ({
             type: 'photo',
-            media: `${frontendUrl}${item.image}`
+            media: item.image
         }));
 
         const sendPhotos = () => {
