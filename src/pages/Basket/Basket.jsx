@@ -133,11 +133,11 @@ const Basket = () => {
                             <h2 className="summary-title">Итог заказа</h2>
                             <div className="summary-row">
                                 <p>{totalItems} {getItemWord(totalItems)}</p>
-                                <p>{totalPrice.toLocaleString()} ₽</p>
+                                <p>{totalPrice.toLocaleString()} C</p>
                             </div>
                             <div className="summary-row">
                                 <p>Доставка по городу <br/>Жалал-Абад</p>
-                                <p className="delivery-free">Бесплатно</p>
+                                <p className="delivery-free">100</p>
                             </div>
                             <div className="summary-total-row">
                                 <p>К оплате</p>
