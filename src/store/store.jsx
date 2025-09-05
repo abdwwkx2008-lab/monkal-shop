@@ -3,7 +3,7 @@ import { toast } from 'react-toastify';
 import axios from 'axios';
 
 export const CustomContext = createContext();
-export const API_BASE_URL = "https://monkal-shop.onrender.com";
+export const API_BASE_URL = "https://monkal-shop.onrender.com"; 
 
 function Context({ children }) {
     const [products, setProducts] = useState([]);
@@ -28,9 +28,7 @@ function Context({ children }) {
         const potentialUser = localStorage.getItem('currentUser');
         if (potentialUser) {
             const parsedUser = JSON.parse(potentialUser);
-
             parsedUser.id = Number(parsedUser.id);
-
             setUser(parsedUser);
         }
         axios.get(`${API_BASE_URL}/products`)
@@ -38,7 +36,6 @@ function Context({ children }) {
             .catch(err => { console.error("Ошибка при получении продуктов:", err); setProducts([]); })
             .finally(() => { setLoading(false); });
     }, []);
-
 
     useEffect(() => { localStorage.setItem('cart', JSON.stringify(cart)); }, [cart]);
     useEffect(() => { localStorage.setItem('favorites', JSON.stringify(favorites)); }, [favorites]);
@@ -83,8 +80,8 @@ function Context({ children }) {
                 return [...prevCart, { ...item, count }];
             }
         });
-
     };
+
     const toggleFavorite = (product) => {
         setFavorites(prevFavorites => {
             if (prevFavorites.includes(product.id)) {
@@ -96,6 +93,7 @@ function Context({ children }) {
             }
         });
     };
+
     const clearFavorites = () => {
         setFavorites([]);
         toast.success("Избранное было полностью очищено");
@@ -109,9 +107,7 @@ function Context({ children }) {
         return axios.post(`${API_BASE_URL}/login`, data)
             .then((res) => {
                 const loggedInUser = res.data.user;
-
                 loggedInUser.id = Number(loggedInUser.id);
-
                 localStorage.setItem('currentUser', JSON.stringify(loggedInUser));
                 setUser(loggedInUser);
                 toast.success(`Добро пожаловать, ${loggedInUser.fullname}!`);
@@ -122,7 +118,6 @@ function Context({ children }) {
                 return Promise.reject(err);
             });
     };
-
 
     const logOutUser = () => {
         localStorage.removeItem('currentUser');
@@ -142,7 +137,6 @@ function Context({ children }) {
             .then((res) => {
                 const updatedUser = res.data;
                 updatedUser.id = Number(updatedUser.id);
-
                 localStorage.setItem('currentUser', JSON.stringify(updatedUser));
                 setUser(updatedUser);
                 return updatedUser;
@@ -153,76 +147,16 @@ function Context({ children }) {
             });
     };
 
-
     const changePassword = (data) => {
         if (!user || !user.id) return Promise.reject("Пользователь не найден");
         return axios.patch(`${API_BASE_URL}/users/${user.id}/password`, data);
     };
 
-    const sendTelegramNotification = (order) => {
-        const botToken = "7815642060:AAGny8UWvjM3FcuN6NZ6agQ28ZoUJRgxucQ";
-        const chatId = "1722434856";
-        const frontendUrl = "https://monkal-shop-3vo2.vercel.app";
-
-        // Формируем текст сообщения
-        const messageText =
-            `🎉 *Новый заказ!* №${order.order_code || order.id || '—'}
-
-*Клиент:*
-Имя: ${order.user_fullname || 'Не указано'}
-Телефон: ${order.user_phone || 'Не указан'}
-Email: ${order.user_email || 'Не указан'}
-
-*Состав заказа:*
-${order.items.map(item =>
-                `ID: ${item.id} | ${item.name} (Размер: ${item.size}) - ${item.count} шт. × ${item.price} ₽`
-            ).join('\n')}
-
-*Итого: ${order.total_price?.toLocaleString() || 0} ₽*`;
-
-        // Фото товаров
-        const media = order.items.map(item => ({
-            type: 'photo',
-            media: item.image
-        }));
-
-        const sendPhotos = () => {
-            if (media.length === 0) return Promise.resolve();
-            if (media.length === 1) {
-                return axios.post(`https://api.telegram.org/bot${botToken}/sendPhoto`, {
-                    chat_id: chatId,
-                    photo: media[0].media
-                });
-            }
-            return axios.post(`https://api.telegram.org/bot${botToken}/sendMediaGroup`, {
-                chat_id: chatId,
-                media: media.slice(0, 10) // максимум 10 фото
-            });
-        };
-
-        sendPhotos()
-            .then(() => {
-                axios.post(`https://api.telegram.org/bot${botToken}/sendMessage`, {
-                    chat_id: chatId,
-                    text: messageText,
-                    parse_mode: 'Markdown'
-                });
-            })
-            .catch(() => {
-                axios.post(`https://api.telegram.org/bot${botToken}/sendMessage`, {
-                    chat_id: chatId,
-                    text: "Не удалось загрузить фото заказа.\n\n" + messageText,
-                    parse_mode: 'Markdown'
-                });
-            });
-    };
-
-
     const value = {
         products, product, user, loading, cart, favorites,
         setUser, setCart, setFavorites, getProducts, getProduct, addCart, toggleFavorite,
         registerUser, loginUser, logOutUser, forgotPassword, resetPassword,
-        updateUser, sendTelegramNotification,
+        updateUser,
         clearFavorites, verifyRegistration,
         changePassword,
         theme,

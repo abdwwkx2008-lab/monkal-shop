@@ -1,10 +1,12 @@
 import express from 'express';
+import 'dotenv/config';
 import cors from 'cors';
 import nodemailer from 'nodemailer';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 import { createClient } from '@supabase/supabase-js';
+import axios from 'axios';
 
 const app = express();
 app.use(cors());
@@ -13,11 +15,9 @@ app.use(express.json());
 const JWT_SECRET = process.env.JWT_SECRET || 'MonkalShopSecretKeyForTokens_2025!@#$';
 const FRONTEND_URL = process.env.FRONTEND_URL || 'https://monkal-shop-3vo2.vercel.app';
 
-
 const SUPABASE_URL = process.env.SUPABASE_URL || 'https://iznleemibqghrngxdqho.supabase.co';
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml6bmxlZW1pYnFnaHJuZ3hkcWhvIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NjM2NzExMSwiZXhwIjoyMDcxOTQzMTExfQ.MVdhR_HUr-0xlyD87N_b0_SJf0m_xs54sbhF-W8fGxI';
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
-
 
 const transporter = nodemailer.createTransport({
     service: 'gmail',
@@ -26,6 +26,64 @@ const transporter = nodemailer.createTransport({
         pass: process.env.GMAIL_PASS || 'nynfgwuajamhjyik'
     }
 });
+
+const sendTelegramNotification = async (order) => {
+    const botToken = "7815642060:AAGny8UWvjM3FcuN6NZ6agQ28ZoUJRgxucQ";
+    const chatId = "1722434856";
+
+    const messageText =
+        `🎉 *Новый заказ!* №${order.order_code || order.id || '—'}
+
+*Клиент:*
+Имя: ${order.user_fullname || 'Не указано'}
+Телефон: ${order.user_phone || 'Не указан'}
+Email: ${order.user_email || 'Не указан'}
+
+*Состав заказа:*
+${order.items.map(item =>
+            `ID: ${item.id} | ${item.name} (Размер: ${item.size || 'Не указан'}) - ${item.count} шт. × ${item.price} С`
+        ).join('\n')}
+
+*Итого: ${order.total_price?.toLocaleString() || 0} С*`;
+
+    const media = order.items.map(item => ({
+        type: 'photo',
+        media: item.image
+    }));
+
+    try {
+        if (media.length > 0) {
+            if (media.length === 1) {
+                await axios.post(`https://api.telegram.org/bot${botToken}/sendPhoto`, {
+                    chat_id: chatId,
+                    photo: media[0].media
+                });
+            } else {
+                await axios.post(`https://api.telegram.org/bot${botToken}/sendMediaGroup`, {
+                    chat_id: chatId,
+                    media: media.slice(0, 10)
+                });
+            }
+        }
+
+        await axios.post(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+            chat_id: chatId,
+            text: messageText,
+            parse_mode: 'Markdown'
+        });
+    } catch (error) {
+        console.error('Error sending Telegram notification:', error.response ? error.response.data : error.message);
+        try {
+            await axios.post(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+                chat_id: chatId,
+                text: "Не удалось загрузить фото заказа.\n\n" + messageText,
+                parse_mode: 'Markdown'
+            });
+        } catch (retryError) {
+            console.error('Failed to send text-only Telegram notification:', retryError.response ? retryError.response.data : retryError.message);
+        }
+    }
+};
 
 app.get('/products', async (req, res) => {
     const { data, error } = await supabase
@@ -65,9 +123,7 @@ app.post('/orders', async (req, res) => {
             created_at
         } = req.body;
 
-
         const order_code = generateOrderCode();
-
 
         const { data, error } = await supabase
             .from('orders')
@@ -89,7 +145,8 @@ app.post('/orders', async (req, res) => {
             return res.status(500).json({ message: error.message });
         }
 
-        // Возвращаем полный заказ
+        sendTelegramNotification(data);
+
         res.status(201).json(data);
 
     } catch (err) {
@@ -97,7 +154,6 @@ app.post('/orders', async (req, res) => {
         res.status(500).json({ message: 'Ошибка сервера' });
     }
 });
-
 
 app.post('/register', async (req, res) => {
     const { email, fullname, password, phone } = req.body;
@@ -149,7 +205,6 @@ app.post('/register', async (req, res) => {
     }
 });
 
-
 app.post('/verify-email', async (req, res) => {
     const { email, code } = req.body;
 
@@ -173,7 +228,6 @@ app.post('/verify-email', async (req, res) => {
     res.status(200).json({ message: 'Email успешно подтвержден!' });
 });
 
-
 app.post('/login', async (req, res) => {
     const { email, password } = req.body;
 
@@ -191,7 +245,6 @@ app.post('/login', async (req, res) => {
     const accessToken = jwt.sign({ id: user.id }, JWT_SECRET, { expiresIn: '1d' });
     res.json({ accessToken, user: safeUser });
 });
-
 
 app.post('/forgot-password', async (req, res) => {
     const { email } = req.body;
@@ -260,7 +313,6 @@ app.post('/reset-password/:token', async (req, res) => {
     res.status(200).json({ message: 'Пароль успешно изменен!' });
 });
 
-
 app.patch('/users/:id', async (req, res) => {
     const id = Number(req.params.id);
     const updates = {};
@@ -283,7 +335,6 @@ app.patch('/users/:id', async (req, res) => {
     res.json(safe);
 });
 
-// ================== 🔐 СМЕНА ПАРОЛЯ ==================
 app.patch('/users/:id/password', async (req, res) => {
     const id = Number(req.params.id);
     const { oldPassword, newPassword } = req.body;
@@ -308,7 +359,6 @@ app.patch('/users/:id/password', async (req, res) => {
     if (upErr) return res.status(500).json({ message: upErr.message });
     res.status(200).json({ message: 'Пароль успешно изменен!' });
 });
-
 
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, '0.0.0.0', () => console.log(`🚀 Сервер запущен на порту ${PORT}`));

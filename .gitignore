@@ -1,10 +1,39 @@
-# Переменные окружения
+# 🌍 Переменные окружения
 .env
 .env.local
 .env.*.local
+.env.production
+.env.development
+.env.test
+.env.example
 
-# Логи
-logs
+# 🧪 Покрытие и TypeScript
+coverage/
+*.tsbuildinfo
+
+# 📦 Кэш и сборка
+node_modules/
+dist/
+dist-ssr/
+.vite/
+.cache/
+.parcel-cache/
+
+# 🧠 IDE и ОС
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*.code-workspace
+*.iml
+
+# 🪵 Логи
+logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
@@ -12,19 +41,24 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-# Node
-node_modules
-dist
-dist-ssr
-*.local
+# 🧪 Тестовые снапшоты
+__snapshots__/
+*.spec.js.snap
+*.test.js.snap
 
-# IDE / OS
-.vscode/*
-!.vscode/extensions.json
-.idea
-.DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
+# 📁 Секретные файлы и ключи
+*.pem
+*.key
+*.crt
+*.p12
+
+# 🧬 Render / Vercel / Netlify
+.vercel/
+.render/
+.netlify/
+
+# 📦 Бинарные и временные файлы
+*.local
+*.tmp
+*.bak
+*.swp
