@@ -1,5 +1,7 @@
 import express from 'express';
-import 'dotenv/config';
+import dotenv from 'dotenv';
+dotenv.config();
+
 import cors from 'cors';
 import nodemailer from 'nodemailer';
 import jwt from 'jsonwebtoken';
@@ -13,17 +15,17 @@ app.use(cors());
 app.use(express.json());
 
 const JWT_SECRET = process.env.JWT_SECRET || 'MonkalShopSecretKeyForTokens_2025!@#$';
-const FRONTEND_URL = process.env.FRONTEND_URL || 'https://monkal-shop-3vo2.vercel.app';
+const FRONTEND_URL =  process.env.FRONTEND_URL || 'https://monkal-shop-3vo2.vercel.app';
 
-const SUPABASE_URL = process.env.SUPABASE_URL || 'https://iznleemibqghrngxdqho.supabase.co';
+const SUPABASE_URL =   process.env.SUPABASE_URL || 'https://iznleemibqghrngxdqho.supabase.co';
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml6bmxlZW1pYnFnaHJuZ3hkcWhvIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NjM2NzExMSwiZXhwIjoyMDcxOTQzMTExfQ.MVdhR_HUr-0xlyD87N_b0_SJf0m_xs54sbhF-W8fGxI';
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-        user: process.env.GMAIL_USER || 'abdwwkx2008@gmail.com',
-        pass: process.env.GMAIL_PASS || 'nynfgwuajamhjyik'
+        user:  process.env.GMAIL_USER || 'abdwwkx2008@gmail.com',
+        pass:   process.env.GMAIL_PASS || 'nynfgwuajamhjyik'
     }
 });
 
@@ -194,7 +196,7 @@ app.post('/register', async (req, res) => {
 
     try {
         await transporter.sendMail({
-            from: process.env.GMAIL_USER || 'abdwwkx2008@gmail.com',
+            from:  process.env.GMAIL_USER || 'abdwwkx2008@gmail.com',
             to: email,
             subject: 'Код подтверждения для Monkal',
             html: `<p>Ваш код для подтверждения регистрации:</p><h2>${verificationCode}</h2>`
@@ -274,13 +276,12 @@ app.post('/forgot-password', async (req, res) => {
 
     try {
         await transporter.sendMail({
-            from: process.env.GMAIL_USER || 'abdwwkx2008@gmail.com',
+            from:  process.env.GMAIL_USER || 'abdwwkx2008@gmail.com',
             to: email,
             subject: 'Сброс пароля для Monkal',
             html: `<p>Вы запросили сброс пароля:</p><a href="${resetLink}">${resetLink}</a>`
         });
     } catch {
-        // не падём, ответим нейтрально
     }
 
     res.status(200).json({ message: 'Если такой пользователь существует, мы отправили инструкцию на почту.' });

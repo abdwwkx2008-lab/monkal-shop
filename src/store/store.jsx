@@ -1,9 +1,10 @@
-import React, { createContext, useState, useEffect } from "react";
+import React, { createContext, useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import axios from 'axios';
 
 export const CustomContext = createContext();
 export const API_BASE_URL = "https://monkal-shop.onrender.com"; 
+
 
 function Context({ children }) {
     const [products, setProducts] = useState([]);
@@ -152,6 +153,17 @@ function Context({ children }) {
         return axios.patch(`${API_BASE_URL}/users/${user.id}/password`, data);
     };
 
+    const placeOrder = (orderData) => {
+        return axios.post(`${API_BASE_URL}/orders`, orderData)
+            .then(res => {
+                return res.data;
+            })
+            .catch(err => {
+                console.error("Ошибка при создании заказа через бэкенд:", err.response?.data?.message || err.message);
+                throw err;
+            });
+    };
+
     const value = {
         products, product, user, loading, cart, favorites,
         setUser, setCart, setFavorites, getProducts, getProduct, addCart, toggleFavorite,
@@ -160,7 +172,8 @@ function Context({ children }) {
         clearFavorites, verifyRegistration,
         changePassword,
         theme,
-        toggleTheme
+        toggleTheme,
+        placeOrder
     };
 
     return (

@@ -1,12 +1,11 @@
 import React, { useContext, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { CustomContext, API_BASE_URL } from "../../store/store.jsx";
-import axios from 'axios';
+import { CustomContext, API_BASE_URL } from "../../store/store";
 import { toast } from 'react-toastify';
 import './Basket.css';
 
 const Basket = () => {
-    const { cart, setCart, user, sendTelegramNotification } = useContext(CustomContext);
+    const { cart, setCart, user, placeOrder } = useContext(CustomContext);
     const navigate = useNavigate();
     const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false);
 
@@ -64,20 +63,19 @@ const Basket = () => {
             created_at: new Date().toISOString()
         };
 
+  placeOrder(newOrder)
+  .then((res) => {
+    setCart([]);
+    setIsCheckoutModalOpen(false);
+    toast.success("Заказ успешно оформлен!");
+    navigate('/profile/orders');
+  })
+  .catch((err) => {
+    console.error("Ошибка при оформлении заказа:", err);
+    toast.error("Не удалось оформить заказ.");
+  });
+  };
 
-        axios.post(`${API_BASE_URL}/orders`, newOrder)
-            .then((res) => {
-                if (sendTelegramNotification) sendTelegramNotification(res.data);
-                setCart([]);
-                setIsCheckoutModalOpen(false);
-                toast.success("Заказ успешно оформлен!");
-                navigate('/profile/orders');
-            })
-            .catch(err => {
-                console.error("Ошибка при оформлении заказа:", err);
-                toast.error("Не удалось оформить заказ.");
-            });
-    };
 
     if (cart.length === 0) {
         return (
@@ -141,7 +139,7 @@ const Basket = () => {
                             </div>
                             <div className="summary-total-row">
                                 <p>К оплате</p>
-                                <p>{totalPrice.toLocaleString()} С</p>
+                                <p>{totalPrice.toLocaleString()} C</p>
                             </div>
                             <button onClick={handleCheckout} className="checkout-main-button">Перейти к оформлению</button>
                         </div>
