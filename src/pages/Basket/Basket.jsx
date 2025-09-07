@@ -120,7 +120,7 @@ const Basket = () => {
                                             </div>
                                         </div>
                                         <div className="item-price-and-remove">
-                                            <p className="item-price">{(item.price * item.count).toLocaleString()} ₽</p>
+                                            <p className="item-price">{(item.price * item.count).toLocaleString()} С</p>
                                             <button onClick={() => removeCartItem(uniqueId)} className="item-remove-button">Удалить</button>
                                         </div>
                                     </div>
@@ -135,7 +135,7 @@ const Basket = () => {
                             </div>
                             <div className="summary-row">
                                 <p>Доставка по городу <br/>Жалал-Абад</p>
-                                <p className="delivery-free">100</p>
+                                <p className="delivery-free">100 С</p>
                             </div>
                             <div className="summary-total-row">
                                 <p>К оплате</p>
@@ -151,7 +151,7 @@ const Basket = () => {
                 <div className="logout-modal-overlay">
                     <div className="logout-modal-content">
                         <h2>Подтверждение заказа</h2>
-                        <p>Ваш заказ на сумму {totalPrice.toLocaleString()} ₽ будет оформлен. Продолжить?</p>
+                        <p>Ваш заказ на сумму {totalPrice.toLocaleString()} С будет оформлен. Продолжить?</p>
                         <div className="logout-modal-actions">
                             <button onClick={() => setIsCheckoutModalOpen(false)} className="modal-btn-cancel">Отмена</button>
                             <button onClick={confirmOrder} className="modal-btn-confirm">Подтвердить</button>
