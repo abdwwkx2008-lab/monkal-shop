@@ -1,7 +1,6 @@
 import express from 'express';
 import dotenv from 'dotenv';
 dotenv.config();
-
 import cors from 'cors';
 import nodemailer from 'nodemailer';
 import jwt from 'jsonwebtoken';
@@ -17,7 +16,7 @@ app.use(express.json());
 const JWT_SECRET = process.env.JWT_SECRET || 'MonkalShopSecretKeyForTokens_2025!@#$';
 const FRONTEND_URL =  process.env.FRONTEND_URL || 'https://monkal-shop-3vo2.vercel.app';
 
-const SUPABASE_URL =   process.env.SUPABASE_URL || 'https://iznleemibqghrngxdqho.supabase.co';
+const SUPABASE_URL = process.env.SUPABASE_URL || 'https://iznleemibqghrngxdqho.supabase.co';
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml6bmxlZW1pYnFnaHJuZ3hkcWhvIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NjM2NzExMSwiZXhwIjoyMDcxOTQzMTExfQ.MVdhR_HUr-0xlyD87N_b0_SJf0m_xs54sbhF-W8fGxI';
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
@@ -48,10 +47,17 @@ ${order.items.map(item =>
 
 *Итого: ${order.total_price?.toLocaleString() || 0} С*`;
 
-    const media = order.items.map(item => ({
+   const media = order.items.map(item => {
+    const publicUrl = supabase.storage
+        .from('product-images') 
+        .getPublicUrl(item.image).data.publicUrl;
+
+    return {
         type: 'photo',
-        media: item.image
-    }));
+        media: publicUrl
+    };
+});
+
 
     try {
         if (media.length > 0) {
@@ -184,183 +190,186 @@ app.post('/register', async (req, res) => {
             .update({ fullname, password: hashedPassword, phone, verification_code: verificationCode })
             .eq('email', email);
         if (error) return res.status(500).json({ message: error.message });
-    } else {
-        const { error } = await supabase.from('users').insert([{
-            email, fullname, password: hashedPassword, phone,
-            is_verified: false,
-            verification_code: verificationCode,
-            created_at: new Date().toISOString()
-        }]);
+        } else {
+            const { error } = await supabase.from('users').insert([{
+                email, fullname, password: hashedPassword, phone,
+                is_verified: false,
+                verification_code: verificationCode,
+                created_at: new Date().toISOString()
+            }]);
+            if (error) return res.status(500).json({ message: error.message });
+        }
+
+        try {
+            await transporter.sendMail({
+                from:  process.env.GMAIL_USER || 'abdwwkx2008@gmail.com',
+                to: email,
+                subject: 'Код подтверждения для Monkal',
+                html: `<p>Ваш код для подтверждения регистрации:</p><h2>${verificationCode}</h2>`
+            });
+            res.status(201).json({ message: 'Код подтверждения отправлен на вашу почту.' });
+        } catch {
+            res.status(500).json({ message: 'Не удалось отправить письмо с кодом.' });
+        }
+    });
+
+    app.post('/verify-email', async (req, res) => {
+        const { email, code } = req.body;
+
+        const { data: user, error } = await supabase
+            .from('users')
+            .select('*')
+            .eq('email', email)
+            .maybeSingle();
+
         if (error) return res.status(500).json({ message: error.message });
-    }
+        if (!user) return res.status(404).json({ message: 'Пользователь не найден.' });
+        if (user.is_verified) return res.status(400).json({ message: 'Аккаунт уже подтвержден.' });
+        if (user.verification_code !== code) return res.status(400).json({ message: 'Неверный код подтверждения.' });
 
-    try {
-        await transporter.sendMail({
-            from:  process.env.GMAIL_USER || 'abdwwkx2008@gmail.com',
-            to: email,
-            subject: 'Код подтверждения для Monkal',
-            html: `<p>Ваш код для подтверждения регистрации:</p><h2>${verificationCode}</h2>`
-        });
-        res.status(201).json({ message: 'Код подтверждения отправлен на вашу почту.' });
-    } catch {
-        res.status(500).json({ message: 'Не удалось отправить письмо с кодом.' });
-    }
-});
+        const { error: upErr } = await supabase
+            .from('users')
+            .update({ is_verified: true, verification_code: null })
+            .eq('email', email);
 
-app.post('/verify-email', async (req, res) => {
-    const { email, code } = req.body;
+        if (upErr) return res.status(500).json({ message: upErr.message });
+        res.status(200).json({ message: 'Email успешно подтвержден!' });
+    });
 
-    const { data: user, error } = await supabase
-        .from('users')
-        .select('*')
-        .eq('email', email)
-        .maybeSingle();
+    app.post('/login', async (req, res) => {
+        const { email, password } = req.body;
 
-    if (error) return res.status(500).json({ message: error.message });
-    if (!user) return res.status(404).json({ message: 'Пользователь не найден.' });
-    if (user.is_verified) return res.status(400).json({ message: 'Аккаунт уже подтвержден.' });
-    if (user.verification_code !== code) return res.status(400).json({ message: 'Неверный код подтверждения.' });
+        const { data: user, error } = await supabase
+            .from('users')
+            .select('*')
+            .eq('email', email)
+            .maybeSingle();
 
-    const { error: upErr } = await supabase
-        .from('users')
-        .update({ is_verified: true, verification_code: null })
-        .eq('email', email);
+        if (error) return res.status(500).json({ message: error.message });
+        if (!user || !user.is_verified) return res.status(400).json({ message: 'Пользователь не найден или не подтвержден' });
+        if (!bcrypt.compareSync(password, user.password)) return res.status(400).json({ message: 'Неверный логин или пароль' });
 
-    if (upErr) return res.status(500).json({ message: upErr.message });
-    res.status(200).json({ message: 'Email успешно подтвержден!' });
-});
+        const { password: _, ...safeUser } = user;
+        const accessToken = jwt.sign({ id: user.id }, JWT_SECRET, { expiresIn: '1d' });
+        res.json({ accessToken, user: safeUser });
+    });
 
-app.post('/login', async (req, res) => {
-    const { email, password } = req.body;
+    app.post('/forgot-password', async (req, res) => {
+        const { email } = req.body;
 
-    const { data: user, error } = await supabase
-        .from('users')
-        .select('*')
-        .eq('email', email)
-        .maybeSingle();
+        const { data: user, error } = await supabase
+            .from('users')
+            .select('*')
+            .eq('email', email)
+            .maybeSingle();
 
-    if (error) return res.status(500).json({ message: error.message });
-    if (!user || !user.is_verified) return res.status(400).json({ message: 'Пользователь не найден или не подтвержден' });
-    if (!bcrypt.compareSync(password, user.password)) return res.status(400).json({ message: 'Неверный логин или пароль' });
+        if (error) return res.status(500).json({ message: error.message });
+        if (!user) return res.status(200).json({ message: 'Если такой пользователь существует, мы отправили инструкцию на почту.' });
 
-    const { password: _, ...safeUser } = user;
-    const accessToken = jwt.sign({ id: user.id }, JWT_SECRET, { expiresIn: '1d' });
-    res.json({ accessToken, user: safeUser });
-});
+        const token = crypto.randomBytes(32).toString('hex');
 
-app.post('/forgot-password', async (req, res) => {
-    const { email } = req.body;
+        const { error: upErr } = await supabase
+            .from('users')
+            .update({
+                reset_token: token,
+                reset_expires: new Date(Date.now() + 3600000).toISOString()
+            })
+            .eq('email', email);
 
-    const { data: user, error } = await supabase
-        .from('users')
-        .select('*')
-        .eq('email', email)
-        .maybeSingle();
+        if (upErr) return res.status(500).json({ message: upErr.message });
 
-    if (error) return res.status(500).json({ message: error.message });
-    if (!user) return res.status(200).json({ message: 'Если такой пользователь существует, мы отправили инструкцию на почту.' });
+        const resetLink = `${FRONTEND_URL}/reset-password/${token}`;
+        try {
+            await transporter.sendMail({
+                from:  process.env.GMAIL_USER || 'abdwwkx2008@gmail.com',
+                to: email,
+                subject: 'Сброс пароля для Monkal',
+                html: `<p>Вы запросили сброс пароля:</p><a href="${resetLink}">${resetLink}</a>`
+            });
+        } catch (error) { 
+            console.error('Ошибка при отправке письма для сброса пароля:', error);
+          
+        }
 
-    const token = crypto.randomBytes(32).toString('hex');
+        res.status(200).json({ message: 'Если такой пользователь существует, мы отправили инструкцию на почту.' });
+    });
 
-    const { error: upErr } = await supabase
-        .from('users')
-        .update({
-            reset_token: token,
-            reset_expires: new Date(Date.now() + 3600000).toISOString()
-        })
-        .eq('email', email);
+    app.post('/reset-password/:token', async (req, res) => {
+        const { token } = req.params;
+        const { password } = req.body;
 
-    if (upErr) return res.status(500).json({ message: upErr.message });
+        const { data: user, error } = await supabase
+            .from('users')
+            .select('*')
+            .eq('reset_token', token)
+            .gt('reset_expires', new Date().toISOString())
+            .maybeSingle();
 
-    const resetLink = `${FRONTEND_URL}/reset-password/${token}`;
+        if (error) return res.status(500).json({ message: error.message });
+        if (!user) return res.status(400).json({ message: 'Токен недействителен или срок его действия истек' });
 
-    try {
-        await transporter.sendMail({
-            from:  process.env.GMAIL_USER || 'abdwwkx2008@gmail.com',
-            to: email,
-            subject: 'Сброс пароля для Monkal',
-            html: `<p>Вы запросили сброс пароля:</p><a href="${resetLink}">${resetLink}</a>`
-        });
-    } catch {
-    }
+        const { error: upErr } = await supabase
+            .from('users')
+            .update({
+                password: bcrypt.hashSync(password, 10),
+                reset_token: null,
+                reset_expires: null
+            })
+            .eq('id', user.id);
 
-    res.status(200).json({ message: 'Если такой пользователь существует, мы отправили инструкцию на почту.' });
-});
+        if (upErr) return res.status(500).json({ message: upErr.message });
+        res.status(200).json({ message: 'Пароль успешно изменен!' });
+    });
 
-app.post('/reset-password/:token', async (req, res) => {
-    const { token } = req.params;
-    const { password } = req.body;
+    app.patch('/users/:id', async (req, res) => {
+        const id = Number(req.params.id);
+        const updates = {};
+        if (req.body.fullname) updates.fullname = req.body.fullname;
+        if (req.body.phone) updates.phone = req.body.phone;
 
-    const { data: user, error } = await supabase
-        .from('users')
-        .select('*')
-        .eq('reset_token', token)
-        .gt('reset_expires', new Date().toISOString())
-        .maybeSingle();
+        const { data: user, error: findErr } = await supabase
+            .from('users')
+            .select('*')
+            .eq('id', id)
+            .maybeSingle();
 
-    if (error) return res.status(500).json({ message: error.message });
-    if (!user) return res.status(400).json({ message: 'Токен недействителен или срок его действия истек' });
+        if (findErr) return res.status(500).json({ message: findErr.message });
+        if (!user) return res.status(404).json({ message: 'Пользователь не найден' });
 
-    const { error: upErr } = await supabase
-        .from('users')
-        .update({
-            password: bcrypt.hashSync(password, 10),
-            reset_token: null,
-            reset_expires: null
-        })
-        .eq('id', user.id);
+        const { error: upErr } = await supabase.from('users').update(updates).eq('id', id);
+        if (upErr) return res.status(500).json({ message: upErr.message });
 
-    if (upErr) return res.status(500).json({ message: upErr.message });
-    res.status(200).json({ message: 'Пароль успешно изменен!' });
-});
+        const { password, ...safe } = { ...user, ...updates };
+        res.json(safe);
+    });
 
-app.patch('/users/:id', async (req, res) => {
-    const id = Number(req.params.id);
-    const updates = {};
-    if (req.body.fullname) updates.fullname = req.body.fullname;
-    if (req.body.phone) updates.phone = req.body.phone;
+    app.patch('/users/:id/password', async (req, res) => {
+        const id = Number(req.params.id);
+        const { oldPassword, newPassword } = req.body;
 
-    const { data: user, error: findErr } = await supabase
-        .from('users')
-        .select('*')
-        .eq('id', id)
-        .maybeSingle();
+        const { data: user, error } = await supabase
+            .from('users')
+            .select('*')
+            .eq('id', id)
+            .maybeSingle();
 
-    if (findErr) return res.status(500).json({ message: findErr.message });
-    if (!user) return res.status(404).json({ message: 'Пользователь не найден' });
+        if (error) return res.status(500).json({ message: error.message });
+        if (!user) return res.status(404).json({ message: 'Пользователь не найден' });
+        if (!bcrypt.compareSync(oldPassword, user.password)) {
+            return res.status(400).json({ message: 'Старый пароль введен неверно' });
+        }
 
-    const { error: upErr } = await supabase.from('users').update(updates).eq('id', id);
-    if (upErr) return res.status(500).json({ message: upErr.message });
+        const { error: upErr } = await supabase
+            .from('users')
+            .update({ password: bcrypt.hashSync(newPassword, 10) })
+            .eq('id', id);
 
-    const { password, ...safe } = { ...user, ...updates };
-    res.json(safe);
-});
+        if (upErr) return res.status(500).json({ message: upErr.message });
+        res.status(200).json({ message: 'Пароль успешно изменен!' });
+    });
 
-app.patch('/users/:id/password', async (req, res) => {
-    const id = Number(req.params.id);
-    const { oldPassword, newPassword } = req.body;
+    const PORT = process.env.PORT || 10000;
+    console.log('[ENV]', process.env.GMAIL_USER, process.env.JWT_SECRET);
 
-    const { data: user, error } = await supabase
-        .from('users')
-        .select('*')
-        .eq('id', id)
-        .maybeSingle();
-
-    if (error) return res.status(500).json({ message: error.message });
-    if (!user) return res.status(404).json({ message: 'Пользователь не найден' });
-    if (!bcrypt.compareSync(oldPassword, user.password)) {
-        return res.status(400).json({ message: 'Старый пароль введен неверно' });
-    }
-
-    const { error: upErr } = await supabase
-        .from('users')
-        .update({ password: bcrypt.hashSync(newPassword, 10) })
-        .eq('id', id);
-
-    if (upErr) return res.status(500).json({ message: upErr.message });
-    res.status(200).json({ message: 'Пароль успешно изменен!' });
-});
-
-const PORT = process.env.PORT || 10000;
-console.log(`[DEBUG] Attempting to listen on PORT: ${PORT}`);
-app.listen(PORT, '0.0.0.0', () => console.log(`🚀 Сервер запущен на порту ${PORT}`));
+    console.log(`[DEBUG] Attempting to listen on PORT: ${PORT}`);
+    app.listen(PORT, '0.0.0.0', () => console.log(`🚀 Сервер запущен на порту ${PORT}`));

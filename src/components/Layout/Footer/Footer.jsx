@@ -40,8 +40,8 @@ function Footer() {
                     <Link to='contact' className="footer-title">
                         КОНТАКТЫ
                     </Link>
-                    <a href="mailto:mline@gmail.com" className="footer-link">mline@gmail.com</a>
-                    <a href="tel:+996559242417" className="footer-link">+996557220308</a>
+                    <a href="mailto:monkal@gmail.com" className="footer-link">monkal@gmail.com</a>
+                    <a href="tel:+996557220308" className="footer-link">+996557220308</a>
                     <h2 className="footer-title">МЕССЕНДЖЕРЫ</h2>
                     <div className="messenger-box">
                         <a href="https://t.me/996557220308" className="messenger-link" target="_blank" rel="noopener noreferrer">
