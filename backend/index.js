@@ -47,16 +47,18 @@ ${order.items.map(item =>
 
 *Итого: ${order.total_price?.toLocaleString() || 0} С*`;
 
-   const media = order.items.map(item => {
-    const publicUrl = supabase.storage
-        .from('product-images') 
-        .getPublicUrl(item.image).data.publicUrl;
+const isValidImage = (url) =>
+  typeof url === 'string' &&
+  url.startsWith('https://') &&
+  url.includes('supabase.co');
 
-    return {
-        type: 'photo',
-        media: publicUrl
-    };
-});
+const media = order.items
+  .filter(item => isValidImage(item.image))
+  .map(item => ({
+    type: 'photo',
+    media: item.image,
+    caption: `${item.name} — ${item.price} С`
+  }));
 
 
     try {
