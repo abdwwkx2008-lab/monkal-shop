@@ -62,3 +62,9 @@ __snapshots__/
 *.tmp
 *.bak
 *.swp
+
+# 📂 Backend
+/backend/
+
+# 📂 Специфические файлы
+/src/supabaseClient.js

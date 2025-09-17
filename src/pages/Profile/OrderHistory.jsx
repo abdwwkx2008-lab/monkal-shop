@@ -9,25 +9,20 @@ const OrderHistory = () => {
 
     useEffect(() => {
         if (user && user.id) {
-            axios(`${API_BASE_URL}/orders?user_id=${user.id}&_sort=created_at&_order=desc`)
-                .then(res => { setOrders(res.data); })
+            axios(`${API_BASE_URL}/orders?user_id=${user.id}`)
+                .then(res => setOrders(res.data))
                 .catch(err => {
                     console.error("Ошибка загрузки заказов:", err);
                     setOrders([]);
                 })
-                .finally(() => { setLoading(false); });
-        } else if (user === null) {
+                .finally(() => setLoading(false));
+        } else {
             setLoading(false);
         }
     }, [user]);
 
-    if (loading) {
-        return <p>Загрузка заказов...</p>;
-    }
-
-    if (!user) {
-        return <p>Не удалось загрузить данные пользователя. Попробуйте войти снова.</p>;
-    }
+    if (loading) return <p>Загрузка заказов...</p>;
+    if (!user) return <p>Не удалось загрузить данные пользователя. Попробуйте войти снова.</p>;
 
     return (
         <div>
@@ -35,22 +30,22 @@ const OrderHistory = () => {
             {orders.length > 0 ? (
                 <table className="orders-table">
                     <thead>
-                    <tr>
-                        <th>НОМЕР</th>
-                        <th>ДАТА</th>
-                        <th>СТАТУС</th>
-                        <th>ИТОГ</th>
-                    </tr>
+                        <tr>
+                            <th>НОМЕР</th>
+                            <th>ДАТА</th>
+                            <th>СТАТУС</th>
+                            <th>ИТОГ</th>
+                        </tr>
                     </thead>
                     <tbody>
-                    {orders.map(order => (
-                        <tr key={order.id}>
-                            <td>#{order.order_code || order.id}</td>
-                            <td>{new Date(order.created_at).toLocaleDateString()}</td>
-                            <td>{order.status || '—'}</td>
-                            <td className="order-total">{order.total_price?.toLocaleString() || 0} ₽</td>
-                        </tr>
-                    ))}
+                        {orders.map(order => (
+                            <tr key={order.id}>
+                                <td>#{order.order_code || order.id}</td>
+                                <td>{new Date(order.created_at).toLocaleDateString()}</td>
+                                <td>{order.order_status || '—'}</td>
+                                <td className="order-total">{order.total_price?.toLocaleString() || 0} C</td>
+                            </tr>
+                        ))}
                     </tbody>
                 </table>
             ) : (

@@ -1,6 +1,9 @@
+/* eslint-env node */
+
 import express from 'express';
 import dotenv from 'dotenv';
 dotenv.config();
+
 import cors from 'cors';
 import nodemailer from 'nodemailer';
 import jwt from 'jsonwebtoken';
@@ -341,7 +344,7 @@ app.post('/register', async (req, res) => {
         const { error: upErr } = await supabase.from('users').update(updates).eq('id', id);
         if (upErr) return res.status(500).json({ message: upErr.message });
 
-        const { password, ...safe } = { ...user, ...updates };
+        const { ...safe } = { ...user, ...updates };
         res.json(safe);
     });
 

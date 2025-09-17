@@ -64,7 +64,7 @@ const Basket = () => {
         };
 
   placeOrder(newOrder)
-  .then((res) => {
+  .then(() => {
     setCart([]);
     setIsCheckoutModalOpen(false);
     toast.success("Заказ успешно оформлен!");

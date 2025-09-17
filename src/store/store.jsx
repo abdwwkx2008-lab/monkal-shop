@@ -1,9 +1,10 @@
-import React, { createContext, useState, useEffect } from 'react';
-import { toast } from 'react-toastify';
-import axios from 'axios';
+import  { useState, useEffect } from "react";
+import axios from "axios";
+import { toast } from "react-toastify";
 
-export const CustomContext = createContext();
-export const API_BASE_URL = "https://monkal-shop.onrender.com"; 
+import { CustomContext } from "./context/CustomContext";
+
+export const API_BASE_URL = "https://monkal-shop.onrender.com";
 
 
 function Context({ children }) {
