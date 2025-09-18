@@ -1,4 +1,4 @@
-/* eslint-env node */
+
 
 import express from 'express';
 import dotenv from 'dotenv';
@@ -344,7 +344,7 @@ app.post('/register', async (req, res) => {
         const { error: upErr } = await supabase.from('users').update(updates).eq('id', id);
         if (upErr) return res.status(500).json({ message: upErr.message });
 
-        const { ...safe } = { ...user, ...updates };
+        const { password, ...safe } = { ...user, ...updates };
         res.json(safe);
     });
 

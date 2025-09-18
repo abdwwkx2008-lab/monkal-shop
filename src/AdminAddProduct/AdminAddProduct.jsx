@@ -1,7 +1,7 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { supabase } from '../supabaseClient.js';
-import { CustomContext } from '../store/store.jsx';
-import './AdminAddProduct.css'; // Убедись, что этот файл существует и содержит стили
+import { CustomContext } from "../store/CustomContext";
+import './AdminAddProduct.css';
 
 const categoriesConfig = {
     'одежда': {
@@ -32,9 +32,6 @@ export default function AdminPanel() {
     const [editingPriceId, setEditingPriceId] = useState(null);
     const [newPrice, setNewPrice] = useState('');
 
-
-
-
     const initialFormState = {
         name: '',
         category: '',
@@ -48,10 +45,28 @@ export default function AdminPanel() {
     };
 
     const [form, setForm] = useState(initialFormState);
-
     const [preview, setPreview] = useState(null);
     const [uploading, setUploading] = useState(false);
 
+    // ✅ Правильное расположение хуков: они должны идти в самом начале компонента
+    // и вызываться безусловно при каждом рендере.
+    useEffect(() => {
+        if (tab === 'manage') {
+            fetchProducts();
+        }
+    }, [tab]);
+
+    useEffect(() => {
+        if (form.category) {
+            setForm(prev => ({
+                ...prev,
+                subcategory: '', // Сбрасываем подкатегорию
+                sizes: [], // Сбрасываем выбранные размеры
+            }));
+        }
+    }, [form.category]);
+
+    // ⛔ Эта условная проверка теперь идёт после всех хуков.
     if (!isAdmin) {
         return <h2 className="access-denied">⛔ Доступ запрещён</h2>;
     }
@@ -102,25 +117,11 @@ export default function AdminPanel() {
             .from('products')
             .select('*')
             .order('id', { ascending: false });
-        if (!error && data) setProducts(data);
+        if (!error && data) {
+            setProducts(data);
+        }
         setLoading(false);
     };
-
-    useEffect(() => {
-        if (tab === 'manage') fetchProducts();
-    }, [tab]);
-
-    // Сброс подкатегории и размеров при смене основной категории
-    useEffect(() => {
-        if (form.category) {
-            setForm(prev => ({
-                ...prev,
-                subcategory: '', // Сбрасываем подкатегорию
-                sizes: [], // Сбрасываем выбранные размеры
-            }));
-        }
-    }, [form.category]);
-
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -210,7 +211,6 @@ export default function AdminPanel() {
         setLoading(false);
     };
 
-    // Получаем доступные размеры для выбранной категории
     const availableSizes = form.category ? categoriesConfig[form.category].sizes : [];
     const availableSubcategories = form.category ? categoriesConfig[form.category].subcategories : [];
 
@@ -305,83 +305,83 @@ export default function AdminPanel() {
                         <div className="table-responsive">
                             <table>
                                 <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Фото</th>
-                                    <th>Название</th>
-                                    <th>Категория</th>
-                                    <th>Размеры</th>
-                                    <th>Цена</th>
-                                    <th>Действия</th>
-                                </tr>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Фото</th>
+                                        <th>Название</th>
+                                        <th>Категория</th>
+                                        <th>Размеры</th>
+                                        <th>Цена</th>
+                                        <th>Действия</th>
+                                    </tr>
                                 </thead>
                                 <tbody>
-                                {products.map((p) => (
-                                    <tr key={p.id}>
-                                        <td>{p.id}</td>
-                                        <td>{p.image ? <img src={p.image} alt={p.name} className="thumb" /> : '—'}</td>
-                                        <td>{p.name}</td>
-                                        <td>{p.category} / {p.subcategory}</td>
+                                    {products.map((p) => (
+                                        <tr key={p.id}>
+                                            <td>{p.id}</td>
+                                            <td>{p.image ? <img src={p.image} alt={p.name} className="thumb" /> : '—'}</td>
+                                            <td>{p.name}</td>
+                                            <td>{p.category} / {p.subcategory}</td>
 
-                                        <td>
-                                            {editingSizesId === p.id ? (
-                                                <div className="sizes-edit">
-                                                    {categoriesConfig[p.category]?.sizes.map(size => (
-                                                        <label key={size} className="size-checkbox">
-                                                            <input
-                                                                type="checkbox"
-                                                                checked={newSizes.includes(size)}
-                                                                onChange={() => {
-                                                                    setNewSizes(prev =>
-                                                                        prev.includes(size)
-                                                                            ? prev.filter(s => s !== size)
-                                                                            : [...prev, size]
-                                                                    );
-                                                                }}
-                                                            />
-                                                            {size}
-                                                        </label>
-                                                    ))}
-                                                    <button onClick={() => handleSizesSave(p.id)} className="save-sizes-btn">Сохранить</button>
-                                                </div>
-                                            ) : (
-                                                <span onClick={() => {
-                                                    setEditingSizesId(p.id);
-                                                    setNewSizes(p.sizes || []);
-                                                }} className="sizes-editable">
-                    {p.sizes?.join(', ') || '—'} ✏️
-                </span>
-                                            )}
-                                        </td>
+                                            <td>
+                                                {editingSizesId === p.id ? (
+                                                    <div className="sizes-edit">
+                                                        {categoriesConfig[p.category]?.sizes.map(size => (
+                                                            <label key={size} className="size-checkbox">
+                                                                <input
+                                                                    type="checkbox"
+                                                                    checked={newSizes.includes(size)}
+                                                                    onChange={() => {
+                                                                        setNewSizes(prev =>
+                                                                            prev.includes(size)
+                                                                                ? prev.filter(s => s !== size)
+                                                                                : [...prev, size]
+                                                                        );
+                                                                    }}
+                                                                />
+                                                                {size}
+                                                            </label>
+                                                        ))}
+                                                        <button onClick={() => handleSizesSave(p.id)} className="save-sizes-btn">Сохранить</button>
+                                                    </div>
+                                                ) : (
+                                                    <span onClick={() => {
+                                                        setEditingSizesId(p.id);
+                                                        setNewSizes(p.sizes || []);
+                                                    }} className="sizes-editable">
+                                                        {p.sizes?.join(', ') || '—'} ✏️
+                                                    </span>
+                                                )}
+                                            </td>
 
-                                        <td>
-                                            {editingPriceId === p.id ? (
-                                                <input
-                                                    type="number"
-                                                    value={newPrice}
-                                                    onChange={(e) => setNewPrice(e.target.value)}
-                                                    onBlur={() => handlePriceSave(p.id)}
-                                                    onKeyDown={(e) => {
-                                                        if (e.key === 'Enter') handlePriceSave(p.id);
-                                                    }}
-                                                    className="price-input"
-                                                    autoFocus
-                                                />
-                                            ) : (
-                                                <span onClick={() => {
-                                                    setEditingPriceId(p.id);
-                                                    setNewPrice(p.price);
-                                                }} className="price-editable">
-                    {Number(p.price).toLocaleString()} С ✏️
-                </span>
-                                            )}
-                                        </td>
+                                            <td>
+                                                {editingPriceId === p.id ? (
+                                                    <input
+                                                        type="number"
+                                                        value={newPrice}
+                                                        onChange={(e) => setNewPrice(e.target.value)}
+                                                        onBlur={() => handlePriceSave(p.id)}
+                                                        onKeyDown={(e) => {
+                                                            if (e.key === 'Enter') handlePriceSave(p.id);
+                                                        }}
+                                                        className="price-input"
+                                                        autoFocus
+                                                    />
+                                                ) : (
+                                                    <span onClick={() => {
+                                                        setEditingPriceId(p.id);
+                                                        setNewPrice(p.price);
+                                                    }} className="price-editable">
+                                                        {Number(p.price).toLocaleString()} С ✏️
+                                                    </span>
+                                                )}
+                                            </td>
 
-                                        <td>
-                                            <button onClick={() => handleDelete(p.id)} className="delete-btn">🗑 Удалить</button>
-                                        </td>
-                                    </tr>
-                                ))}
+                                            <td>
+                                                <button onClick={() => handleDelete(p.id)} className="delete-btn">🗑 Удалить</button>
+                                            </td>
+                                        </tr>
+                                    ))}
 
                                 </tbody>
                             </table>
