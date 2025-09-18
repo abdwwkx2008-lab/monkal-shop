@@ -10,7 +10,7 @@ const categoriesConfig = {
     },
     'обувь': {
         subcategories: ['Кроссовки', 'Тапочки'],
-        sizes: Array.from({ length: 8 }, (_, i) => 38 + i), // От 38 до 45
+        sizes: Array.from({ length: 8 }, (_, i) => 38 + i), 
     },
     'аксессуары': {
         subcategories: ['Рюкзаки', 'Кепки', 'Барсетки'],
