@@ -27,8 +27,9 @@ const Register = () => {
         setIsSubmitting(true);
         registerUser(formData)
             .then(() => {
-                toast.success("Код подтверждения отправлен на вашу почту!");
-                navigate(`/verify-email?email=${formData.email}`);
+              
+                toast.success("Регистрация прошла успешно! Теперь вы можете войти.");
+                navigate(`/login`); 
             })
             .catch(err => {
                 toast.error(err.response?.data?.message || "Ошибка регистрации");
