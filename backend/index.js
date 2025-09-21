@@ -8,7 +8,7 @@ import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 import { createClient } from '@supabase/supabase-js';
 import axios from 'axios';
-//fmfsnsfsfskflk?
+
 const app = express();
 app.use(cors());
 app.use(express.json());
