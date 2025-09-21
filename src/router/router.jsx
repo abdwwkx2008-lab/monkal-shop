@@ -27,7 +27,6 @@ import EditProfile from '../pages/Profile/EditProfile.jsx'
 import OrderHistory from '../pages/Profile/OrderHistory.jsx'
 import ChangePassword from '../pages/Profile/ChangePassword.jsx'
 import PrivateRoute from '../components/PrivateRoute/PrivateRoute.jsx'
-
 import AdminAddProduct from '../AdminAddProduct/AdminAddProduct.jsx'
 
 const routes = [
