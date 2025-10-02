@@ -14,7 +14,7 @@ app.use(cors());
 app.use(express.json());
 
 const JWT_SECRET = process.env.JWT_SECRET || 'MonkalShopSecretKeyForTokens_2025!@#$';
-const FRONTEND_URL = process.env.FRONTEND_URL || 'https://monkal-shop-3vo2.vercel.app';
+const FRONTEND_URL = process.env.FRONTEND_URL || 'https://monkal-shopp.vercel.app';
 
 const SUPABASE_URL = process.env.SUPABASE_URL || 'https://iznleemibqghrngxdqho.supabase.co';
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml6bmxlZW1pYnFnaHJuZ3hkcWhvIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NjM2NzExMSwiZXhwIjoyMDcxOTQzMTExfQ.MVdhR_HUr-0xlyD87N_b0_SJf0m_xs54sbhF-W8fGxI';
