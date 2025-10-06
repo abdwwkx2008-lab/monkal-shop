@@ -1,6 +1,6 @@
 import React, { useContext, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { CustomContext } from '../../store/store';
+import { CustomContext } from '../../store/CustomContext.js';
 import { toast } from 'react-toastify';
 
 const EditProfile = () => {

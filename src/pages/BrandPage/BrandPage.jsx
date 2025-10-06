@@ -1,52 +1,49 @@
-import React, { useContext, useMemo } from 'react';
-import { useParams } from 'react-router-dom';
-import { CustomContext } from '../../store/store';
-import ProductCard from '../../components/ProductCards.jsx';
+import React, { useContext, useMemo } from 'react'
+import { useParams } from 'react-router-dom'
+import { CustomContext } from '../../store/CustomContext.js'
+import ProductCard from '../../components/ProductCards.jsx'
 
-import './BrandPage.css';
+import './BrandPage.css'
 
 function BrandPage() {
+  const { products } = useContext(CustomContext)
+  const { brandName } = useParams()
 
-    const { products } = useContext(CustomContext);
-    const { brandName } = useParams();
+  const brandProducts = useMemo(
+    function () {
+      const filteredProducts = products.filter(function (product) {
+        const productBrandFormatted = product.brand
+          ?.toLowerCase()
+          .replace(/\s+/g, '-')
+        return productBrandFormatted === brandName.toLowerCase()
+      })
 
-    const brandProducts = useMemo(function() {
+      return filteredProducts
+    },
+    [products, brandName]
+  )
 
-        const filteredProducts = products.filter(function(product) {
-            const productBrandFormatted = product.brand?.toLowerCase().replace(/\s+/g, '-');
-            return productBrandFormatted === brandName.toLowerCase();
-        });
+  const formattedBrandName = brandName.replace(/-/g, ' ')
 
-        return filteredProducts;
-    }, [products, brandName]);
+  let productListContent
 
-    const formattedBrandName = brandName.replace(/-/g, ' ');
+  if (brandProducts.length > 0) {
+    productListContent = brandProducts.map(function (product) {
+      return <ProductCard key={product.id} product={product} />
+    })
+  } else {
+    productListContent = <p>Товары этого бренда не найдены.</p>
+  }
 
-    let productListContent;
+  return (
+    <div className="container">
+      <h1 className="brand-page-title">
+        Бренд: <span className="brand-highlight">{formattedBrandName}</span>
+      </h1>
 
-    if (brandProducts.length > 0) {
-        productListContent = brandProducts.map(function(product) {
-            return (
-                <ProductCard key={product.id} product={product} />
-            );
-        });
-    } else {
-        productListContent = (
-            <p>Товары этого бренда не найдены.</p>
-        );
-    }
+      <div className="brand-page-grid">{productListContent}</div>
+    </div>
+  )
+}
 
-    return (
-        <div className="container">
-            <h1 className="brand-page-title">
-                Бренд: <span className="brand-highlight">{formattedBrandName}</span>
-            </h1>
-
-            <div className="brand-page-grid">
-                {productListContent}
-            </div>
-        </div>
-    );
-};
-
-export default BrandPage;
+export default BrandPage

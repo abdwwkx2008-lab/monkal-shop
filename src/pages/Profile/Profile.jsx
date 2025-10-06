@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { CustomContext } from '../../store/store';
+import { CustomContext } from '../../store/CustomContext.js';
 import { AdminIcon } from './icons.jsx';
 
 import './Profile.css';

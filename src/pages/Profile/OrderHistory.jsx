@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import axios from 'axios';
-import { CustomContext, API_BASE_URL } from '../../store/store';
+import { CustomContext, API_BASE_URL } from '../../store/CustomContext.js';
 
 const OrderHistory = () => {
     const { user } = useContext(CustomContext);

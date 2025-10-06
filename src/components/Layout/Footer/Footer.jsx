@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import './Footer.css';
 import { Link, useNavigate } from 'react-router-dom';
-import { CustomContext } from '../../../store/store.jsx';
+import { CustomContext } from '../../../store/CustomContext.js';
 
 import Tg from '/assets/tg.icon.svg';
 import WhatsApp from '/assets/whatsApp.icon.svg';

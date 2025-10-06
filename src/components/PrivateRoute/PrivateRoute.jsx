@@ -1,19 +1,19 @@
-import React, { useContext } from 'react';
-import { Navigate } from 'react-router-dom';
-import { CustomContext } from '../../store/store.jsx';
+import React, { useContext } from 'react'
+import { Navigate } from 'react-router-dom'
+import { CustomContext } from '../../store/CustomContext.js'
 
 const PrivateRoute = ({ children }) => {
-    const { user, loading } = useContext(CustomContext);
+  const { user, loading } = useContext(CustomContext)
 
-    if (loading) {
-        return <div>Проверка авторизации...</div>;
-    }
+  if (loading) {
+    return <div>Проверка авторизации...</div>
+  }
 
-    if (!user) {
-        return <Navigate to="/login" replace />;
-    }
+  if (!user) {
+    return <Navigate to="/login" replace />
+  }
 
-    return children;
-};
+  return children
+}
 
-export default PrivateRoute;
+export default PrivateRoute

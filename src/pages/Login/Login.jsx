@@ -1,6 +1,6 @@
 import React, { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { CustomContext } from '../../store/store';
+import { CustomContext } from '../../store/CustomContext.js';
 import eyeOpen from '/assets/eyeOpen.png';
 import eyeClosed from '/assets/eyeClosed.png';
 
