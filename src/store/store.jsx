@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import axios from 'axios'
 import { toast } from 'react-toastify'
 
-import { CustomContext } from '../store/CustomContext'
+import { CustomContext } from './CustomContext.js'
 
 export const API_BASE_URL = 'https://monkal-shop.onrender.com'
 
