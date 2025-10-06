@@ -3,7 +3,7 @@
     background-color: #fff;
     border-radius: 20px;
     display: flex;
-    flex-direction: column;
+    flex-direction: column ;
     overflow: hidden;
     cursor: pointer;
     border: 1px solid #f0f0f0;
