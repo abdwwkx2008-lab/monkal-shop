@@ -167,7 +167,7 @@ app.post('/orders', async (req, res) => {
 app.post('/register', async (req, res) => {
     const { email, fullname, password, phone } = req.body;
     if (!email || !fullname || !password || !phone) {
-        return res.status(400).json({ message: 'Пожалуйста, заполните все поля' });
+        return res.status(400).json({ message: 'Пожалуйста,  заполните все поля' });
     }
 
     const { data: existing, error: findErr } = await supabase
@@ -189,7 +189,7 @@ app.post('/register', async (req, res) => {
         fullname,
         password: hashedPassword,
         phone,
-        is_verified: true, // ✅ Аккаунт верифицируется сразу
+        is_verified: true, 
         created_at: new Date().toISOString()
     }]);
 
