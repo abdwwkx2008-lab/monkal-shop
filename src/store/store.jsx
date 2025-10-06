@@ -1,18 +1,9 @@
-<<<<<<< HEAD
-import  { useState, useEffect } from "react";
-import axios from "axios";
-import { toast } from "react-toastify";
-
-import { CustomContext } from "../store/CustomContext";
-
-export const API_BASE_URL = "https://monkal-shop.onrender.com";
-=======
-import React, { createContext, useState, useEffect } from 'react'
-import { toast } from 'react-toastify'
+import { useState, useEffect } from 'react'
 import axios from 'axios'
->>>>>>> restore-branch
+import { toast } from 'react-toastify'
 
-export const CustomContext = createContext()
+import { CustomContext } from '../store/CustomContext'
+
 export const API_BASE_URL = 'https://monkal-shop.onrender.com'
 
 function Context({ children }) {
