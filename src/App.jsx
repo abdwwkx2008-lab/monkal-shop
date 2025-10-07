@@ -1,5 +1,5 @@
 import './App.css'
-import Context from './store/CustomContext.js'
+import { CustomContext } from './store/CustomContext.js'
 import { RouterProvider } from 'react-router-dom'
 import router from './router/router'
 import { ToastContainer } from 'react-toastify'
@@ -7,7 +7,7 @@ import 'react-toastify/dist/ReactToastify.css'
 
 function App() {
   return (
-    <Context>
+    <CustomContext.Provider>
       <RouterProvider router={router} />
 
       <ToastContainer
@@ -22,7 +22,7 @@ function App() {
         pauseOnHover
         theme="light"
       />
-    </Context>
+    </CustomContext.Provider>
   )
 }
 

@@ -1,8 +1,10 @@
 import React, { useContext, useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import { CustomContext, API_BASE_URL } from '../../store/CustomContext.js'
+import { CustomContext } from '../../store/CustomContext.js'
 import { toast } from 'react-toastify'
 import './Basket.css'
+
+export const API_BASE_URL = 'https://monkal-shop.onrender.com'
 
 const Basket = () => {
   const { cart, setCart, user, placeOrder } = useContext(CustomContext)

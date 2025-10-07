@@ -1,10 +1,10 @@
 import React, { useContext, useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { CustomContext, API_BASE_URL } from '../../store/CustomContext.js'
+import { CustomContext } from '../../store/CustomContext.js'
 import { PersonIcon, ListIcon, StarIcon, ExitIcon, EditIcon } from './icons'
 import axios from 'axios'
 import './Profile.css'
-
+export const API_BASE_URL = 'https://monkal-shop.onrender.com'
 const ProfileDashboard = () => {
   const { user, logOutUser, theme } = useContext(CustomContext)
   const [orders, setOrders] = useState([])
