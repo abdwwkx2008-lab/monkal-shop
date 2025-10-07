@@ -215,28 +215,6 @@ app.post('/register', async (req, res) => {
         }
     });
 
-    app.post('/verify-email', async (req, res) => {
-        const { email, code } = req.body;
-
-        const { data: user, error } = await supabase
-            .from('users')
-            .select('*')
-            .eq('email', email)
-            .maybeSingle();
-
-        if (error) return res.status(500).json({ message: error.message });
-        if (!user) return res.status(404).json({ message: 'Пользователь не найден.' });
-        if (user.is_verified) return res.status(400).json({ message: 'Аккаунт уже подтвержден.' });
-        if (user.verification_code !== code) return res.status(400).json({ message: 'Неверный код подтверждения.' });
-
-        const { error: upErr } = await supabase
-            .from('users')
-            .update({ is_verified: true, verification_code: null })
-            .eq('email', email);
-
-        if (upErr) return res.status(500).json({ message: upErr.message });
-        res.status(200).json({ message: 'Email успешно подтвержден!' });
-    });
 
     app.post('/login', async (req, res) => {
         const { email, password } = req.body;
