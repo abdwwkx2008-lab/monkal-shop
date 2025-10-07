@@ -40,7 +40,7 @@ const sendTelegramNotification = async (order) => {
 
 *Клиент:*
 Имя: ${order.user_fullname || 'Не указано'}
-Телефон: ${order.user_phone || 'Не указан'}
+Телефон: ${order.user_phone || 'Не указан '}
 Email: ${order.user_email || 'Не указан'}
 
 *Состав заказа:*
